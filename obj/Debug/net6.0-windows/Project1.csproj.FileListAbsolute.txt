@@ -37,3 +37,4 @@ C:\Users\colto\Desktop\evolution game\Project1\obj\Debug\net6.0-windows\Project1
 C:\Users\colto\Desktop\evolution game\Project1\obj\Debug\net6.0-windows\ref\Project1.dll
 C:\Users\colto\Desktop\evolution game\Project1\bin\Debug\net6.0-windows\Content\sprites\MagicPixel.xnb
 C:\Users\colto\Desktop\evolution game\Project1\bin\Debug\net6.0-windows\DeepCopy.dll
+C:\Users\colto\Desktop\evolution game\Project1\bin\Debug\net6.0-windows\Content\fonts\Arial.xnb

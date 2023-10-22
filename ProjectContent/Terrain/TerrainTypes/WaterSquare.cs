@@ -9,7 +9,7 @@ namespace Project1.ProjectContent.Terrain.TerrainTypes
 {
     internal class WaterSquare : TerrainSquare
     {
-        public override Color color => Color.Blue;
+        public override Color color => Color.Aqua;
 
         public WaterSquare(Vector2 position) : base(position) { }
     }

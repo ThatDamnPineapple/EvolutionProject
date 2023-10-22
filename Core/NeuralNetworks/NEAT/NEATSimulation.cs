@@ -33,7 +33,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
             Time+= Game1.delta;
             int inActivity = 0;
 
-            foreach (GeneticAgent agent in Agents)
+            foreach (GeneticAgent agent in Agents.ToArray())
             {
                 if (agent is ContinuousGeneticAgent r)
                 {

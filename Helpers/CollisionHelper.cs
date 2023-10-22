@@ -9,7 +9,7 @@ namespace Project1.Helpers
 {
     public static class CollisionHelper
     {
-        public static bool CheckBoxvBoxCollision(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2)
+        public static bool CheckBoxvBoxCollision(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2) //uses center
         {
             return (pos1.X < pos2.X + size2.X &&
                 pos1.X + size1.X > pos2.X &&
@@ -17,7 +17,7 @@ namespace Project1.Helpers
                 pos1.Y + size1.Y > pos2.Y);
         }
 
-        public static bool CheckBoxvPointCollision(Vector2 boxPos, Vector2 boxSize, Vector2 pointPos)
+        public static bool CheckBoxvPointCollision(Vector2 boxPos, Vector2 boxSize, Vector2 pointPos) //uses corner
         {
             return (pointPos.X > boxPos.X &&
                 pointPos.X < boxPos.X + boxSize.X &&

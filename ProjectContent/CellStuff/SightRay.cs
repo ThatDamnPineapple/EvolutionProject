@@ -18,7 +18,9 @@ namespace Project1.ProjectContent.CellStuff
 
         public float distance;
 
-        public Color color = Color.White;
+        public float similarity = 0;
+
+        public Color color = Color.Black;
 
         public bool pickedUp = false;
 
@@ -37,6 +39,7 @@ namespace Project1.ProjectContent.CellStuff
                 if (closestFood != default)
                 {
                     distance = i;
+                    similarity = 0;
                     color = closestFood.color;
                     pickedUp = true;
                     return;
@@ -46,12 +49,25 @@ namespace Project1.ProjectContent.CellStuff
                 if (closestCell != default)
                 {
                     distance = i;
+                    if (closestCell.GetGenome() != null)
+                        similarity = (float)parent.Distance(closestCell);
+                    else
+                        similarity = 0;
                     color = closestCell.color;
                     pickedUp = true;
                     return;
                 }
 
+                if (!CollisionHelper.CheckBoxvPointCollision(Vector2.Zero, Terrain.TerrainManager.mapSize, checkPos))
+                {
+                    distance = i;
+                    similarity = 0;
+                    color = Color.Green;
+                    return;
+                }
+
                 distance = 10000;
+                similarity = 0;
                 color = Color.Black;
                 
             }
@@ -59,10 +75,11 @@ namespace Project1.ProjectContent.CellStuff
 
         public void FeedData(List<float> data)
         {
-            data.Add(distance);
-            data.Add(color.R / 255f);
-            //data.Add(color.G / 255f);
-            //data.Add(color.B / 255f);
+            data.Add(distance - (MaxLength / 2.0f));
+            data.Add(color.R - 128);
+            //data.Add(color.G - 128);
+            //data.Add(color.B - 128);
+            data.Add(similarity);
         }
     }
 }

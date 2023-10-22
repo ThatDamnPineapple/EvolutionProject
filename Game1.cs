@@ -38,7 +38,10 @@ namespace Project1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            _graphics.IsFullScreen = false;
+            _graphics.PreferredBackBufferWidth = 2000;
+            _graphics.PreferredBackBufferHeight = 1000;
+            _graphics.ApplyChanges();
             base.Initialize();
         }
 
@@ -66,6 +69,7 @@ namespace Project1
             }
 
             DrawHelper.MagicPixel = Content.Load<Texture2D>("sprites/MagicPixel");
+            DrawHelper.Arial = Content.Load<SpriteFont>("fonts/Arial");
         }
 
         protected override void Update(GameTime gameTime)

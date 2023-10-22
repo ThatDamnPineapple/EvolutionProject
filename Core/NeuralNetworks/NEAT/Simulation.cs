@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Project1.Helpers;
+using Project1.ProjectContent.CellStuff;
 
 namespace Project1.Core.NeuralNetworks.NEAT
 {
@@ -63,7 +64,10 @@ namespace Project1.Core.NeuralNetworks.NEAT
             for (int i = 0; i < Agents.Count; i++)
             {
                 IDna newDNA = PickFitnessWeightedAgent().Dna.Combine(PickFitnessWeightedAgent().Dna, MutationRate);
-                agents.Add(InitialiseAgent(newDNA));
+
+                var newAgent = InitialiseAgent(newDNA);
+                (newAgent as Cell).sim = (this as CellNeatSimulation<Cell>);
+                agents.Add(newAgent);
             }
 
             return agents;

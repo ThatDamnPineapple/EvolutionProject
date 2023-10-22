@@ -5,8 +5,10 @@
   <Config />
   <SourceFiles>
     <File>C:/Users/colto/Desktop/evolution game/Project1/Content/../../MagicPixel.png</File>
+    <File>C:/Users/colto/Desktop/evolution game/Project1/Content/fonts/File.spritefont</File>
   </SourceFiles>
   <DestFiles>
     <File>sprites/MagicPixel.png</File>
+    <File>fonts/Arial.spritefont</File>
   </DestFiles>
 </SourceFileCollection>

@@ -63,7 +63,7 @@ namespace Project1.ProjectContent.CellStuff
             if (!pressingSpace && Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 pressingSpace = true;
-                NewCells(30);
+                NewCells(50);
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.Space))
                 pressingSpace = false;
@@ -71,8 +71,9 @@ namespace Project1.ProjectContent.CellStuff
 
         private void NewCells(int numCells)
         {
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 0.5f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 0.8f);
             newsim.Deploy();
+            newsim.Agents.ForEach(n => (n as Cell).sim = newsim);
             simulations.Add(newsim);
             
             /*for (int i = 0; i < numCells; i++)
@@ -90,7 +91,7 @@ namespace Project1.ProjectContent.CellStuff
             Vector2 pos = Vector2.Zero;
             pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
             pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-            Cell newCell = new Cell(Color.White, Vector2.One * 32, pos, 500, 1000, dna);
+            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 500, 1000, dna);
             return newCell;
         }
     }

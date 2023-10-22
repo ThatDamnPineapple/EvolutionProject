@@ -41,6 +41,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public void GoExtinct()
         {
+            if (clients.Count == 0)
+                return;
             foreach (NeatAgent c in clients)
             {
                 c.SetSpecies(null);
@@ -49,6 +51,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public void EvaluateScore()
         {
+            if (clients.Count == 0)
+                return;
             double v = 0;
             foreach (NeatAgent a in clients)
             {
@@ -59,6 +63,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public GeneticAgent BestClient()
         {
+            if (clients.Count == 0)
+                return default;
             float max = float.MinValue;
             GeneticAgent agent = null;
 
@@ -76,6 +82,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public void Reset()
         {
+            if (clients.Count == 0)
+                return;
             representative = clients[Game1.random.Next(clients.Count)];
             foreach (NeatAgent c in clients)
             {
@@ -92,6 +100,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public void Kill(float percentage)
         {
+            if (clients.Count == 0)
+                return;
             clients.Sort((x, y) => Math.Sign(x.Fitness - y.Fitness));
 
             double amount = percentage * clients.Count;
@@ -102,6 +112,13 @@ namespace Project1.Core.NeuralNetworks.NEAT
                 clients[0].SetSpecies(null);
                 clients.RemoveAt(0);
             }
+        }
+
+        public Genome Breed(NeatAgent a1, NeatAgent a2)
+        {
+            if (a1.Fitness > a2.Fitness) return (Genome)a1.GetGenome().Combine(a2.GetGenome(), 0);
+
+            return (Genome)a2.GetGenome().Combine(a1.GetGenome(), 0);
         }
 
         public Genome Breed()

@@ -27,14 +27,14 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public double CP = 3f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 1.5f;
-        public double WEIGHT_RANDOM_STRENGTH = 2f;
+        public double WEIGHT_SHIFT_STRENGTH = 10f;
+        public double WEIGHT_RANDOM_STRENGTH = 20f;
 
-        public double PROBABILITY_MUTATE_LINK = 0.8f;
-        public double PROBABILITY_MUTATE_NODE = 0.4f;
-        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 0.8f;
-        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.4f;
+        public double PROBABILITY_MUTATE_LINK = 2.8f;
+        public double PROBABILITY_MUTATE_NODE = 3.6f;
+        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 3f;
 
         public float SURVIVORS = 0.7f;
 
@@ -207,7 +207,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
                 {
                     species[i].staleness++;
 
-                    if (species[i].staleness >= STALESPECIES && simulation.BestAgent.Fitness != species[i].BestClient().Fitness)
+                    if (species[i].staleness >= STALESPECIES)
                     {
                         species[i].GoExtinct();
                         species.RemoveAt(i);
@@ -245,10 +245,13 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
                 if (nA.GetSpecies() == null)
                 {
-                    Species s = PickWeightedSpecies();
-                    nA.SetGenome(s.Breed());
-                    nA.Mutate();
-                    s.ForceAdd(nA);
+                    if (species.Count > 0)
+                    {
+                        Species s = PickWeightedSpecies();
+                        nA.SetGenome(s.Breed());
+                        nA.Mutate();
+                        s.ForceAdd(nA);
+                    }
                 }
             }
         }

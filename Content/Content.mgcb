@@ -25,3 +25,10 @@
 /processorParam:TextureFormat=Color
 /build:../../MagicPixel.png;sprites/MagicPixel.png
 
+#begin fonts/File.spritefont
+/importer:FontDescriptionImporter
+/processor:LocalizedFontProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:fonts/File.spritefont;fonts/Arial.spritefont
+

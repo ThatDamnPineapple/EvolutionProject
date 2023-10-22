@@ -54,7 +54,7 @@ namespace Project1.ProjectContent.Resources
             if (!pressingE && Keyboard.GetState().IsKeyDown(Keys.E))
             {
                 pressingE = true;
-                NewFood(20);
+                NewFood(100);
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.E))
                 pressingE = false;
@@ -67,7 +67,7 @@ namespace Project1.ProjectContent.Resources
                 Vector2 pos = Vector2.Zero;
                 pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                 pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-                Food newFood = new Food(32, 32, 1000, Color.Orange, pos);
+                Food newFood = new Food(96, 96, 1000, new Color(255, 0, 0), pos);
                 foods.Add(newFood);
             }
         }
