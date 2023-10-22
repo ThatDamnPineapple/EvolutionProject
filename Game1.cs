@@ -19,6 +19,9 @@ namespace Project1
 
         public static Random random;
 
+        public static float delta;
+        private static float oldTime;
+
         internal static List<ILoadable> loadCache;
 
         internal static List<IDraw> drawables = new List<IDraw>();
@@ -70,10 +73,14 @@ namespace Project1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            delta = (float)gameTime.ElapsedGameTime.TotalSeconds - oldTime;
+
             foreach (IUpdatable updatable in updatables)
             {
                 updatable.Update(gameTime);
             }
+
+            oldTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             base.Update(gameTime);
         }

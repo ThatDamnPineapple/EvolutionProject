@@ -18,5 +18,13 @@ namespace Project1.Helpers
             vector.Normalize();
             return vector;
         }
+
+        public static Vector2 RotatedBy(this Vector2 vector, float radians)
+        {
+            Vector2 ret = Vector2.Zero;
+            ret.X = (MathF.Cos(radians) * vector.X) - (MathF.Sin(radians) * vector.Y);
+            ret.Y = (MathF.Sin(radians) * vector.X) + (MathF.Cos(radians) * vector.Y);
+            return ret;
+        }
     }
 }

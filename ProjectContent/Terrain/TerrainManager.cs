@@ -17,9 +17,9 @@ namespace Project1.ProjectContent.Terrain
 
         public readonly static float squareHeight = 48;
 
-        private readonly int width = 128;
+        public readonly static int gridWidth = 128;
 
-        private readonly int height = 128;
+        public readonly static int gridHeight = 128;
         public float LoadPriority => 1.1f;
 
         public float DrawPriority => 0.1f;
@@ -28,7 +28,7 @@ namespace Project1.ProjectContent.Terrain
 
         public void Load() 
         {
-            terrainGrid = new TerrainSquare[width,height];
+            terrainGrid = new TerrainSquare[gridWidth,gridHeight];
             PopulateGrid();
             Game1.drawables.Add(this);
         } 
@@ -39,9 +39,9 @@ namespace Project1.ProjectContent.Terrain
             FastNoiseLite noise = new FastNoiseLite(Game1.random.Next());
             noise.SetFrequency(0.1f);
 
-            for (int i = 0; i < width; i++)
+            for (int i = 0; i < gridWidth; i++)
             {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < gridHeight; j++)
                 {
                     float threshhold = noise.GetNoise(i, j);
 
@@ -55,9 +55,9 @@ namespace Project1.ProjectContent.Terrain
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = 0; i < width; i++)
+            for (int i = 0; i < gridWidth; i++)
             {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < gridHeight; j++)
                 {
                     terrainGrid[i, j].Draw(spriteBatch);
                 }
