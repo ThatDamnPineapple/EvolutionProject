@@ -21,7 +21,7 @@ struct VertexShaderOutput
 	float4 Color : COLOR0;
 };
 
-VertexShaderOutput MainVS(in VertexShaderInput input)
+VertexShaderOutput Game1.randomVS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
@@ -31,7 +31,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 	return output;
 }
 
-float4 MainPS(VertexShaderOutput input) : COLOR
+float4 Game1.randomPS(VertexShaderOutput input) : COLOR
 {
 	return input.Color;
 }
@@ -40,7 +40,7 @@ technique BasicColorDrawing
 {
 	pass P0
 	{
-		VertexShader = compile VS_SHADERMODEL MainVS();
-		PixelShader = compile PS_SHADERMODEL MainPS();
+		VertexShader = compile VS_SHADERMODEL Game1.randomVS();
+		PixelShader = compile PS_SHADERMODEL Game1.randomPS();
 	}
 };

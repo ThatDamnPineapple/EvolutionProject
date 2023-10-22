@@ -17,13 +17,11 @@ namespace Project1.ProjectContent.Resources
     {
         public float LoadPriority => 1.5f;
 
-        public float DrawPriority => 1.0f;
+        public float DrawPriority => 2.0f;
 
         public float UpdatePriority => 1.0f;
 
         public static List<Food> foods = new List<Food>();
-
-        public static SimpleNeuralNetwork minimumNetwork;
 
         private bool pressingE = false;
 
@@ -40,7 +38,7 @@ namespace Project1.ProjectContent.Resources
 
         public void Update(GameTime gameTime)
         {
-
+            TestForNewFood();
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -56,20 +54,20 @@ namespace Project1.ProjectContent.Resources
             if (!pressingE && Keyboard.GetState().IsKeyDown(Keys.E))
             {
                 pressingE = true;
-                NewCells(20);
+                NewFood(20);
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.E))
                 pressingE = false;
         }
 
-        private void NewCells(int numFood)
+        private void NewFood(int numFood)
         {
             for (int i = 0; i < numFood; i++)
             {
                 Vector2 pos = Vector2.Zero;
                 pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                 pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-                Food newFood = new Food(32, 32, 4, Color.Orange, Vector2.One * 32, pos);
+                Food newFood = new Food(32, 32, 1000, Color.Orange, pos);
                 foods.Add(newFood);
             }
         }

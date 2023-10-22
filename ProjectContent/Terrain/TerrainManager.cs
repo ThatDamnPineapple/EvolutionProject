@@ -17,9 +17,9 @@ namespace Project1.ProjectContent.Terrain
 
         public readonly static float squareHeight = 48;
 
-        public readonly static int gridWidth = 128;
+        public readonly static int gridWidth = 32;
 
-        public readonly static int gridHeight = 128;
+        public readonly static int gridHeight = 32;
         public float LoadPriority => 1.1f;
 
         public float DrawPriority => 0.1f;

@@ -26,5 +26,10 @@ namespace Project1.Helpers
             ret.Y = (MathF.Sin(radians) * vector.X) + (MathF.Cos(radians) * vector.Y);
             return ret;
         }
+
+        public static float ToRotation(this Vector2 vector)
+        {
+            return MathF.Atan2(vector.Y, vector.X);
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace Project1.ProjectContent.Resources
             }
         }
 
-        public Food(float width, float height, float energy, Color color, Vector2 position, Vector2 center)
+        public Food(float width, float height, float energy, Color color, Vector2 position)
         {
             this.width = width;
             this.height = height;

@@ -73,9 +73,9 @@ namespace Project1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            delta = (float)gameTime.ElapsedGameTime.TotalSeconds - oldTime;
+            delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            foreach (IUpdatable updatable in updatables)
+            foreach (IUpdatable updatable in updatables.OrderBy(n => n.UpdatePriority))
             {
                 updatable.Update(gameTime);
             }
@@ -91,7 +91,7 @@ namespace Project1
 
             _spriteBatch.Begin();
             
-            foreach (IDraw drawable in drawables)
+            foreach (IDraw drawable in drawables.OrderBy(n => n.DrawPriority))
             {
                 drawable.Draw(_spriteBatch);
             }    

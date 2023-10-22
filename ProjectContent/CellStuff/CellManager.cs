@@ -9,6 +9,7 @@ using Project1.Interfaces;
 using Microsoft.Xna.Framework.Input;
 using Project1.ProjectContent.Terrain;
 using Project1.Core.NeuralNetworks;
+using Project1.Core.NeuralNetworks.NEAT;
 
 namespace Project1.ProjectContent.CellStuff
 {
@@ -22,7 +23,8 @@ namespace Project1.ProjectContent.CellStuff
 
         public static List<Cell> cells = new List<Cell>();
 
-        public static SimpleNeuralNetwork minimumNetwork;
+        public static List<Simulation> simulations = new List<Simulation>();
+
         public static bool foundMinimum = false;
 
         private bool pressingSpace = false;
@@ -50,12 +52,9 @@ namespace Project1.ProjectContent.CellStuff
         {
             TestForNewCells();
 
-            foreach (Cell cell in cells)
-            {
-                cell.Update(gameTime);
-            }
+            simulations.ForEach(n => n.Update());
 
-            var cellsToDestroy = cells.Where(n => n.dead).ToList();
+            var cellsToDestroy = cells.Where(n => !n.IsActive()).ToList();
             cellsToDestroy.ForEach(n => cells.Remove(n));
         }
 
@@ -64,7 +63,7 @@ namespace Project1.ProjectContent.CellStuff
             if (!pressingSpace && Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 pressingSpace = true;
-                NewCells(20);
+                NewCells(30);
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.Space))
                 pressingSpace = false;
@@ -72,20 +71,27 @@ namespace Project1.ProjectContent.CellStuff
 
         private void NewCells(int numCells)
         {
-            for (int i = 0; i < numCells; i++)
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 0.5f);
+            newsim.Deploy();
+            simulations.Add(newsim);
+            
+            /*for (int i = 0; i < numCells; i++)
             {
                 Vector2 pos = Vector2.Zero;
                 pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                 pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-                Cell newCell = new Cell(Color.White, Vector2.One * 32, pos, 500, 1000, foundMinimum ? DeepCopy.DeepCopier.Copy(minimumNetwork) : null);
+                Cell newCell = new Cell(Color.White, Vector2.One * 32, pos, 500, 1000);
                 cells.Add(newCell);
-            }
+            }*/
         }
 
-        public static void EnactMinimum(SimpleNeuralNetwork firstGeneration)
+        private Cell CreateRawCell(IDna dna)
         {
-            minimumNetwork = DeepCopy.DeepCopier.Copy(firstGeneration);
-            foundMinimum= true;
+            Vector2 pos = Vector2.Zero;
+            pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+            pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            Cell newCell = new Cell(Color.White, Vector2.One * 32, pos, 500, 1000, dna);
+            return newCell;
         }
     }
 }
