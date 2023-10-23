@@ -13,7 +13,7 @@ namespace Project1.ProjectContent.CellStuff
     {
 
         readonly float MaxLength = 800;
-        readonly float Presision = 20;
+        readonly float Presision = 10;
         public float rotation;
 
         public float distance;
@@ -35,7 +35,7 @@ namespace Project1.ProjectContent.CellStuff
         {
             for (float i = 0; i < MaxLength; i+= Presision) 
             {
-                Vector2 offset = Vector2.One.RotatedBy(rotation) * i;
+                Vector2 offset = Vector2.One.RotatedBy(rotation + parent.rotation) * i;
                 Vector2 checkPos = offset + parent.Center;
                 var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
                 if (closestFood != default)
@@ -84,7 +84,7 @@ namespace Project1.ProjectContent.CellStuff
             data.Add(color.R - 128);
             data.Add(color.G - 128);
             data.Add(color.B - 128);
-            data.Add(similarity);
+            data.Add(similarity * 1000);
             data.Add(scale);
         }
     }

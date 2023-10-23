@@ -70,7 +70,7 @@ namespace Project1.ProjectContent.CellStuff
             if (!pressingSpace && Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 pressingSpace = true;
-                NewCells(50);
+                NewCells(100);
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.Space))
                 pressingSpace = false;
@@ -78,7 +78,7 @@ namespace Project1.ProjectContent.CellStuff
 
         private void NewCells(int numCells)
         {
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 0.8f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 1f);
             newsim.Deploy();
             newsim.Agents.ForEach(n => (n as Cell).sim = newsim);
             simulations.Add(newsim);

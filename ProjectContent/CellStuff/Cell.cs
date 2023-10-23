@@ -24,23 +24,24 @@ namespace Project1.ProjectContent.CellStuff
     {
 
         public readonly static float UPDATERATE = 0.01f;
-        public readonly static int RAYS = 12;
+        public readonly static int RAYS = 16;
         public readonly static int RAYVALUES = 6;
         public readonly static int TERRAINRANGE = 4;
-        public readonly static int ADDITIONALVALUES = 6;
+        public readonly static int ADDITIONALVALUES = 7;
         public static int INPUTNUM => (RAYS * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE);
         public readonly static int OUTPUTNUM = 4;
         public float lifeCounter;
         public CellStat AceThreshhold = new CellStat(0.8f, 0.01f, 0.0005f, 0.25f, 0.9f, false);
-        public CellStat SexThreshhold = new CellStat(0.5f, 0.01f, 0.0005f, 0.05f, 1, false);
+        public CellStat SexThreshhold = new CellStat(0.3f, 0.01f, 0.0005f, 0.05f, 1, false);
         public CellStat Speed = new CellStat(200f, 0.1f, 0.01f, 20, 400, true);
-        public CellStat ChildEnergy = new CellStat(0.5f, 0.01f, 0.001f, 0.3f, 0.9f, false);
+        public CellStat ChildEnergy = new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.6f, false);
         public CellStat Scale = new CellStat(1.0f, 0.15f, 0.005f, 0.125f, 4f, true);
-        public CellStat Red = new CellStat(0.1f, 0.15f, 0.001f, 0.1f, 1, false);
-        public CellStat Green = new CellStat(0.1f, 0.15f, 0.001f, 0.1f, 1, false);
-        public CellStat Blue = new CellStat(1, 0.15f, 0.001f, 0.1f, 1, false);
-        public CellStat fightThreshhold = new CellStat(0.5f, 0.01f, 0.0001f, 0.05f, 1, false);
+        public CellStat Red = new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false);
+        public CellStat Green = new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false);
+        public CellStat Blue = new CellStat(1, 0.25f, 0.001f, 0.1f, 1, false);
+        public CellStat fightThreshhold = new CellStat(0.8f, 0.01f, 0.0001f, 0.4f, 1, false);
         public CellStat regenRate = new CellStat(10, 0.05f, 0.001f, 1, 100, true);
+        public CellStat deathThreshhold = new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false);
 
         public float width;
 
@@ -110,7 +111,7 @@ namespace Project1.ProjectContent.CellStuff
 
         public float Bottom => position.Y + size.Y;
 
-        public float EnergyUsage => (size.Length() * Scale.Value * velocity.Length() * 0.0001f) + 20;
+        public float EnergyUsage => (size.Length() * Scale.Value * velocity.Length() * 0.00005f) + 10;
 
         public Vector2 velocity;
 
@@ -151,7 +152,7 @@ namespace Project1.ProjectContent.CellStuff
 
             CellManager.cells.Add(this);
 
-            networkUpdateRate = Game1.random.NextFloat(0.5f, 1f);
+            networkUpdateRate = Game1.random.NextFloat(0.4f, 0.6f);
         }
 
         public override IDna GenerateRandomAgent()
@@ -200,7 +201,7 @@ namespace Project1.ProjectContent.CellStuff
             }
 
             network = Dna;
-            networkUpdateRate = Game1.random.NextFloat(0.5f, 1f);
+            networkUpdateRate = Game1.random.NextFloat(0.4f, 0.6f);
             CellManager.cells.Add(this);
         }
 
@@ -232,15 +233,6 @@ namespace Project1.ProjectContent.CellStuff
                     }
                 }
             }
-            if (velocity.Length() < 1)
-            {
-                stillCounter += Game1.delta;
-                if (stillCounter > 8)
-                {
-                    Kill();
-                    return;
-                }
-            }
             if (health < maxHealth)
             {
                 float regen = regenRate.Value * Game1.delta;
@@ -269,7 +261,7 @@ namespace Project1.ProjectContent.CellStuff
                 speciesString = GetSpecies().GetHashCode().ToString();
             }
 
-            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHealth:" + ((int)health).ToString()+ "/" + ((int)maxHealth).ToString() + "\nKills: " + kills.ToString() + "\nFitness: " + Fitness.ToString();
+            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHealth:" + ((int)health).ToString()+ "/" + ((int)maxHealth).ToString() + "\nChildren: " + children.Count.ToString() + "\nFitness: " + Fitness.ToString();
             DrawHelper.DrawText(spriteBatch, text, Color.Black, position - new Vector2(0, 72), Vector2.One);
             DrawHelper.DrawPixel(spriteBatch, color, position, width * Scale.Value, height * Scale.Value);
         }
@@ -318,11 +310,11 @@ namespace Project1.ProjectContent.CellStuff
             }
 
             lifeCounter += Game1.delta;
-            if (reproductionWillingness > AceThreshhold.Value && GetSpecies() != null && energy > 40)
+            if (reproductionWillingness > AceThreshhold.Value && GetSpecies() != null && energy > 40 && children.Count < 7)
             {
                 Mitosis();
             }
-            if (reproductionWillingness > SexThreshhold.Value && GetSpecies() != null)
+            if (reproductionWillingness > SexThreshhold.Value && GetSpecies() != null && children.Count < 7)
             {
                 TryHaveSex();
             }
@@ -383,7 +375,7 @@ namespace Project1.ProjectContent.CellStuff
                 if (foodFound.energy <= 0)
                     FoodManager.foods.Remove(foodFound);
 
-                foodFound.color.R = (byte)(255 * (foodFound.energy / 1000f));
+                foodFound.color.R = (byte)(255 * MathF.Sqrt(foodFound.energy / 200f));
 
                 foundFood = true;
             }
@@ -403,12 +395,13 @@ namespace Project1.ProjectContent.CellStuff
                 }
             }
 
-            sight.Add(rotation % MathHelper.TwoPi);
+            sight.Add(rotation);
             sight.Add(energy);
             sight.Add(lifeCounter);
             sight.Add(health);
             sight.Add(velocity.X);
             sight.Add(velocity.Y);
+            sight.Add(children.Count * 500);
 
             return sight;
         }
@@ -420,37 +413,56 @@ namespace Project1.ProjectContent.CellStuff
 
             reproductionWillingness = output[2];
             fightWillingness = output[3];
+
+            /*if (output[4] > deathThreshhold.Value && children.Count > 5)
+            {
+                Kill();
+            }*/
         }
 
         public override void CalculateContinuousFitness()
         {
-            Fitness = (energy / maxEnergy) + (velocity.Length() / Speed.Value) + (children.Count * 0.3f) + (health / maxHealth) + (generation * 0.1f);
-            Fitness /= MathF.Sqrt(lifeCounter);
+            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f);
+            Fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
+            Fitness *= MathF.Sqrt(energy / maxEnergy);
+            Fitness *= (velocity.Length() / Speed.Value);
 
             if (hitWall)
             {
-                Fitness -= 500;
+                Fitness -= 10;
             }
 
-            if (velocity.Length() < 1 || !IsActive())
-                Fitness = -999;
+            if (energy <= 0)
+            {
+                Fitness -= 10;
+            }
+
+            if (velocity.Length() < 1)
+                Fitness -= 10;
         }
 
         public override void CalculateCurrentFitness()
         {
-            Fitness = (energy / maxEnergy) + (velocity.Length() / Speed.Value) + (children.Count * 0.3f) + (health / maxHealth) + (generation * 0.1f);
-            Fitness /= MathF.Sqrt(lifeCounter);
+            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f);
+            Fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
+            Fitness *= MathF.Sqrt(energy / maxEnergy);
+            Fitness *= (velocity.Length() / Speed.Value);
 
             if (hitWall)
             {
-                Fitness -= 500;
+                Fitness -= 10;
+            }
+
+            if (energy <= 0)
+            {
+                Fitness -= 10;
             }
 
             hitWall = false;
             foundFood = false;
 
-            if (velocity.Length() < 1 || !IsActive())
-                Fitness = -999;
+            if (velocity.Length() < 1)
+                Fitness -= 10;
         }
 
         public override void OnKill()
@@ -496,9 +508,9 @@ namespace Project1.ProjectContent.CellStuff
 
         public void TryHaveSex()
         {
-            if (GetSpecies().Size() > 1)
+            if (true)
             {
-                var partner = CellManager.cells.Where(n => n != this && n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.size, Center, size) && Distance(n) < GetGenome().Neat.CP).FirstOrDefault();
+                var partner = CellManager.cells.Where(n => n != this && n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.size, Center, size) && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
                 if (partner != default && partner.energy > 100 && partner.kids < 5)
                 {
                     Debug.WriteLine("Sex at " + ((int)position.X).ToString() + "," + ((int)position.Y).ToString());
@@ -529,6 +541,8 @@ namespace Project1.ProjectContent.CellStuff
 
                     child.regenRate= regenRate.Combine(partner.regenRate);
 
+                    child.deathThreshhold = deathThreshhold.Combine(partner.deathThreshhold);
+
                     child.health = child.maxHealth;
 
                     child.generation = MathF.Max(generation, partner.generation) + 1;
@@ -540,6 +554,8 @@ namespace Project1.ProjectContent.CellStuff
 
                     partner.children.Add(child);
                     children.Add(child);
+
+                    child.Mutate();
                 }
             }
         }
@@ -584,9 +600,13 @@ namespace Project1.ProjectContent.CellStuff
 
             child.regenRate = regenRate.Duplicate();
 
+            child.deathThreshhold = deathThreshhold.Duplicate();
+
             child.health = child.maxHealth;
 
             child.generation = generation + 1;
+
+            child.Mutate();
 
             children.Add(child);
             kids++;

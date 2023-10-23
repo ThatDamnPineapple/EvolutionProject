@@ -25,6 +25,9 @@ namespace Project1.ProjectContent.Resources
 
         private bool pressingE = false;
 
+        private float foodCounter;
+        private float foodThreshhold = 0.3f;
+
         public void Load()
         {
             Game1.drawables.Add(this);
@@ -39,6 +42,12 @@ namespace Project1.ProjectContent.Resources
         public void Update(GameTime gameTime)
         {
             TestForNewFood();
+            foodCounter += Game1.delta;
+            while (foodCounter > foodThreshhold)
+            {
+                foodCounter -= foodThreshhold;
+                NewFood(1);
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -73,7 +82,7 @@ namespace Project1.ProjectContent.Resources
                     pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                     pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
                 }
-                Food newFood = new Food(32, 32, 500, new Color(255, 0, 0), pos);
+                Food newFood = new Food(32, 32, 200, new Color(255, 0, 0), pos);
                 foods.Add(newFood);
             }
         }

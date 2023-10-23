@@ -25,7 +25,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
         public double C2 = 1;
         public double C3 = 0.5f;
 
-        public double CP = 3f;
+        public double CP = 6f;
 
         public double WEIGHT_SHIFT_STRENGTH = 10f;
         public double WEIGHT_RANDOM_STRENGTH = 20f;
@@ -38,7 +38,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public float SURVIVORS = 0.7f;
 
-        public int STALESPECIES = 1000;
+        public int STALESPECIES = 60;
 
         public NeatHost(int inputSize, int outputSize, int clients, NEATSimulation parent)
         {

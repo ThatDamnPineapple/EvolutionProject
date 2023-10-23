@@ -45,8 +45,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
         public bool IsActive() => Active;
         public void Kill()
         {
-            CalculateCurrentFitness();
             Active = false;
+            CalculateCurrentFitness();
             OnKill();
         }
         public virtual void CalculateContinuousFitness() { }
