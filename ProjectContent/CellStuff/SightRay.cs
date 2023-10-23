@@ -24,6 +24,8 @@ namespace Project1.ProjectContent.CellStuff
 
         public bool pickedUp = false;
 
+        public float scale;
+
         public SightRay(float _rotation)
         {
             rotation = _rotation;
@@ -39,7 +41,8 @@ namespace Project1.ProjectContent.CellStuff
                 if (closestFood != default)
                 {
                     distance = i;
-                    similarity = 0;
+                    similarity = 100;
+                    scale = closestFood.size.Length();
                     color = closestFood.color;
                     pickedUp = true;
                     return;
@@ -53,6 +56,7 @@ namespace Project1.ProjectContent.CellStuff
                         similarity = (float)parent.Distance(closestCell);
                     else
                         similarity = 0;
+                    scale = closestCell.size.Length();
                     color = closestCell.color;
                     pickedUp = true;
                     return;
@@ -61,13 +65,14 @@ namespace Project1.ProjectContent.CellStuff
                 if (!CollisionHelper.CheckBoxvPointCollision(Vector2.Zero, Terrain.TerrainManager.mapSize, checkPos))
                 {
                     distance = i;
-                    similarity = 0;
+                    similarity = 100;
+                    scale = 990;
                     color = Color.Green;
                     return;
                 }
 
                 distance = 10000;
-                similarity = 0;
+                similarity = 100;
                 color = Color.Black;
                 
             }
@@ -77,9 +82,10 @@ namespace Project1.ProjectContent.CellStuff
         {
             data.Add(distance - (MaxLength / 2.0f));
             data.Add(color.R - 128);
-            //data.Add(color.G - 128);
-            //data.Add(color.B - 128);
+            data.Add(color.G - 128);
+            data.Add(color.B - 128);
             data.Add(similarity);
+            data.Add(scale);
         }
     }
 }

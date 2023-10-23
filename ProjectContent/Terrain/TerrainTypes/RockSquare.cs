@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Project1.ProjectContent.Terrain.TerrainTypes
 {
-    internal class RockSquare : TerrainSquare
+    internal class GrassSquare : TerrainSquare
     {
-        public override Color color => Color.Gray;
+        public override Color color => Color.Green;
 
-        public RockSquare(Vector2 position) : base(position) { }
+        public GrassSquare(Vector2 position) : base(position) { }
     }
 }

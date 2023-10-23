@@ -34,11 +34,11 @@ namespace Project1.Core.NeuralNetworks.NEAT
         public double PROBABILITY_MUTATE_NODE = 3.6f;
         public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
         public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 3f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 6f;
 
         public float SURVIVORS = 0.7f;
 
-        public int STALESPECIES = 10;
+        public int STALESPECIES = 1000;
 
         public NeatHost(int inputSize, int outputSize, int clients, NEATSimulation parent)
         {

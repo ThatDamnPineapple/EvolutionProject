@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Project1.ProjectContent.Terrain;
 using Project1.Core.NeuralNetworks;
 using Project1.Core.NeuralNetworks.NEAT;
+using Project1.Helpers;
 
 namespace Project1.ProjectContent.CellStuff
 {
@@ -42,6 +43,12 @@ namespace Project1.ProjectContent.CellStuff
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            string debugInfo = "Total Cells: " + cells.Count.ToString();
+            if (simulations.Count > 0)
+            {
+                debugInfo += "\n Global Sharing: " + (simulations[0] as NEATSimulation).globalSharing.ToString();
+            }
+            DrawHelper.DrawText(spriteBatch, debugInfo, Color.Black, new Vector2(50, 50), Vector2.One, false);
             foreach (Cell cell in cells)
             {
                 cell.Draw(spriteBatch);
@@ -91,7 +98,13 @@ namespace Project1.ProjectContent.CellStuff
             Vector2 pos = Vector2.Zero;
             pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
             pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 500, 1000, dna);
+
+            while (TerrainManager.ContainsRockWorld(pos))
+            {
+                pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+                pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            }
+            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 500, dna);
             return newCell;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework.Input;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
@@ -14,6 +15,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
         private int outputSize;
         private int maxClients;
         private bool isSimulating = true;
+        public bool globalSharing = true;
+        private bool pressedG = false;
 
         public NEATSimulation(int inputSize, int outputSize, int GenerationSize, float MutationRate = 0.01F, float MaxSimulationTime = 1) : base(GenerationSize, MutationRate, MaxSimulationTime)
         {
@@ -33,6 +36,17 @@ namespace Project1.Core.NeuralNetworks.NEAT
             Time+= Game1.delta;
             int inActivity = 0;
 
+            if (!pressedG && Keyboard.GetState().IsKeyDown(Keys.G))
+            {
+                pressedG = true;
+                globalSharing = !globalSharing;
+            }
+
+            if (!Keyboard.GetState().IsKeyDown(Keys.G))
+            {
+                pressedG = false;
+            }
+
             foreach (GeneticAgent agent in Agents.ToArray())
             {
                 if (agent is ContinuousGeneticAgent r)
@@ -47,7 +61,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
             }
 
 
-            if (Time >= MaxSimulationTime || inActivity == Agents.Count)
+            if ((Time >= MaxSimulationTime || inActivity == Agents.Count) && globalSharing)
             {
                 foreach (GeneticAgent agent in Agents)
                 {

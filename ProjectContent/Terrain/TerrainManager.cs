@@ -22,6 +22,8 @@ namespace Project1.ProjectContent.Terrain
         public readonly static int gridHeight = 80;
 
         public static Vector2 mapSize => new Vector2(squareWidth * gridWidth, squareHeight * gridHeight);
+
+        public static Vector2 squareSize => new Vector2(squareWidth, squareHeight);
         public float LoadPriority => 1.1f;
 
         public float DrawPriority => 0.1f;
@@ -35,11 +37,31 @@ namespace Project1.ProjectContent.Terrain
             Game1.drawables.Add(this);
         } 
 
+        public static bool InGrid(int x, int y)
+        {
+            return (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight);
+        }
+
+        public static bool ContainsRockWorld(Vector2 pos)
+        {
+            int x = (int)(pos.X / squareWidth);
+            int y = (int)(pos.Y / squareHeight);
+            if (InGrid(x,y))
+            {
+                TerrainSquare square = TerrainManager.terrainGrid[x, y];
+                if (square is RockSquare)
+                    return true;
+            }
+            return false;
+        }
+
         public void PopulateGrid()
         {
-            float waterThreshhold = 0.5f;
+            float rockThreshhold = 0.6f;
+
+            float waterThreshhold = 0.01f;
             FastNoiseLite noise = new FastNoiseLite(Game1.random.Next());
-            noise.SetFrequency(0.1f);
+            noise.SetFrequency(0.05f);
 
             for (int i = 0; i < gridWidth; i++)
             {
@@ -47,10 +69,12 @@ namespace Project1.ProjectContent.Terrain
                 {
                     float threshhold = noise.GetNoise(i, j);
 
-                    if (threshhold > waterThreshhold)
-                        terrainGrid[i, j] = new WaterSquare(new Vector2(i * squareWidth, j * squareHeight));
-                    else
+                    if (threshhold > rockThreshhold)
+                        terrainGrid[i, j] = new RockSquare(new Vector2(i * squareWidth, j * squareHeight));
+                    else if (threshhold > waterThreshhold)
                         terrainGrid[i, j] = new GrassSquare(new Vector2(i * squareWidth, j * squareHeight));
+                    else
+                        terrainGrid[i, j] = new WaterSquare(new Vector2(i * squareWidth, j * squareHeight));
                 }
             }
         }
