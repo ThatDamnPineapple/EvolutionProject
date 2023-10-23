@@ -27,27 +27,25 @@ namespace Project1.Helpers
 
         public static Vector2 StopBox(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2, ref Vector2 vel) //uses center
         {
-            if (pos1.X < pos2.X + (size2.X / 2) && pos1.X + (size1.X / 2) > pos2.X)
+            if (!CheckBoxvBoxCollision(pos1, size1, pos2, size2))
+                return pos1;
+
+            int velsignX = MathF.Sign(vel.X);
+            int collisionsignX = MathF.Sign(pos2.X - pos1.X);
+            if (velsignX == collisionsignX)
             {
-                int velsign = MathF.Sign(vel.X);
-                int collisionsign = MathF.Sign(pos2.X - pos1.X);
-                if (velsign == collisionsign)
-                {
-                    vel.X = 0;
-                }
-                pos1.X = pos2.X - (((size2.X / 2) + (size1.X / 2)) * collisionsign);
+                vel.X = 0;
+                //pos1.X = pos2.X - (((size2.X / 2) + (size1.X / 2)) * collisionsignX);
             }
 
-            if (pos1.Y < pos2.Y + size2.Y && pos1.Y + size1.Y > pos2.Y)
+            int velsignY = MathF.Sign(vel.Y);
+            int collisionsignY = MathF.Sign(pos2.Y - pos1.Y);
+            if (velsignY == collisionsignY)
             {
-                int velsign = MathF.Sign(vel.Y);
-                int collisionsign = MathF.Sign(pos2.Y - pos1.Y);
-                if (velsign == collisionsign)
-                {
-                    vel.Y = 0;
-                }
-                pos1.Y = pos2.Y - (((size2.Y / 2) + (size1.Y / 2)) * collisionsign);
+                vel.Y = 0;
+                //pos1.Y = pos2.Y - (((size2.Y / 2) + (size1.Y / 2)) * collisionsignY);
             }
+
             return pos1;
         }
     }

@@ -12,8 +12,8 @@ namespace Project1.ProjectContent.CellStuff
     internal class SightRay
     {
 
-        readonly float MaxLength = 500;
-        readonly float Presision = 5;
+        readonly float MaxLength = 800;
+        readonly float Presision = 20;
         public float rotation;
 
         public float distance;

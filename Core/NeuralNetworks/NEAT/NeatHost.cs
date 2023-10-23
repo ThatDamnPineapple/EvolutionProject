@@ -34,7 +34,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
         public double PROBABILITY_MUTATE_NODE = 3.6f;
         public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
         public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 6f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 15f;
 
         public float SURVIVORS = 0.7f;
 

@@ -67,6 +67,12 @@ namespace Project1.ProjectContent.Resources
                 Vector2 pos = Vector2.Zero;
                 pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                 pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+
+                while (TerrainManager.ContainsRockWorld(pos))
+                {
+                    pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+                    pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                }
                 Food newFood = new Food(32, 32, 500, new Color(255, 0, 0), pos);
                 foods.Add(newFood);
             }
