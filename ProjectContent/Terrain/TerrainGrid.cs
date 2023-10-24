@@ -68,7 +68,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public void PopulateGrid()
         {
-            float rockThreshhold = 0.6f;
+            float rockThreshhold = 6.6f;
 
             float waterThreshhold = 0.01f;
             FastNoiseLite noise = new FastNoiseLite(Main.random.Next());

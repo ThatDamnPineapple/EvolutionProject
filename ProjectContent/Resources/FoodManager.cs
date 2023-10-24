@@ -34,7 +34,7 @@ namespace EvoSim.ProjectContent.Resources
 
         public static int FoodAmount => 400;
 
-        public static float FoodSpawnRate => 0.1f;
+        public static float FoodSpawnRate => 0.02f;
 
 
         private TimeCounter AutomaticFoodSpawner;

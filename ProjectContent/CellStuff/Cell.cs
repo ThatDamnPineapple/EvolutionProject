@@ -344,30 +344,22 @@ namespace EvoSim.ProjectContent.CellStuff
 
             if (TopLeft.X < 0)
             {
-                position.X = 0;
-                velocity.X = 0;
-                hitWall = true;
+                position.X += SceneManager.grid.mapSize.X;
             }
 
             if (TopRight.X > SceneManager.grid.mapSize.X)
             {
-                position.X = SceneManager.grid.mapSize.X - Size.X;
-                velocity.X = 0;
-                hitWall = true;
+                position.X -= SceneManager.grid.mapSize.X;
             }
 
             if (TopLeft.Y < 0)
             {
-                position.Y = 0;
-                velocity.Y = 0;
-                hitWall = true;
+                position.Y += SceneManager.grid.mapSize.Y;
             }
 
             if (BottomRight.Y > SceneManager.grid.mapSize.Y)
             {
-                position.Y = SceneManager.grid.mapSize.Y - Size.Y;
-                velocity.Y = 0;
-                hitWall = true;
+                position.Y -= SceneManager.grid.mapSize.Y;
             }
         }
 
