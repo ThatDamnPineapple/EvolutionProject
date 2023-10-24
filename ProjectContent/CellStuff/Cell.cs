@@ -25,35 +25,38 @@ namespace Project1.ProjectContent.CellStuff
 
         public readonly static float UPDATERATE = 0.01f;
         public readonly static int RAYS = 16;
-        public readonly static int RAYVALUES = 6;
+        public readonly static int RAYVALUES = 8;
         public readonly static int TERRAINRANGE = 4;
         public readonly static int ADDITIONALVALUES = 7;
         public static int INPUTNUM => (RAYS * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE);
         public readonly static int OUTPUTNUM = 4;
         public float lifeCounter;
-        public CellStat AceThreshhold = new CellStat(0.8f, 0.01f, 0.0005f, 0.25f, 0.9f, false);
-        public CellStat SexThreshhold = new CellStat(0.3f, 0.01f, 0.0005f, 0.05f, 1, false);
-        public CellStat Speed = new CellStat(200f, 0.1f, 0.01f, 20, 400, true);
-        public CellStat ChildEnergy = new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.6f, false);
-        public CellStat Scale = new CellStat(1.0f, 0.15f, 0.005f, 0.125f, 4f, true);
-        public CellStat Red = new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false);
-        public CellStat Green = new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false);
-        public CellStat Blue = new CellStat(1, 0.25f, 0.001f, 0.1f, 1, false);
-        public CellStat fightThreshhold = new CellStat(0.8f, 0.01f, 0.0001f, 0.4f, 1, false);
-        public CellStat regenRate = new CellStat(10, 0.05f, 0.001f, 1, 100, true);
-        public CellStat deathThreshhold = new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false);
+        public float AceThreshhold => cellStats[0].Value;
+        public float SexThreshhold => cellStats[1].Value;
+        public float Speed => cellStats[2].Value;
+        public float ChildEnergy => cellStats[3].Value;
+        public float Scale => cellStats[4].Value;
+        public float Red => cellStats[5].Value;
+        public float Green => cellStats[6].Value;
+        public float Blue => cellStats[7].Value;
+        public float FightThreshhold => cellStats[8].Value;
+        public float RegenRate => cellStats[9].Value;
+        public float DeathThreshhold => cellStats[10].Value;
+        public float SpawnDistance => cellStats[11].Value;
+
+        public List<CellStat> cellStats= new List<CellStat>();
 
         public float width;
 
-        public CellNeatSimulation<Cell> sim;
+        public CellNeatSimulation<Cell> sim => CellManager.simulation as CellNeatSimulation<Cell>;
         public float height;
 
         public float energy;
 
         public float health;
 
-        public float maxEnergy => 1000 * Scale.Value;
-        public float maxHealth => 100 * Scale.Value;
+        public float maxEnergy => 1000 * Scale;
+        public float maxHealth => 50 * Scale;
 
         public Color color;
 
@@ -79,39 +82,41 @@ namespace Project1.ProjectContent.CellStuff
 
         public bool hitWall = false;
 
+        private float mitosisCounter;
+
         public Vector2 acceleration = Vector2.Zero;
 
-        public Vector2 size => new Vector2(width, height) * Scale.Value;
+        public Vector2 Size;
 
         public Vector2 Center
         {
             get
             {
-                return position + (size / 2.0f);
+                return position + (Size / 2.0f);
             }
             set
             {
-                position = value - (size / 2.0f);
+                position = value - (Size / 2.0f);
             }
         }
 
         public Vector2 TopLeft => position;
 
-        public Vector2 TopRight => position + new Vector2(size.X, 0);
+        public Vector2 TopRight => position + new Vector2(Size.X, 0);
 
-        public Vector2 BottomLeft => position + new Vector2(0, size.Y);
+        public Vector2 BottomLeft => position + new Vector2(0, Size.Y);
 
-        public Vector2 BottomRight => position + size;
+        public Vector2 BottomRight => position + Size;
 
         public float Left => position.X;
 
-        public float Right => position.X + size.X;
+        public float Right => position.X + Size.X;
 
         public float Top => position.Y;
 
-        public float Bottom => position.Y + size.Y;
+        public float Bottom => position.Y + Size.Y;
 
-        public float EnergyUsage => (size.Length() * Scale.Value * velocity.Length() * 0.00005f) + 10;
+        public float EnergyUsage => (Scale * velocity.Length() * 0.00004f) + 15;
 
         public Vector2 velocity;
 
@@ -136,12 +141,14 @@ namespace Project1.ProjectContent.CellStuff
 
         public Cell() : base()
         {
+            InitializeCellStats();
             Vector2 pos = Vector2.Zero;
             pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
             pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
             position = pos;
             color = new Color(0, 0, 1.0f);
             health = maxHealth;
+            Size = new Vector2(width, height) * Scale;
 
             for (int i = 0; i < RAYS; i++)
             {
@@ -168,12 +175,14 @@ namespace Project1.ProjectContent.CellStuff
 
         public Cell(Color _color, Vector2 size, Vector2 _position, float _energy, IDna Dna) : base()
         {
+            InitializeCellStats();
             color = _color;
             width = size.X;
             height = size.Y;
             position = _position;
             energy = _energy;
             health = maxHealth;
+            Size = size * Scale;
 
             for (int i = 0; i < RAYS; i++)
             {
@@ -188,12 +197,14 @@ namespace Project1.ProjectContent.CellStuff
 
         public Cell(Color _color, Vector2 size, Vector2 _position, float _energy) : base()
         {
+            InitializeCellStats();
             color = _color;
             width = size.X;
             height = size.Y;
             position = _position;
             energy = _energy;
             health = maxHealth;
+            Size = size * Scale;
 
             for (int i = 0; i < RAYS; i++)
             {
@@ -205,8 +216,36 @@ namespace Project1.ProjectContent.CellStuff
             CellManager.cells.Add(this);
         }
 
+        private void InitializeCellStats()
+        {
+            cellStats.Add(new CellStat(0.5f, 0.01f, 0.0005f, 0.25f, 0.9f, false)); //aceThreshhold
+            cellStats.Add(new CellStat(0.3f, 0.01f, 0.0005f, 0.05f, 1, false)); //sexThreshhold
+            cellStats.Add(new CellStat(200f, 0.1f, 0.01f, 20, 400, true)); //speed
+            cellStats.Add(new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.4f, false)); //childEnergy
+            cellStats.Add(new CellStat(1.0f, 0.15f, 0.005f, 0.35f, 4f, true)); //scale
+            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //red
+            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //green
+            cellStats.Add(new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false)); //blue
+            cellStats.Add(new CellStat(0.4f, 0.01f, 0.0001f, 0.1f, 1, false)); //fightThreshhold
+            cellStats.Add(new CellStat(1, 0.005f, 0.0001f, 0.1f, 10, true)); //regenRate
+            cellStats.Add(new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false)); //deathThreshhold
+            cellStats.Add(new CellStat(150, 5, 0.001f, 5, 500, false)); //spawnDistance
+        }
+
         public override void OnUpdate()
         {
+            if (!IsActive())
+            {
+                energy -= Game1.delta * 20f;
+                if (energy < 0)
+                {
+                    if (sim != null && sim.Agents.Contains(this))
+                        sim.Agents.Remove(this);
+                }
+
+                return;
+            }
+            mitosisCounter += Game1.delta;
             tileRefreshCounter += Game1.delta;
             if (tileRefreshCounter > tileRefreshRate)
             {
@@ -235,18 +274,18 @@ namespace Project1.ProjectContent.CellStuff
             }
             if (health < maxHealth)
             {
-                float regen = regenRate.Value * Game1.delta;
+                float regen = RegenRate * Game1.delta;
                 regen = MathF.Min(regen, maxHealth - health);
-                energy -= regen * 2;
+                energy -= regen;
                 health += regen;
             }
-            energy -= Game1.delta * EnergyUsage * (CollisionHelper.CheckBoxvBoxCollision(position, size, Vector2.Zero, TerrainManager.mapSize) ? 1.0f : 10.0f);
+            energy -= Game1.delta * EnergyUsage * (CollisionHelper.CheckBoxvBoxCollision(position, Size, Vector2.Zero, TerrainManager.mapSize) ? 1.0f : 10.0f);
             timeLived += Game1.delta;
 
-            color = new Color(Red.Value, Green.Value, Blue.Value);
-            if (energy <= 0)
+            color = new Color(Red, Green, Blue);
+            if (energy <= 50)
             {
-                color = Color.Gray;
+                color = Color.LimeGreen;
                 Kill();
             }
             AI();
@@ -261,9 +300,9 @@ namespace Project1.ProjectContent.CellStuff
                 speciesString = GetSpecies().GetHashCode().ToString();
             }
 
-            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHealth:" + ((int)health).ToString()+ "/" + ((int)maxHealth).ToString() + "\nChildren: " + children.Count.ToString() + "\nFitness: " + Fitness.ToString();
-            DrawHelper.DrawText(spriteBatch, text, Color.Black, position - new Vector2(0, 72), Vector2.One);
-            DrawHelper.DrawPixel(spriteBatch, color, position, width * Scale.Value, height * Scale.Value);
+            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHealth:" + ((int)health).ToString()+ "/" + ((int)maxHealth).ToString() + "\nChildren: " + children.Count.ToString() + "\nFitness: " + Fitness.ToString() + "\nKills: " + kills.ToString();
+            DrawHelper.DrawText(spriteBatch, text, Color.Black, position - new Vector2(0, 90), Vector2.One);
+            DrawHelper.DrawPixel(spriteBatch, color, position, width * Scale, height * Scale);
         }
 
         public void AI()
@@ -279,10 +318,10 @@ namespace Project1.ProjectContent.CellStuff
 
             velocity += acceleration;
 
-            if (velocity.Length() > Speed.Value)
+            if (velocity.Length() > Speed)
             {
                 velocity.Normalize();
-                velocity *= Speed.Value;
+                velocity *= Speed;
             }
 
             for (float i = Left - TerrainManager.squareWidth; i <= Right + TerrainManager.squareWidth; i += TerrainManager.squareWidth)
@@ -293,9 +332,9 @@ namespace Project1.ProjectContent.CellStuff
                     int y = (int)((j + (TerrainManager.squareHeight / 2)) / TerrainManager.squareHeight);
                     if (TerrainManager.InGrid(x, y) && TerrainManager.terrainGrid[x, y] is RockSquare)
                     {
-                        if (CollisionHelper.CheckBoxvBoxCollision(Center, size, new Vector2(x + 0.5f, y + 0.5f) * TerrainManager.squareSize, TerrainManager.squareSize))
+                        if (CollisionHelper.CheckBoxvBoxCollision(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * TerrainManager.squareSize, TerrainManager.squareSize))
                         {
-                            Center = CollisionHelper.StopBox(Center, size, new Vector2(x + 0.5f, y + 0.5f) * TerrainManager.squareSize, TerrainManager.squareSize, ref velocity);
+                            Center = CollisionHelper.StopBox(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * TerrainManager.squareSize, TerrainManager.squareSize, ref velocity);
                             hitWall = true;
                         }
                     }
@@ -304,19 +343,19 @@ namespace Project1.ProjectContent.CellStuff
 
             position += velocity * Game1.delta;
 
-            if (fightWillingness > fightThreshhold.Value && lifeCounter > 5)
+            if (fightWillingness > FightThreshhold && lifeCounter > 5)
             {
-                TryKill(fightWillingness - fightThreshhold.Value);
+                TryKill(fightWillingness - FightThreshhold);
             }
 
             lifeCounter += Game1.delta;
-            if (reproductionWillingness > AceThreshhold.Value && GetSpecies() != null && energy > 40 && children.Count < 7)
+            if (reproductionWillingness > AceThreshhold && GetSpecies() != null && energy > 40 && children.Count < 7 && mitosisCounter > 3)
             {
                 Mitosis();
             }
-            if (reproductionWillingness > SexThreshhold.Value && GetSpecies() != null && children.Count < 7)
+            if (reproductionWillingness > SexThreshhold && GetSpecies() != null && children.Count < 7)
             {
-                TryHaveSex();
+                TryMate();
             }
 
 
@@ -332,7 +371,7 @@ namespace Project1.ProjectContent.CellStuff
 
             if (TopRight.X > TerrainManager.mapSize.X)
             {
-                position.X = TerrainManager.mapSize.X - size.X;
+                position.X = TerrainManager.mapSize.X - Size.X;
                 velocity.X = 0;
                 hitWall = true;
             }
@@ -346,7 +385,7 @@ namespace Project1.ProjectContent.CellStuff
 
             if (BottomRight.Y > TerrainManager.mapSize.Y)
             {
-                position.Y = TerrainManager.mapSize.Y - size.Y;
+                position.Y = TerrainManager.mapSize.Y - Size.Y;
                 velocity.Y = 0;
                 hitWall = true;
             }         
@@ -362,7 +401,21 @@ namespace Project1.ProjectContent.CellStuff
 
         public void FoodInteraction()
         {
-            var foodFound = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvBoxCollision(Center, size, n.Center, n.size)).FirstOrDefault();
+            var corpseFound = CellManager.cells.Where(n => n != this && n.energy > 0 && !n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.Size)).FirstOrDefault();
+            if (corpseFound != default)
+            {
+                float hunger = maxEnergy - energy;
+
+                float toEat = MathF.Min(hunger, corpseFound.energy);
+                corpseFound.energy -= toEat;
+                energy += toEat;
+
+                foundFood = true;
+            }
+
+            if (velocity.Length() > 10 && !CellManager.trainingMode)
+                return;
+            var foodFound = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.size)).FirstOrDefault();
 
             if (foodFound != default)
             {
@@ -375,7 +428,7 @@ namespace Project1.ProjectContent.CellStuff
                 if (foodFound.energy <= 0)
                     FoodManager.foods.Remove(foodFound);
 
-                foodFound.color.R = (byte)(255 * MathF.Sqrt(foodFound.energy / 200f));
+                //foodFound.color.R = (byte)(255 * MathF.Sqrt(foodFound.energy / 20f));
 
                 foundFood = true;
             }
@@ -401,7 +454,7 @@ namespace Project1.ProjectContent.CellStuff
             sight.Add(health);
             sight.Add(velocity.X);
             sight.Add(velocity.Y);
-            sight.Add(children.Count * 500);
+            sight.Add(children.Count * 20);
 
             return sight;
         }
@@ -410,6 +463,7 @@ namespace Project1.ProjectContent.CellStuff
         {
             acceleration.X = accelerationBase * (output[0] - 0.5f);
             acceleration.Y = accelerationBase * (output[1] - 0.5f);
+            //acceleration = acceleration.RotatedBy(rotation);
 
             reproductionWillingness = output[2];
             fightWillingness = output[3];
@@ -422,10 +476,9 @@ namespace Project1.ProjectContent.CellStuff
 
         public override void CalculateContinuousFitness()
         {
-            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f);
+            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f) + (kids * 0.5f) + (kills * 10);
             Fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
             Fitness *= MathF.Sqrt(energy / maxEnergy);
-            Fitness *= (velocity.Length() / Speed.Value);
 
             if (hitWall)
             {
@@ -443,10 +496,9 @@ namespace Project1.ProjectContent.CellStuff
 
         public override void CalculateCurrentFitness()
         {
-            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f);
+            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f) + (kids * 0.5f) + (kills * 10);
             Fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
             Fitness *= MathF.Sqrt(energy / maxEnergy);
-            Fitness *= (velocity.Length() / Speed.Value);
 
             if (hitWall)
             {
@@ -467,11 +519,9 @@ namespace Project1.ProjectContent.CellStuff
 
         public override void OnKill()
         {
-            color = Color.Gray;
+            color = Color.LimeGreen;
             if (GetSpecies() != null)
                 GetSpecies().clients.Remove(this);
-            if (sim != null && sim.Agents.Contains(this))
-                sim.Agents.Remove(this);
             //CellManager.cells.Remove(this);
         }
 
@@ -484,10 +534,10 @@ namespace Project1.ProjectContent.CellStuff
 
         public void TryKill(float effort)
         {
-            var nearestCell = CellManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.size, Center, size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
+            var nearestCell = CellManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.Size, Center, Size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
             if (nearestCell != default)
             {
-                float damage = Game1.delta * effort * 100 * Scale.Value;
+                float damage = Game1.delta * effort * 1000 * Scale;
                 energy -= damage;
                 if (energy < 0)
                     return;
@@ -499,56 +549,41 @@ namespace Project1.ProjectContent.CellStuff
 
                     float toEat = MathF.Min(hunger, nearestCell.energy);
                     energy += toEat;
-                    kills++;
+                    kills+= nearestCell.kills + 1;
                     nearestCell.Kill();
                     Debug.WriteLine("Kill at " + ((int)position.X).ToString() + "," + ((int)position.Y).ToString());
                 }
             }
         }
 
-        public void TryHaveSex()
+        public void TryMate()
         {
             if (true)
             {
-                var partner = CellManager.cells.Where(n => n != this && n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.size, Center, size) && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
+                var partner = CellManager.cells.Where(n => n != this && n.IsActive() && (Center.Distance(n.Center) + n.Size.Length() + Size.Length()) < SpawnDistance && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
                 if (partner != default && partner.energy > 100 && partner.kids < 5)
                 {
-                    Debug.WriteLine("Sex at " + ((int)position.X).ToString() + "," + ((int)position.Y).ToString());
-                    Cell child = new Cell(color, size, position, MathHelper.Lerp(energy, partner.energy, 0.5f) * ChildEnergy.Value * 0.5f);
+                    Vector2 newPos = position + (SpawnDistance * Game1.random.NextFloat()).ToRotationVector2();
+                    Debug.WriteLine("Mating at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
+                    Cell child = new Cell(color, Size, newPos, MathHelper.Lerp(energy, partner.energy, 0.5f) * ChildEnergy);
                     child.SetGenome(GetSpecies().Breed(partner, this));
                     child.SetSpecies(GetSpecies());
 
                     sim.neatHost.GetClients().Add(child);
 
-                    child.sim = sim;
                     sim.Agents.Add(child);
 
-                    child.Speed = Speed.Combine(partner.Speed);
-
-                    child.AceThreshhold = AceThreshhold.Combine(partner.AceThreshhold);
-
-                    child.SexThreshhold = SexThreshhold.Combine(partner.SexThreshhold);
-
-                    child.ChildEnergy = ChildEnergy.Combine(partner.ChildEnergy);
-
-                    child.Scale = ChildEnergy.Combine(partner.Scale);
-
-                    child.Red = Red.Combine(partner.Red);
-                    child.Green = Green.Combine(partner.Green);
-                    child.Blue = Blue.Combine(partner.Blue);
-
-                    child.fightThreshhold = fightThreshhold.Combine(partner.fightThreshhold);
-
-                    child.regenRate= regenRate.Combine(partner.regenRate);
-
-                    child.deathThreshhold = deathThreshhold.Combine(partner.deathThreshhold);
+                    for (int i = 0; i < cellStats.Count; i++)
+                    {
+                        child.cellStats[i] = cellStats[i].Combine(partner.cellStats[i]);
+                    }
 
                     child.health = child.maxHealth;
 
                     child.generation = MathF.Max(generation, partner.generation) + 1;
 
-                    partner.energy *= 1.0f - (ChildEnergy.Value * 0.5f);
-                    energy *= 1.0f - (ChildEnergy.Value * 0.5f);
+                    partner.energy *= 1.0f - (ChildEnergy * 0.15f);
+                    energy *= 1.0f - (ChildEnergy * 0.15f);
                     partner.kids++;
                     kids++;
 
@@ -562,8 +597,11 @@ namespace Project1.ProjectContent.CellStuff
 
         public void Mitosis()
         {
-            Debug.WriteLine("Mitosis at " + ((int)position.X).ToString() + "," + ((int)position.Y).ToString());
-            Cell child = new Cell(color, size, position, energy * ChildEnergy.Value * 0.5f);
+            Vector2 newPos = position + SpawnDistance * (Game1.random.NextFloat(0.0f,1.0f)).ToRotationVector2();
+            Debug.WriteLine("Mitosis at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
+            Cell child = new Cell(color, Size, newPos, energy * ChildEnergy);
+            energy -= child.energy * 0.25f;
+            mitosisCounter = 0;
             if (GetSpecies().Size() > 0)
             {
                 child.SetGenome(GetSpecies().Breed());
@@ -576,31 +614,12 @@ namespace Project1.ProjectContent.CellStuff
             }
             sim.neatHost.GetClients().Add(child);
 
-            energy -= child.energy * 2;
-            child.sim = sim;
             sim.Agents.Add(child);
 
-            child.Speed = Speed.Duplicate();
-
-            child.AceThreshhold = AceThreshhold.Duplicate();
-
-            child.SexThreshhold = SexThreshhold.Duplicate();
-
-            child.ChildEnergy = ChildEnergy.Duplicate();
-
-            child.Scale = Scale.Duplicate();
-
-            child.Red = Red.Duplicate();
-
-            child.Green = Green.Duplicate();
-
-            child.Blue = Blue.Duplicate();
-
-            child.fightThreshhold = fightThreshhold.Duplicate();
-
-            child.regenRate = regenRate.Duplicate();
-
-            child.deathThreshhold = deathThreshhold.Duplicate();
+            for (int i = 0; i < cellStats.Count; i++) 
+            {
+                child.cellStats[i] = cellStats[i].Duplicate();
+            }
 
             child.health = child.maxHealth;
 

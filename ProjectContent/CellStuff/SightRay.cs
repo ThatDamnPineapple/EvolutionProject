@@ -13,7 +13,7 @@ namespace Project1.ProjectContent.CellStuff
     {
 
         readonly float MaxLength = 800;
-        readonly float Presision = 10;
+        readonly float Presision = 15;
         public float rotation;
 
         public float distance;
@@ -26,6 +26,9 @@ namespace Project1.ProjectContent.CellStuff
 
         public float scale;
 
+        public float health;
+        public float energy;
+
         public SightRay(float _rotation)
         {
             rotation = _rotation;
@@ -35,20 +38,28 @@ namespace Project1.ProjectContent.CellStuff
         {
             for (float i = 0; i < MaxLength; i+= Presision) 
             {
-                Vector2 offset = Vector2.One.RotatedBy(rotation + parent.rotation) * i;
+                Vector2 offset = Vector2.One.RotatedBy(rotation) * i;
                 Vector2 checkPos = offset + parent.Center;
-                var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
-                if (closestFood != default)
+
+                health = 0;
+                energy = 0;
+                if (CellManager.trainingMode)
                 {
-                    distance = i;
-                    similarity = 100;
-                    scale = closestFood.size.Length();
-                    color = closestFood.color;
-                    pickedUp = true;
-                    return;
+                    var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
+                    if (closestFood != default)
+                    {
+                        distance = i;
+                        similarity = 100;
+                        energy = closestFood.energy;
+                        health = 0;
+                        scale = closestFood.size.Length();
+                        color = closestFood.color;
+                        pickedUp = true;
+                        return;
+                    }
                 }
 
-                var closestCell = CellManager.cells.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
+                var closestCell = CellManager.cells.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.Size, checkPos)).FirstOrDefault();
                 if (closestCell != default)
                 {
                     distance = i;
@@ -56,8 +67,10 @@ namespace Project1.ProjectContent.CellStuff
                         similarity = (float)parent.Distance(closestCell);
                     else
                         similarity = 0;
-                    scale = closestCell.size.Length();
+                    scale = closestCell.Size.Length();
                     color = closestCell.color;
+                    energy = closestCell.energy;
+                    health = closestCell.health;
                     pickedUp = true;
                     return;
                 }
@@ -85,6 +98,8 @@ namespace Project1.ProjectContent.CellStuff
             data.Add(color.G - 128);
             data.Add(color.B - 128);
             data.Add(similarity * 1000);
+            data.Add(health);
+            data.Add(energy);
             data.Add(scale);
         }
     }

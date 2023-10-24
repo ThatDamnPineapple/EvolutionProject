@@ -49,7 +49,7 @@ namespace Project1.ProjectContent.Resources
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            DrawHelper.DrawPixel(spriteBatch, color, position, width, height);
+            DrawHelper.DrawPixel(spriteBatch, color * 0.125f, position, width, height);
         }
     }
 }

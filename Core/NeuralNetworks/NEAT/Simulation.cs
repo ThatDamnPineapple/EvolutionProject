@@ -66,7 +66,6 @@ namespace Project1.Core.NeuralNetworks.NEAT
                 IDna newDNA = PickFitnessWeightedAgent().Dna.Combine(PickFitnessWeightedAgent().Dna, MutationRate);
 
                 var newAgent = InitialiseAgent(newDNA);
-                (newAgent as Cell).sim = (this as CellNeatSimulation<Cell>);
                 agents.Add(newAgent);
             }
 

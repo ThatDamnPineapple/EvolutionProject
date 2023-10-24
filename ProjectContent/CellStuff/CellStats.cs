@@ -45,7 +45,7 @@ namespace Project1.ProjectContent.CellStuff
                 Mutation += Game1.random.NextFloat(-Mutation2, Mutation2);
             }
 
-            Math.Clamp(Value, Min, Max);
+            Value = Math.Clamp(Value, Min, Max);
         }
 
         public CellStat Combine(CellStat other)

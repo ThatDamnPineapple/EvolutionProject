@@ -31,5 +31,17 @@ namespace Project1.Helpers
         {
             return MathF.Atan2(vector.Y, vector.X);
         }
+
+        public static Vector2 ToRotationVector2(this float val)
+        {
+            return Vector2.UnitX.RotatedBy(val);
+        }
+
+        public static float Distance(this Vector2 vector1, Vector2 vector2)
+        {
+            float x = MathF.Abs(vector1.X - vector2.X);
+            float y = MathF.Abs(vector1.Y - vector2.Y);
+            return MathF.Sqrt((x * x) + (y * y));
+        }
     }
 }

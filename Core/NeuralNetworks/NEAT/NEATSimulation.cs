@@ -51,8 +51,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
             {
                 if (agent is ContinuousGeneticAgent r)
                 {
-                    if (!r.IsActive()) inActivity++;
-                    else r.Update();
+                    r.Update();
                 }
                 else
                 {

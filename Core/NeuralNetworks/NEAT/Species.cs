@@ -56,9 +56,10 @@ namespace Project1.Core.NeuralNetworks.NEAT
             double v = 0;
             foreach (NeatAgent a in clients)
             {
-                v += a.Fitness;
+                if (a.IsActive())
+                    v += a.Fitness;
             }
-            score = v / clients.Count;
+            score = v / clients.Count(n => n.IsActive());
         }
 
         public GeneticAgent BestClient()

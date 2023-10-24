@@ -17,7 +17,7 @@ namespace Project1.ProjectContent.Resources
     {
         public float LoadPriority => 1.5f;
 
-        public float DrawPriority => 2.0f;
+        public float DrawPriority => 0.7f;
 
         public float UpdatePriority => 1.0f;
 
@@ -26,7 +26,7 @@ namespace Project1.ProjectContent.Resources
         private bool pressingE = false;
 
         private float foodCounter;
-        private float foodThreshhold = 0.3f;
+        private float foodThreshhold = 0.1f;
 
         public void Load()
         {
@@ -82,7 +82,7 @@ namespace Project1.ProjectContent.Resources
                     pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                     pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
                 }
-                Food newFood = new Food(32, 32, 200, new Color(255, 0, 0), pos);
+                Food newFood = new Food(96, 96, 70, Color.Yellow, pos);
                 foods.Add(newFood);
             }
         }

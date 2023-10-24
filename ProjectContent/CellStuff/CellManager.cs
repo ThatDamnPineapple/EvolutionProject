@@ -16,6 +16,8 @@ namespace Project1.ProjectContent.CellStuff
 {
     internal class CellManager : ILoadable, IDraw, IUpdatable
     {
+        public static bool trainingMode = true;
+        private bool pressingT = false;
         public float LoadPriority => 1.5f;
 
         public float DrawPriority => 1.0f;
@@ -24,7 +26,7 @@ namespace Project1.ProjectContent.CellStuff
 
         public static List<Cell> cells = new List<Cell>();
 
-        public static List<Simulation> simulations = new List<Simulation>();
+        public static Simulation simulation;
 
         public static bool foundMinimum = false;
 
@@ -44,25 +46,33 @@ namespace Project1.ProjectContent.CellStuff
         public void Draw(SpriteBatch spriteBatch)
         {
             string debugInfo = "Total Cells: " + cells.Count.ToString();
-            if (simulations.Count > 0)
+            if (simulation != null && simulation != default)
             {
-                debugInfo += "\n Global Sharing: " + (simulations[0] as NEATSimulation).globalSharing.ToString();
+                debugInfo += "\n Global Sharing: " + (simulation as NEATSimulation).globalSharing.ToString();
             }
+            debugInfo += "\n Training mode: " + trainingMode.ToString();
             DrawHelper.DrawText(spriteBatch, debugInfo, Color.Black, new Vector2(50, 50), Vector2.One, false);
-            foreach (Cell cell in cells)
-            {
-                cell.Draw(spriteBatch);
-            }
+            simulation?.Agents.ForEach(cell => (cell as Cell).Draw(spriteBatch));
         }
 
         public void Update(GameTime gameTime)
         {
             TestForNewCells();
 
-            simulations.ForEach(n => n.Update());
+            simulation?.Update();
 
             var cellsToDestroy = cells.Where(n => !n.IsActive()).ToList();
             cellsToDestroy.ForEach(n => cells.Remove(n));
+
+            if (Keyboard.GetState().IsKeyDown(Keys.T) && !pressingT)
+            {
+                trainingMode = !trainingMode;
+                pressingT = true;
+            }
+            else if (!Keyboard.GetState().IsKeyDown(Keys.T))
+            {
+                pressingT = false;
+            }
         }
 
         private void TestForNewCells()
@@ -70,7 +80,7 @@ namespace Project1.ProjectContent.CellStuff
             if (!pressingSpace && Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 pressingSpace = true;
-                NewCells(100);
+                NewCells(30);
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.Space))
                 pressingSpace = false;
@@ -80,8 +90,7 @@ namespace Project1.ProjectContent.CellStuff
         {
             var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 1f);
             newsim.Deploy();
-            newsim.Agents.ForEach(n => (n as Cell).sim = newsim);
-            simulations.Add(newsim);
+            simulation = newsim;
             
             /*for (int i = 0; i < numCells; i++)
             {
