@@ -11,10 +11,11 @@ using EvoSim.ProjectContent.Terrain;
 using EvoSim.Core.NeuralNetworks;
 using EvoSim.ProjectContent.CellStuff;
 using EvoSim.Helpers.HelperClasses;
+using EvoSim.Helpers;
 
 namespace EvoSim.ProjectContent.Resources
 {
-    internal class FoodManager : ILoadable, IDraw, IUpdatable
+    internal class FoodManager : ILoadable, IDraw, IUpdate
     {
         #region priorities
         public float LoadPriority => 1.5f;
@@ -77,15 +78,15 @@ namespace EvoSim.ProjectContent.Resources
             for (int i = 0; i < numFood; i++)
             {
                 Vector2 pos = Vector2.Zero;
-                pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
+                pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
 
-                while (TerrainManager.ContainsRockWorld(pos))
+                while (SceneManager.grid.ContainsRockWorld(pos))
                 {
-                    pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                    pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                    pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
+                    pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
                 }
-                Food newFood = new Food(FoodSize, FoodEnergy, Color.Yellow, pos);
+                Food newFood = new Food(FoodSize, FoodEnergy, StaticColors.foodColor, pos);
                 foods.Add(newFood);
             }
         }

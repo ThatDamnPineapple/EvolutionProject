@@ -13,9 +13,9 @@ using EvoSim.Core.NeuralNetworks.NEAT;
 using EvoSim.Helpers;
 using EvoSim.Helpers.HelperClasses;
 
-namespace EvoSim.ProjectContent.CellStuff
+namespace EvoSim.ProjectContent.SceneStuff
 {
-    internal class CellManager : ILoadable, IDraw, IUpdatable
+    internal class SceneManager : ILoadable, IDraw, IUpdate
     {
         #region priorities
         public float LoadPriority => 1.5f;
@@ -26,28 +26,39 @@ namespace EvoSim.ProjectContent.CellStuff
 
         #endregion
 
+        public int StartingCells => 30;
+
         public static bool trainingMode = true;
 
         public static List<Cell> cells = new List<Cell>();
-
-        public int StartingCells => 30;
 
         public static Simulation simulation;
 
         private ButtonToggle TrainingModeToggle;
         private ButtonToggle SimStarter;
 
+        public static CameraObject camera;
+        public static TerrainGrid grid;
+
         public void Load()
         {
             Main.drawables.Add(this);
             Main.updatables.Add(this);
+
+            camera = new CameraObject();
+            Main.updatables.Add(camera);
+
+            grid = new TerrainGrid();
+            Main.updatables.Add(grid);
+            Main.drawables.Add(grid);
+
             SimStarter = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.Space)), new ButtonAction((object o) => NewCells(StartingCells)));
             TrainingModeToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.T)), new ButtonAction((object o) => trainingMode = !trainingMode));
         }
 
         public void Unload()
         {
-            
+
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -58,7 +69,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 debugInfo += "\n Global Sharing: " + (simulation as NEATSimulation).globalSharing.ToString();
             }
             debugInfo += "\n Training mode: " + trainingMode.ToString();
-            DrawHelper.DrawText(spriteBatch, debugInfo, Color.Black, new Vector2(50, 50), Vector2.One, false);
+            DrawHelper.DrawText(spriteBatch, debugInfo, StaticColors.textColor, new Vector2(50, 50), Vector2.One, false);
             simulation?.Agents.ForEach(cell => (cell as Cell).Draw(spriteBatch));
         }
 
@@ -78,27 +89,18 @@ namespace EvoSim.ProjectContent.CellStuff
             var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 1f);
             newsim.Deploy();
             simulation = newsim;
-            
-            /*for (int i = 0; i < numCells; i++)
-            {
-                Vector2 pos = Vector2.Zero;
-                pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-                Cell newCell = new Cell(Color.White, Vector2.One * 32, pos, 500, 1000);
-                cells.Add(newCell);
-            }*/
         }
 
         private Cell CreateRawCell(IDna dna)
         {
             Vector2 pos = Vector2.Zero;
-            pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-            pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
+            pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
 
-            while (TerrainManager.ContainsRockWorld(pos))
+            while (SceneManager.grid.ContainsRockWorld(pos))
             {
-                pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
+                pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
             }
             Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 500, dna);
             return newCell;

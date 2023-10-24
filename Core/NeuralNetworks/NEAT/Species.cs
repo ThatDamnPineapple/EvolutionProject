@@ -36,7 +36,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         {
             agent.SetSpecies(this);
             clients.Add(agent);
-            CellManager.cells.Add(agent as Cell);
+            SceneManager.cells.Add(agent as Cell);
         }
 
         public void GoExtinct()

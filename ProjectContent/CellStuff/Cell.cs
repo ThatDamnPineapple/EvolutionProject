@@ -50,7 +50,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float width;
 
-        public CellNeatSimulation<Cell> sim => CellManager.simulation as CellNeatSimulation<Cell>;
+        public CellNeatSimulation<Cell> sim => SceneManager.simulation as CellNeatSimulation<Cell>;
         public float height;
 
         public float energy;
@@ -166,13 +166,13 @@ namespace EvoSim.ProjectContent.CellStuff
                 {
                     for (int j = -tileRadius; j < tileRadius; j++)
                     {
-                        Vector2 originTile = Center / TerrainManager.squareSize;
+                        Vector2 originTile = Center / SceneManager.grid.squareSize;
 
                         int coordX = (int)(originTile.X + i);
                         int coordY = (int)(originTile.Y + j);
-                        if (TerrainManager.InGrid(coordX, coordY))
+                        if (SceneManager.grid.InGrid(coordX, coordY))
                         {
-                            TerrainSquare square = TerrainManager.terrainGrid[coordX, coordY];
+                            TerrainSquare square = SceneManager.grid.terrainGrid[coordX, coordY];
                             if (square is RockSquare)
                                 localTiles[i + tileRadius, j + tileRadius] = 20;
                             else
@@ -184,7 +184,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 }
             }));
 
-            CellManager.cells.Add(this);
+            SceneManager.cells.Add(this);
         }
 
         public override IDna GenerateRandomAgent()
@@ -202,8 +202,8 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             InitializeCellStats();
             Vector2 pos = Vector2.Zero;
-            pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-            pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
+            pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
             position = pos;
             color = new Color(0, 0, 1.0f);
             health = maxHealth;
@@ -233,9 +233,9 @@ namespace EvoSim.ProjectContent.CellStuff
             cellStats.Add(new CellStat(200f, 0.1f, 0.01f, 20, 400, true)); //speed
             cellStats.Add(new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.4f, false)); //childEnergy
             cellStats.Add(new CellStat(1.0f, 0.15f, 0.005f, 0.35f, 4f, true)); //scale
-            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //red
-            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //green
-            cellStats.Add(new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false)); //blue
+            cellStats.Add(new CellStat(StaticColors.startingCellColor.R / 255f, 0.25f, 0.001f, 0.1f, 1, false)); //red
+            cellStats.Add(new CellStat(StaticColors.startingCellColor.G / 255f, 0.25f, 0.001f, 0.1f, 1, false)); //green
+            cellStats.Add(new CellStat(StaticColors.startingCellColor.B / 255f, 0.25f, 0.001f, 0.1f, 1, false)); //blue
             cellStats.Add(new CellStat(0.4f, 0.01f, 0.0001f, 0.1f, 1, false)); //fightThreshhold
             cellStats.Add(new CellStat(1, 0.005f, 0.0001f, 0.1f, 10, true)); //regenRate
             cellStats.Add(new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false)); //deathThreshhold
@@ -266,13 +266,13 @@ namespace EvoSim.ProjectContent.CellStuff
                 energy -= regen;
                 health += regen;
             }
-            energy -= Main.delta * EnergyUsage * (CollisionHelper.CheckBoxvBoxCollision(position, Size, Vector2.Zero, TerrainManager.mapSize) ? 1.0f : 10.0f);
+            energy -= Main.delta * EnergyUsage * (CollisionHelper.CheckBoxvBoxCollision(position, Size, Vector2.Zero, SceneManager.grid.mapSize) ? 1.0f : 10.0f);
             timeLived += Main.delta;
 
             color = new Color(Red, Green, Blue);
             if (energy <= 50)
             {
-                color = Color.LimeGreen;
+                color = StaticColors.deadCellColor;
                 Kill();
             }
             AI();
@@ -288,7 +288,7 @@ namespace EvoSim.ProjectContent.CellStuff
             }
 
             string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHealth:" + ((int)health).ToString()+ "/" + ((int)maxHealth).ToString() + "\nChildren: " + children.Count.ToString() + "\nFitness: " + Fitness.ToString() + "\nKills: " + kills.ToString();
-            DrawHelper.DrawText(spriteBatch, text, Color.Black, position - new Vector2(0, 90), Vector2.One);
+            DrawHelper.DrawText(spriteBatch, text, StaticColors.textColor, position - new Vector2(0, 90), Vector2.One);
             DrawHelper.DrawPixel(spriteBatch, color, position, width * Scale, height * Scale);
         }
 
@@ -304,17 +304,17 @@ namespace EvoSim.ProjectContent.CellStuff
                 velocity *= Speed;
             }
 
-            for (float i = Left - TerrainManager.squareWidth; i <= Right + TerrainManager.squareWidth; i += TerrainManager.squareWidth)
+            for (float i = Left - SceneManager.grid.squareWidth; i <= Right + SceneManager.grid.squareWidth; i += SceneManager.grid.squareWidth)
             {
-                for (float j = Top - TerrainManager.squareHeight; j <= Bottom + TerrainManager.squareHeight; j += TerrainManager.squareHeight)
+                for (float j = Top - SceneManager.grid.squareHeight; j <= Bottom + SceneManager.grid.squareHeight; j += SceneManager.grid.squareHeight)
                 {
-                    int x = (int)((i + (TerrainManager.squareWidth / 2)) / TerrainManager.squareWidth);
-                    int y = (int)((j + (TerrainManager.squareHeight / 2)) / TerrainManager.squareHeight);
-                    if (TerrainManager.InGrid(x, y) && TerrainManager.terrainGrid[x, y] is RockSquare)
+                    int x = (int)((i + (SceneManager.grid.squareWidth / 2)) / SceneManager.grid.squareWidth);
+                    int y = (int)((j + (SceneManager.grid.squareHeight / 2)) / SceneManager.grid.squareHeight);
+                    if (SceneManager.grid.InGrid(x, y) && SceneManager.grid.terrainGrid[x, y] is RockSquare)
                     {
-                        if (CollisionHelper.CheckBoxvBoxCollision(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * TerrainManager.squareSize, TerrainManager.squareSize))
+                        if (CollisionHelper.CheckBoxvBoxCollision(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * SceneManager.grid.squareSize, SceneManager.grid.squareSize))
                         {
-                            Center = CollisionHelper.StopBox(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * TerrainManager.squareSize, TerrainManager.squareSize, ref velocity);
+                            Center = CollisionHelper.StopBox(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * SceneManager.grid.squareSize, SceneManager.grid.squareSize, ref velocity);
                             hitWall = true;
                         }
                     }
@@ -349,9 +349,9 @@ namespace EvoSim.ProjectContent.CellStuff
                 hitWall = true;
             }
 
-            if (TopRight.X > TerrainManager.mapSize.X)
+            if (TopRight.X > SceneManager.grid.mapSize.X)
             {
-                position.X = TerrainManager.mapSize.X - Size.X;
+                position.X = SceneManager.grid.mapSize.X - Size.X;
                 velocity.X = 0;
                 hitWall = true;
             }
@@ -363,9 +363,9 @@ namespace EvoSim.ProjectContent.CellStuff
                 hitWall = true;
             }
 
-            if (BottomRight.Y > TerrainManager.mapSize.Y)
+            if (BottomRight.Y > SceneManager.grid.mapSize.Y)
             {
-                position.Y = TerrainManager.mapSize.Y - Size.Y;
+                position.Y = SceneManager.grid.mapSize.Y - Size.Y;
                 velocity.Y = 0;
                 hitWall = true;
             }         
@@ -381,7 +381,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void FoodInteraction()
         {
-            var corpseFound = CellManager.cells.Where(n => n != this && n.energy > 0 && !n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.Size)).FirstOrDefault();
+            var corpseFound = SceneManager.cells.Where(n => n != this && n.energy > 0 && !n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.Size)).FirstOrDefault();
             if (corpseFound != default)
             {
                 float hunger = maxEnergy - energy;
@@ -393,7 +393,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 foundFood = true;
             }
 
-            if (velocity.Length() > 10 && !CellManager.trainingMode)
+            if (velocity.Length() > 10 && !SceneManager.trainingMode)
                 return;
             var foodFound = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.size)).FirstOrDefault();
 
@@ -407,8 +407,6 @@ namespace EvoSim.ProjectContent.CellStuff
 
                 if (foodFound.energy <= 0)
                     FoodManager.foods.Remove(foodFound);
-
-                //foodFound.color.R = (byte)(255 * MathF.Sqrt(foodFound.energy / 20f));
 
                 foundFood = true;
             }
@@ -484,22 +482,22 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public override void OnKill()
         {
-            color = Color.LimeGreen;
+            color = StaticColors.deadCellColor;
             if (GetSpecies() != null)
                 GetSpecies().clients.Remove(this);
-            //CellManager.cells.Remove(this);
+            //SceneManager.cells.Remove(this);
         }
 
         public override void Refresh()
         {
-            //CellManager.cells.Add(this);
+            //SceneManager.cells.Add(this);
             hitWall = false;
             foundFood = false;
         }
 
         public void TryFight(float effort)
         {
-            var nearestCell = CellManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.Size, Center, Size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
+            var nearestCell = SceneManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.Size, Center, Size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
             if (nearestCell != default)
             {
                 float damage = Main.delta * effort * 1000 * Scale;
@@ -525,7 +523,7 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             if (true)
             {
-                var partner = CellManager.cells.Where(n => n != this && n.IsActive() && (Center.Distance(n.Center) + n.Size.Length() + Size.Length()) < SpawnDistance && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
+                var partner = SceneManager.cells.Where(n => n != this && n.IsActive() && (Center.Distance(n.Center) + n.Size.Length() + Size.Length()) < SpawnDistance && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
                 if (partner != default && partner.energy > 100 && partner.kids < 5)
                 {
                     Vector2 newPos = position + (SpawnDistance * Main.random.NextFloat()).ToRotationVector2();

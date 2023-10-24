@@ -1,8 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using EvoSim.Interfaces;
+﻿using EvoSim.Core.Noise;
+using EvoSim.Helpers.HelperClasses;
 using EvoSim.ProjectContent.Terrain.TerrainTypes;
-using EvoSim.Core.Noise;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,44 +10,60 @@ using System.Threading.Tasks;
 
 namespace EvoSim.ProjectContent.Terrain
 {
-    internal class TerrainManager : ILoadable, IDraw
+    public class TerrainGrid : IDraw, IUpdate
     {
-        public readonly static float squareWidth = 48;
-
-        public readonly static float squareHeight = 48;
-
-        public readonly static int gridWidth = 80;
-
-        public readonly static int gridHeight = 80;
-
-        public static Vector2 mapSize => new Vector2(squareWidth * gridWidth, squareHeight * gridHeight);
-
-        public static Vector2 squareSize => new Vector2(squareWidth, squareHeight);
-        public float LoadPriority => 1.1f;
-
+        #region priorities
         public float DrawPriority => 0.1f;
 
-        internal static TerrainSquare[,] terrainGrid;
+        public float UpdatePriority => 0.1f;
 
-        public void Load() 
+        #endregion
+
+        public float squareWidth = 48;
+
+        public float squareHeight = 48;
+
+        public int gridWidth = 80;
+
+        public int gridHeight = 80;
+
+        public Vector2 mapSize => new Vector2(squareWidth * gridWidth, squareHeight * gridHeight);
+
+        public Vector2 squareSize => new Vector2(squareWidth, squareHeight);
+
+        public TerrainSquare[,] terrainGrid;
+
+        public ButtonToggle Regeneration;
+
+        public TerrainGrid()
         {
-            terrainGrid = new TerrainSquare[gridWidth,gridHeight];
+            terrainGrid = new TerrainSquare[gridWidth, gridHeight];
+            Regeneration = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.R)), new ButtonAction((object o) => PopulateGrid()));
             PopulateGrid();
-            Main.drawables.Add(this);
-        } 
+        }
+        public TerrainGrid(float squareWidth, float squareHeight, int gridWidth, int gridHeight)
+        {
+            this.squareWidth = squareWidth;
+            this.squareHeight = squareHeight;
+            this.gridWidth = gridWidth;
+            this.gridHeight = gridHeight;
+            terrainGrid = new TerrainSquare[gridWidth, gridHeight];
+            Regeneration = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.R)), new ButtonAction((object o) => PopulateGrid()));
+            PopulateGrid();
+        }
 
-        public static bool InGrid(int x, int y)
+        public bool InGrid(int x, int y)
         {
             return (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight);
         }
 
-        public static bool ContainsRockWorld(Vector2 pos)
+        public bool ContainsRockWorld(Vector2 pos)
         {
             int x = (int)(pos.X / squareWidth);
             int y = (int)(pos.Y / squareHeight);
-            if (InGrid(x,y))
+            if (InGrid(x, y))
             {
-                TerrainSquare square = TerrainManager.terrainGrid[x, y];
+                TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
                 if (square is RockSquare)
                     return true;
             }
@@ -90,9 +105,10 @@ namespace EvoSim.ProjectContent.Terrain
             }
         }
 
-        public void Unload()
+        public void Update(GameTime gameTime)
         {
-
+            Regeneration.Update(this);
         }
+
     }
 }

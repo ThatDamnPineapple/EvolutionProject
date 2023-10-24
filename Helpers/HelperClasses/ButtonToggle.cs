@@ -9,7 +9,7 @@ namespace EvoSim.Helpers.HelperClasses
     public delegate bool PressingButton();
 
     public delegate void ButtonAction(object o);
-    internal class ButtonToggle
+    public class ButtonToggle
     {
         private PressingButton ButtonInput;
         private ButtonAction ButtonAction;

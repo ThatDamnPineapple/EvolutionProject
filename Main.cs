@@ -1,15 +1,21 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿
+#region global usings
+global using Microsoft.Xna.Framework;
+global using Microsoft.Xna.Framework.Graphics;
+global using EvoSim.ProjectContent.CellStuff;
+global using EvoSim.ProjectContent.Camera;
+global using EvoSim.ProjectContent.SceneStuff;
+global using EvoSim.Interfaces;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+#endregion
+
 using Microsoft.Xna.Framework.Input;
 using EvoSim.Helpers;
-using EvoSim.Interfaces;
 using SharpDX.X3DAudio;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-
 namespace EvoSim
 {
     public class Main : Game
@@ -26,7 +32,7 @@ namespace EvoSim
 
         internal static List<IDraw> drawables = new List<IDraw>();
 
-        internal static List<IUpdatable> updatables = new List<IUpdatable>();
+        internal static List<IUpdate> updatables = new List<IUpdate>();
 
         public Main()
         {
@@ -79,7 +85,7 @@ namespace EvoSim
 
             delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            foreach (IUpdatable updatable in updatables.OrderBy(n => n.UpdatePriority))
+            foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
             {
                 updatable.Update(gameTime);
             }

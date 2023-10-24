@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace EvoSim.ProjectContent.Terrain
 {
-    internal abstract class TerrainSquare
+    public abstract class TerrainSquare
     {
         public virtual Color color => Color.White;
 
-        public virtual float width => TerrainManager.squareWidth;
+        public virtual float width => SceneManager.grid.squareWidth;
 
-        public virtual float height => TerrainManager.squareHeight;
+        public virtual float height => SceneManager.grid.squareHeight;
 
         public Vector2 position = Vector2.Zero;
 

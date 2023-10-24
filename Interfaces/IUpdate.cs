@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EvoSim.Interfaces
 {
-    internal interface IUpdatable
+    internal interface IUpdate
     {
         public float UpdatePriority => 1.0f;
 

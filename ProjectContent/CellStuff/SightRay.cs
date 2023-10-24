@@ -43,7 +43,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
                 health = 0;
                 energy = 0;
-                if (CellManager.trainingMode)
+                if (SceneManager.trainingMode)
                 {
                     var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
                     if (closestFood != default)
@@ -59,7 +59,7 @@ namespace EvoSim.ProjectContent.CellStuff
                     }
                 }
 
-                var closestCell = CellManager.cells.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.Size, checkPos)).FirstOrDefault();
+                var closestCell = SceneManager.cells.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.Size, checkPos)).FirstOrDefault();
                 if (closestCell != default)
                 {
                     distance = i;
@@ -75,12 +75,12 @@ namespace EvoSim.ProjectContent.CellStuff
                     return;
                 }
 
-                if (!CollisionHelper.CheckBoxvPointCollision(Vector2.Zero, Terrain.TerrainManager.mapSize, checkPos))
+                if (!CollisionHelper.CheckBoxvPointCollision(Vector2.Zero, SceneManager.grid.mapSize, checkPos))
                 {
                     distance = i;
                     similarity = 100;
                     scale = 990;
-                    color = Color.Green;
+                    color = Color.Black;
                     return;
                 }
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EvoSim.ProjectContent.Camera
 {
-    internal class Camera : IUpdatable
+    internal class CameraObject : IUpdate
     {
 
         public float UpdatePriority => 0.1f;
