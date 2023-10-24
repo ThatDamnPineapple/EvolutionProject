@@ -33,12 +33,9 @@ namespace EvoSim.ProjectContent.Terrain
 
         public TerrainSquare[,] terrainGrid;
 
-        public ButtonToggle Regeneration;
-
         public TerrainGrid()
         {
-            terrainGrid = new TerrainSquare[gridWidth, gridHeight];
-            Regeneration = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.R)), new ButtonAction((object o) => PopulateGrid()));
+            terrainGrid = new TerrainSquare[gridWidth, gridHeight];   
             PopulateGrid();
         }
         public TerrainGrid(float squareWidth, float squareHeight, int gridWidth, int gridHeight)
@@ -48,7 +45,6 @@ namespace EvoSim.ProjectContent.Terrain
             this.gridWidth = gridWidth;
             this.gridHeight = gridHeight;
             terrainGrid = new TerrainSquare[gridWidth, gridHeight];
-            Regeneration = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.R)), new ButtonAction((object o) => PopulateGrid()));
             PopulateGrid();
         }
 
@@ -107,7 +103,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public void Update(GameTime gameTime)
         {
-            Regeneration.Update(this);
+
         }
 
     }

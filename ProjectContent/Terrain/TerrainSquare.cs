@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EvoSim.ProjectContent.Terrain.TerrainTypes;
 
 namespace EvoSim.ProjectContent.Terrain
 {
@@ -28,6 +29,17 @@ namespace EvoSim.ProjectContent.Terrain
         public void Draw(SpriteBatch spriteBatch)
         {
             DrawHelper.DrawPixel(spriteBatch, color, position, width, height);
+        }
+
+        public static float GetTerrainID(TerrainSquare square)
+        {
+            if (square is GrassSquare)
+                return 1.0f;
+            if (square is WaterSquare)
+                return 2.0f;
+            if (square is RockSquare)
+                return 3.0f;
+            return 0;
         }
     }
 }

@@ -34,8 +34,7 @@ namespace EvoSim.ProjectContent.SceneStuff
 
         public static Simulation simulation;
 
-        private ButtonToggle TrainingModeToggle;
-        private ButtonToggle SimStarter;
+        private List<ButtonToggle> Toggles = new List<ButtonToggle>();
 
         public static CameraObject camera;
         public static TerrainGrid grid;
@@ -52,8 +51,9 @@ namespace EvoSim.ProjectContent.SceneStuff
             Main.updatables.Add(grid);
             Main.drawables.Add(grid);
 
-            SimStarter = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.Space)), new ButtonAction((object o) => NewCells(StartingCells)));
-            TrainingModeToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.T)), new ButtonAction((object o) => trainingMode = !trainingMode));
+            Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.Space)), new ButtonAction((object o) => NewCells(StartingCells)))); //Start sim
+            Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.T)), new ButtonAction((object o) => trainingMode = !trainingMode))); //toggle Training Mode
+            Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.R)), new ButtonAction((object o) => grid.PopulateGrid()))); //Regenerate terrain
         }
 
         public void Unload()
@@ -75,8 +75,7 @@ namespace EvoSim.ProjectContent.SceneStuff
 
         public void Update(GameTime gameTime)
         {
-            SimStarter.Update(this);
-            TrainingModeToggle.Update(this);
+            Toggles.ForEach(n => n.Update(this));
 
             simulation?.Update();
 
