@@ -10,28 +10,47 @@ using Microsoft.Xna.Framework.Input;
 using Project1.ProjectContent.Terrain;
 using Project1.Core.NeuralNetworks;
 using Project1.ProjectContent.CellStuff;
+using Project1.Helpers.HelperClasses;
 
 namespace Project1.ProjectContent.Resources
 {
     internal class FoodManager : ILoadable, IDraw, IUpdatable
     {
+        #region priorities
         public float LoadPriority => 1.5f;
 
         public float DrawPriority => 0.7f;
 
         public float UpdatePriority => 1.0f;
 
+        #endregion
+
         public static List<Food> foods = new List<Food>();
 
-        private bool pressingE = false;
+        public static float FoodEnergy => 70;
 
-        private float foodCounter;
-        private float foodThreshhold = 0.1f;
+        public static Vector2 FoodSize => new Vector2(96, 96);
+
+        public static int FoodAmount => 400;
+
+        public static float FoodSpawnRate => 0.1f;
+
+
+        private TimeCounter AutomaticFoodSpawner;
+        private ButtonToggle ManualFoodSpawner;
 
         public void Load()
         {
             Game1.drawables.Add(this);
             Game1.updatables.Add(this);
+
+            AutomaticFoodSpawner = new TimeCounter(FoodSpawnRate, new CounterAction((object o, ref float counter, float threshhold) =>
+            {
+                counter -= threshhold;
+                NewFood(1);
+            }));
+
+            ManualFoodSpawner = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.E)), new ButtonAction((object o) => NewFood(FoodAmount)));
         }
 
         public void Unload()
@@ -41,13 +60,8 @@ namespace Project1.ProjectContent.Resources
 
         public void Update(GameTime gameTime)
         {
-            TestForNewFood();
-            foodCounter += Game1.delta;
-            while (foodCounter > foodThreshhold)
-            {
-                foodCounter -= foodThreshhold;
-                NewFood(1);
-            }
+            ManualFoodSpawner.Update(this);
+            AutomaticFoodSpawner.Update(this);
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -56,17 +70,6 @@ namespace Project1.ProjectContent.Resources
             {
                 food.Draw(spriteBatch);
             }
-        }
-
-        private void TestForNewFood()
-        {
-            if (!pressingE && Keyboard.GetState().IsKeyDown(Keys.E))
-            {
-                pressingE = true;
-                NewFood(400);
-            }
-            if (!Keyboard.GetState().IsKeyDown(Keys.E))
-                pressingE = false;
         }
 
         private void NewFood(int numFood)
@@ -82,7 +85,7 @@ namespace Project1.ProjectContent.Resources
                     pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
                     pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
                 }
-                Food newFood = new Food(96, 96, 70, Color.Yellow, pos);
+                Food newFood = new Food(FoodSize, FoodEnergy, Color.Yellow, pos);
                 foods.Add(newFood);
             }
         }

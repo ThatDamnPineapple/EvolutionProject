@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Project1.Core.NeuralNetworks;
 using Project1.Core.NeuralNetworks.NEAT;
 using Project1.Helpers;
+using Project1.Helpers.HelperClasses;
 using Project1.Interfaces;
 using Project1.ProjectContent.Resources;
 using Project1.ProjectContent.Terrain;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -127,11 +129,9 @@ namespace Project1.ProjectContent.CellStuff
         public IDna network;
 
         public float[,] localTiles = new float[TERRAINRANGE, TERRAINRANGE];
-        private float tileRefreshCounter = 0;
-        private float tileRefreshRate = 1f;
 
-        private float networkUpdateRate = 1f;
-        private float networkUpdateCounter = 0;
+        private TimeCounter TileRefreshCounter;
+        private TimeCounter NetworkTimer;
 
         private float reproductionWillingness = 0f;
 
@@ -139,117 +139,28 @@ namespace Project1.ProjectContent.CellStuff
 
         public float generation = 0;
 
-        public Cell() : base()
-        {
-            InitializeCellStats();
-            Vector2 pos = Vector2.Zero;
-            pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-            pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
-            position = pos;
-            color = new Color(0, 0, 1.0f);
-            health = maxHealth;
-            Size = new Vector2(width, height) * Scale;
+        #region initialization methods
 
+        public void BaseInitializer(IDna dna)
+        {
+            health = maxHealth;
             for (int i = 0; i < RAYS; i++)
             {
                 sightRays.Add(new SightRay((i / (float)RAYS) * 6.28f));
             }
 
-            network = Dna;
-
-            CellManager.cells.Add(this);
-
-            networkUpdateRate = Game1.random.NextFloat(0.4f, 0.6f);
-        }
-
-        public override IDna GenerateRandomAgent()
-        {
-            IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<SigmoidActivationFunction>(80)
-                   .AddLayer<SigmoidActivationFunction>(80)
-                   .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
-                   .GenerateWeights(() => Game1.random.NextFloat(-1, 1));
-
-            return network;
-        }
-
-        public Cell(Color _color, Vector2 size, Vector2 _position, float _energy, IDna Dna) : base()
-        {
-            InitializeCellStats();
-            color = _color;
-            width = size.X;
-            height = size.Y;
-            position = _position;
-            energy = _energy;
-            health = maxHealth;
-            Size = size * Scale;
-
-            for (int i = 0; i < RAYS; i++)
+            network = dna;
+            NetworkTimer = new TimeCounter(Game1.random.NextFloat(0.4f, 0.6f), new CounterAction((object o, ref float counter, float threshhold) =>
             {
-                sightRays.Add(new SightRay((i / (float)RAYS) * 6.28f));
-            }
+                counter = 0;
+                sightRays.ForEach(n => n.CastRay(this));
+                network.Compute(FeedInputs().ToArray());
+                Response(network.Response);
+            }));
 
-            network = Dna;
-            networkUpdateRate = Game1.random.NextFloat(0.4f, 0.6f);
-
-            CellManager.cells.Add(this);
-        }
-
-        public Cell(Color _color, Vector2 size, Vector2 _position, float _energy) : base()
-        {
-            InitializeCellStats();
-            color = _color;
-            width = size.X;
-            height = size.Y;
-            position = _position;
-            energy = _energy;
-            health = maxHealth;
-            Size = size * Scale;
-
-            for (int i = 0; i < RAYS; i++)
+            TileRefreshCounter = new TimeCounter(1f, new CounterAction((object o, ref float counter, float threshhold) =>
             {
-                sightRays.Add(new SightRay((i / (float)RAYS) * 6.28f));
-            }
-
-            network = Dna;
-            networkUpdateRate = Game1.random.NextFloat(0.4f, 0.6f);
-            CellManager.cells.Add(this);
-        }
-
-        private void InitializeCellStats()
-        {
-            cellStats.Add(new CellStat(0.5f, 0.01f, 0.0005f, 0.25f, 0.9f, false)); //aceThreshhold
-            cellStats.Add(new CellStat(0.3f, 0.01f, 0.0005f, 0.05f, 1, false)); //sexThreshhold
-            cellStats.Add(new CellStat(200f, 0.1f, 0.01f, 20, 400, true)); //speed
-            cellStats.Add(new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.4f, false)); //childEnergy
-            cellStats.Add(new CellStat(1.0f, 0.15f, 0.005f, 0.35f, 4f, true)); //scale
-            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //red
-            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //green
-            cellStats.Add(new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false)); //blue
-            cellStats.Add(new CellStat(0.4f, 0.01f, 0.0001f, 0.1f, 1, false)); //fightThreshhold
-            cellStats.Add(new CellStat(1, 0.005f, 0.0001f, 0.1f, 10, true)); //regenRate
-            cellStats.Add(new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false)); //deathThreshhold
-            cellStats.Add(new CellStat(150, 5, 0.001f, 5, 500, false)); //spawnDistance
-        }
-
-        public override void OnUpdate()
-        {
-            if (!IsActive())
-            {
-                energy -= Game1.delta * 20f;
-                if (energy < 0)
-                {
-                    if (sim != null && sim.Agents.Contains(this))
-                        sim.Agents.Remove(this);
-                }
-
-                return;
-            }
-            mitosisCounter += Game1.delta;
-            tileRefreshCounter += Game1.delta;
-            if (tileRefreshCounter > tileRefreshRate)
-            {
-                tileRefreshCounter = 0;
+                counter = 0;
                 int tileRadius = TERRAINRANGE / 2;
                 for (int i = -tileRadius; i < tileRadius; i++)
                 {
@@ -271,7 +182,83 @@ namespace Project1.ProjectContent.CellStuff
                             localTiles[i + tileRadius, j + tileRadius] = 20;
                     }
                 }
+            }));
+
+            CellManager.cells.Add(this);
+        }
+
+        public override IDna GenerateRandomAgent()
+        {
+            IDna network = new BaseNeuralNetwork(INPUTNUM)
+                   .AddLayer<SigmoidActivationFunction>(80)
+                   .AddLayer<SigmoidActivationFunction>(80)
+                   .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
+                   .GenerateWeights(() => Game1.random.NextFloat(-1, 1));
+
+            return network;
+        }
+
+        public Cell() : base()
+        {
+            InitializeCellStats();
+            Vector2 pos = Vector2.Zero;
+            pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+            pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            position = pos;
+            color = new Color(0, 0, 1.0f);
+            health = maxHealth;
+            Size = new Vector2(width, height) * Scale;
+
+            BaseInitializer(Dna);
+        }
+
+        public Cell(Color _color, Vector2 size, Vector2 _position, float _energy, IDna NewDNA = null) : base()
+        {
+            InitializeCellStats();
+            color = _color;
+            width = size.X;
+            height = size.Y;
+            position = _position;
+            energy = _energy;
+            health = maxHealth;
+            Size = size * Scale;
+
+            BaseInitializer(NewDNA ?? Dna);
+        }
+
+        private void InitializeCellStats()
+        {
+            cellStats.Add(new CellStat(0.5f, 0.01f, 0.0005f, 0.25f, 0.9f, false)); //aceThreshhold
+            cellStats.Add(new CellStat(0.3f, 0.01f, 0.0005f, 0.05f, 1, false)); //sexThreshhold
+            cellStats.Add(new CellStat(200f, 0.1f, 0.01f, 20, 400, true)); //speed
+            cellStats.Add(new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.4f, false)); //childEnergy
+            cellStats.Add(new CellStat(1.0f, 0.15f, 0.005f, 0.35f, 4f, true)); //scale
+            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //red
+            cellStats.Add(new CellStat(1f, 0.25f, 0.001f, 0.1f, 1, false)); //green
+            cellStats.Add(new CellStat(0.1f, 0.25f, 0.001f, 0.1f, 1, false)); //blue
+            cellStats.Add(new CellStat(0.4f, 0.01f, 0.0001f, 0.1f, 1, false)); //fightThreshhold
+            cellStats.Add(new CellStat(1, 0.005f, 0.0001f, 0.1f, 10, true)); //regenRate
+            cellStats.Add(new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false)); //deathThreshhold
+            cellStats.Add(new CellStat(150, 5, 0.001f, 5, 500, false)); //spawnDistance
+        }
+
+        #endregion
+
+        public override void OnUpdate()
+        {
+            if (!IsActive())
+            {
+                energy -= Game1.delta * 20f;
+                if (energy < 0)
+                {
+                    if (sim != null && sim.Agents.Contains(this))
+                        sim.Agents.Remove(this);
+                }
+
+                return;
             }
+            mitosisCounter += Game1.delta;
+            TileRefreshCounter.Update(this);
             if (health < maxHealth)
             {
                 float regen = RegenRate * Game1.delta;
@@ -307,14 +294,7 @@ namespace Project1.ProjectContent.CellStuff
 
         public void AI()
         {
-            networkUpdateCounter += Game1.delta;
-            if (networkUpdateCounter > networkUpdateRate)
-            {
-                networkUpdateCounter = 0;
-                sightRays.ForEach(n => n.CastRay(this));
-                network.Compute(FeedInputs().ToArray());
-                Response(network.Response);
-            }
+            NetworkTimer.Update(this);
 
             velocity += acceleration;
 
@@ -345,7 +325,7 @@ namespace Project1.ProjectContent.CellStuff
 
             if (fightWillingness > FightThreshhold && lifeCounter > 5)
             {
-                TryKill(fightWillingness - FightThreshhold);
+                TryFight(fightWillingness - FightThreshhold);
             }
 
             lifeCounter += Game1.delta;
@@ -474,47 +454,32 @@ namespace Project1.ProjectContent.CellStuff
             }*/
         }
 
-        public override void CalculateContinuousFitness()
+        public override void CalculateContinuousFitness() => Fitness = GetFitness(false);
+
+        public override void CalculateCurrentFitness() => Fitness = GetFitness(true);
+
+        private float GetFitness(bool reset, bool forMating = false)
         {
-            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f) + (kids * 0.5f) + (kills * 10);
-            Fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
-            Fitness *= MathF.Sqrt(energy / maxEnergy);
+            float fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f) + (kids * 0.5f) + (kills * 10);
+            fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
+            fitness *= MathF.Sqrt(energy / maxEnergy);
 
             if (hitWall)
-            {
-                Fitness -= 10;
-            }
+                fitness -= 10;
 
             if (energy <= 0)
+                fitness -= 10;
+
+            if (reset)
             {
-                Fitness -= 10;
+                hitWall = false;
+                foundFood = false;
             }
 
             if (velocity.Length() < 1)
-                Fitness -= 10;
-        }
+                fitness -= 10;
 
-        public override void CalculateCurrentFitness()
-        {
-            Fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f) + (kids * 0.5f) + (kills * 10);
-            Fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
-            Fitness *= MathF.Sqrt(energy / maxEnergy);
-
-            if (hitWall)
-            {
-                Fitness -= 10;
-            }
-
-            if (energy <= 0)
-            {
-                Fitness -= 10;
-            }
-
-            hitWall = false;
-            foundFood = false;
-
-            if (velocity.Length() < 1)
-                Fitness -= 10;
+            return fitness;
         }
 
         public override void OnKill()
@@ -532,7 +497,7 @@ namespace Project1.ProjectContent.CellStuff
             foundFood = false;
         }
 
-        public void TryKill(float effort)
+        public void TryFight(float effort)
         {
             var nearestCell = CellManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.Size, Center, Size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
             if (nearestCell != default)

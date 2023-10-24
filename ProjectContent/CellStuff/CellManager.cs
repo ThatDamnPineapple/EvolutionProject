@@ -11,31 +11,38 @@ using Project1.ProjectContent.Terrain;
 using Project1.Core.NeuralNetworks;
 using Project1.Core.NeuralNetworks.NEAT;
 using Project1.Helpers;
+using Project1.Helpers.HelperClasses;
 
 namespace Project1.ProjectContent.CellStuff
 {
     internal class CellManager : ILoadable, IDraw, IUpdatable
     {
-        public static bool trainingMode = true;
-        private bool pressingT = false;
+        #region priorities
         public float LoadPriority => 1.5f;
 
         public float DrawPriority => 1.0f;
 
         public float UpdatePriority => 1.0f;
 
+        #endregion
+
+        public static bool trainingMode = true;
+
         public static List<Cell> cells = new List<Cell>();
+
+        public int StartingCells => 30;
 
         public static Simulation simulation;
 
-        public static bool foundMinimum = false;
-
-        private bool pressingSpace = false;
+        private ButtonToggle TrainingModeToggle;
+        private ButtonToggle SimStarter;
 
         public void Load()
         {
             Game1.drawables.Add(this);
             Game1.updatables.Add(this);
+            SimStarter = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.Space)), new ButtonAction((object o) => NewCells(StartingCells)));
+            TrainingModeToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.T)), new ButtonAction((object o) => trainingMode = !trainingMode));
         }
 
         public void Unload()
@@ -57,33 +64,13 @@ namespace Project1.ProjectContent.CellStuff
 
         public void Update(GameTime gameTime)
         {
-            TestForNewCells();
+            SimStarter.Update(this);
+            TrainingModeToggle.Update(this);
 
             simulation?.Update();
 
             var cellsToDestroy = cells.Where(n => !n.IsActive()).ToList();
             cellsToDestroy.ForEach(n => cells.Remove(n));
-
-            if (Keyboard.GetState().IsKeyDown(Keys.T) && !pressingT)
-            {
-                trainingMode = !trainingMode;
-                pressingT = true;
-            }
-            else if (!Keyboard.GetState().IsKeyDown(Keys.T))
-            {
-                pressingT = false;
-            }
-        }
-
-        private void TestForNewCells()
-        {
-            if (!pressingSpace && Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                pressingSpace = true;
-                NewCells(30);
-            }
-            if (!Keyboard.GetState().IsKeyDown(Keys.Space))
-                pressingSpace = false;
         }
 
         private void NewCells(int numCells)
