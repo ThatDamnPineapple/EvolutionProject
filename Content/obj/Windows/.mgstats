@@ -1,3 +1,0 @@
-Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/colto/Desktop/evolution game/Project1/Content/../../MagicPixel.png","C:/Users/colto/Desktop/evolution game/Project1/Content/bin/Windows/sprites/MagicPixel.xnb","TextureProcessor","Texture2DContent",81,89,0.1011048
-"C:/Users/colto/Desktop/evolution game/Project1/Content/fonts/File.spritefont","C:/Users/colto/Desktop/evolution game/Project1/Content/bin/Windows/fonts/Arial.xnb","LocalizedFontProcessor","SpriteFontContent",2498,21535,0.0845819
