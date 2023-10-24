@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Project1.Interfaces;
+using EvoSim.Interfaces;
 using Microsoft.Xna.Framework.Input;
-using Project1.ProjectContent.Terrain;
-using Project1.Core.NeuralNetworks;
-using Project1.ProjectContent.CellStuff;
-using Project1.Helpers.HelperClasses;
+using EvoSim.ProjectContent.Terrain;
+using EvoSim.Core.NeuralNetworks;
+using EvoSim.ProjectContent.CellStuff;
+using EvoSim.Helpers.HelperClasses;
 
-namespace Project1.ProjectContent.Resources
+namespace EvoSim.ProjectContent.Resources
 {
     internal class FoodManager : ILoadable, IDraw, IUpdatable
     {
@@ -41,8 +41,8 @@ namespace Project1.ProjectContent.Resources
 
         public void Load()
         {
-            Game1.drawables.Add(this);
-            Game1.updatables.Add(this);
+            Main.drawables.Add(this);
+            Main.updatables.Add(this);
 
             AutomaticFoodSpawner = new TimeCounter(FoodSpawnRate, new CounterAction((object o, ref float counter, float threshhold) =>
             {
@@ -77,13 +77,13 @@ namespace Project1.ProjectContent.Resources
             for (int i = 0; i < numFood; i++)
             {
                 Vector2 pos = Vector2.Zero;
-                pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+                pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
 
                 while (TerrainManager.ContainsRockWorld(pos))
                 {
-                    pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                    pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                    pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+                    pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
                 }
                 Food newFood = new Food(FoodSize, FoodEnergy, Color.Yellow, pos);
                 foods.Add(newFood);

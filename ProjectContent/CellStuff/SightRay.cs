@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
-using Project1.Helpers;
-using Project1.ProjectContent.Resources;
+using EvoSim.Helpers;
+using EvoSim.ProjectContent.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.CellStuff
+namespace EvoSim.ProjectContent.CellStuff
 {
     internal class SightRay
     {

@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Project1.Interfaces;
+using EvoSim.Interfaces;
 using Microsoft.Xna.Framework.Input;
-using Project1.ProjectContent.Terrain;
-using Project1.Core.NeuralNetworks;
-using Project1.Core.NeuralNetworks.NEAT;
-using Project1.Helpers;
-using Project1.Helpers.HelperClasses;
+using EvoSim.ProjectContent.Terrain;
+using EvoSim.Core.NeuralNetworks;
+using EvoSim.Core.NeuralNetworks.NEAT;
+using EvoSim.Helpers;
+using EvoSim.Helpers.HelperClasses;
 
-namespace Project1.ProjectContent.CellStuff
+namespace EvoSim.ProjectContent.CellStuff
 {
     internal class CellManager : ILoadable, IDraw, IUpdatable
     {
@@ -39,8 +39,8 @@ namespace Project1.ProjectContent.CellStuff
 
         public void Load()
         {
-            Game1.drawables.Add(this);
-            Game1.updatables.Add(this);
+            Main.drawables.Add(this);
+            Main.updatables.Add(this);
             SimStarter = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.Space)), new ButtonAction((object o) => NewCells(StartingCells)));
             TrainingModeToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.T)), new ButtonAction((object o) => trainingMode = !trainingMode));
         }
@@ -92,13 +92,13 @@ namespace Project1.ProjectContent.CellStuff
         private Cell CreateRawCell(IDna dna)
         {
             Vector2 pos = Vector2.Zero;
-            pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-            pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+            pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
 
             while (TerrainManager.ContainsRockWorld(pos))
             {
-                pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-                pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+                pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+                pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
             }
             Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 500, dna);
             return newCell;

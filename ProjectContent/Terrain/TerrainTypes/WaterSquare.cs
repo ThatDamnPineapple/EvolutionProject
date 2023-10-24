@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.Terrain.TerrainTypes
+namespace EvoSim.ProjectContent.Terrain.TerrainTypes
 {
     internal class WaterSquare : TerrainSquare
     {

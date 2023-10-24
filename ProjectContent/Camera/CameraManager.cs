@@ -1,11 +1,11 @@
-﻿using Project1.Interfaces;
+﻿using EvoSim.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.Camera
+namespace EvoSim.ProjectContent.Camera
 {
     internal class CameraManager : ILoadable
     {
@@ -15,7 +15,7 @@ namespace Project1.ProjectContent.Camera
         public void Load() 
         {
             camera = new Camera();
-            Game1.updatables.Add(camera);
+            Main.updatables.Add(camera);
         }
 
         public void Unload() { }

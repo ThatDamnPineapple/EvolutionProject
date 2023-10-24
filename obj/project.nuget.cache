@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "P4N5H1jGBfREoNTbHdVLBaLsYN8gxeLWmZyC9KlLbeQc51MWuvz2SK7480SCNs+ckHioVOhREyHVtWq9w0FHDA==",
+  "dgSpecHash": "wijX+7+xiD9dKbm3PcysXzpdWpsEH8qns2VJCKJspXUm3LZ30Aeq6mw8SRLwkolVKEXCDztbg8Nd0YBxIL7P8w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\Project1.csproj",
+  "projectFilePath": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\EvoSim.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\colto\\.nuget\\packages\\deepcopy\\1.0.3\\deepcopy.1.0.3.nupkg.sha512",
     "C:\\Users\\colto\\.nuget\\packages\\libuv\\1.9.1\\libuv.1.9.1.nupkg.sha512",

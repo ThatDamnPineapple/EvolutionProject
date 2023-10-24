@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Helpers.HelperClasses
+namespace EvoSim.Helpers.HelperClasses
 {
     public delegate void CounterAction(object sender, ref float counter, float threshhold);
     internal class TimeCounter
@@ -21,7 +21,7 @@ namespace Project1.Helpers.HelperClasses
 
         public void Update(object sender)
         {
-            Counter += Game1.delta;
+            Counter += Main.delta;
             while (Counter > Threshhold)
             {
                 Action.Invoke(sender, ref Counter, Threshhold);

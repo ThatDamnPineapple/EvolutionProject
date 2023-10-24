@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Project1.Helpers;
+using EvoSim.Helpers;
 
-namespace Project1.Core.NeuralNetworks.NEAT
+namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class NeatHost
     {
@@ -226,7 +226,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
             foreach (Species s in species) totalFitness += (float)s.score;
 
-            float r = Game1.random.NextFloat(totalFitness);
+            float r = Main.random.NextFloat(totalFitness);
             int index = 0;
             while (r > 0 && index < species.Count)
             {

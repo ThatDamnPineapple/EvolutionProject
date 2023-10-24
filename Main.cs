@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Project1.Helpers;
-using Project1.Interfaces;
+using EvoSim.Helpers;
+using EvoSim.Interfaces;
 using SharpDX.X3DAudio;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace Project1
+namespace EvoSim
 {
-    public class Game1 : Game
+    public class Main : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -28,7 +28,7 @@ namespace Project1
 
         internal static List<IUpdatable> updatables = new List<IUpdatable>();
 
-        public Game1()
+        public Main()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -52,7 +52,7 @@ namespace Project1
 
             loadCache = new List<ILoadable>();
 
-            foreach (Type type in Assembly.GetAssembly(typeof(Game1)).GetTypes())
+            foreach (Type type in Assembly.GetAssembly(typeof(Main)).GetTypes())
             {
                 if (!type.IsAbstract && type.GetInterfaces().Contains(typeof(ILoadable)))
                 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Core.NeuralNetworks.NEAT
+namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class NeatAgent : ContinuousGeneticAgent
     {

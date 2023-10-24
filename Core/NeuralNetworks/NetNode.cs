@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Core.NeuralNetworks
+namespace EvoSim.Core.NeuralNetworks
 {
     public class NetNode
     {

@@ -7597,9 +7597,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\Project1.csproj",
-      "projectName": "Project1",
-      "projectPath": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\Project1.csproj",
+      "projectUniqueName": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\EvoSim.csproj",
+      "projectName": "EvoSim",
+      "projectPath": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\EvoSim.csproj",
       "packagesPath": "C:\\Users\\colto\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\colto\\Desktop\\evolution game\\Project1\\obj\\",
       "projectStyle": "PackageReference",

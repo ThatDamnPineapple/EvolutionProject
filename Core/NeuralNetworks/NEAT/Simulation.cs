@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Project1.Helpers;
-using Project1.ProjectContent.CellStuff;
+using EvoSim.Helpers;
+using EvoSim.ProjectContent.CellStuff;
 
-namespace Project1.Core.NeuralNetworks.NEAT
+namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class Simulation
     {
@@ -47,7 +47,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
             foreach (GeneticAgent agent in Agents) totalFitness += agent.Fitness;
 
-            float r = Game1.random.NextFloat(totalFitness);
+            float r = Main.random.NextFloat(totalFitness);
             int index = 0;
             while (r > 0)
             {
@@ -101,7 +101,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public virtual void Update()
         {
-            Time += Game1.delta;
+            Time += Main.delta;
             int inActivity = 0;
 
             foreach (GeneticAgent agent in Agents)

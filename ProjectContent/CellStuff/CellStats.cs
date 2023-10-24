@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
-using Project1.Helpers;
+using EvoSim.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.CellStuff
+namespace EvoSim.ProjectContent.CellStuff
 {
     public class CellStat
     {
@@ -36,13 +36,13 @@ namespace Project1.ProjectContent.CellStuff
         {
             if (Multiplicative)
             {
-                Value *= 1 + Game1.random.NextFloat(-Mutation, Mutation);
-                Mutation *= 1 + Game1.random.NextFloat(-Mutation2, Mutation2);
+                Value *= 1 + Main.random.NextFloat(-Mutation, Mutation);
+                Mutation *= 1 + Main.random.NextFloat(-Mutation2, Mutation2);
             }
             else
             {
-                Value += Game1.random.NextFloat(-Mutation, Mutation);
-                Mutation += Game1.random.NextFloat(-Mutation2, Mutation2);
+                Value += Main.random.NextFloat(-Mutation, Mutation);
+                Mutation += Main.random.NextFloat(-Mutation2, Mutation2);
             }
 
             Value = Math.Clamp(Value, Min, Max);

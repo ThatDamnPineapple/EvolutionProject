@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Project1.ProjectContent.Camera;
+using EvoSim.ProjectContent.Camera;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Helpers
+namespace EvoSim.Helpers
 {
     internal static class DrawHelper
     {

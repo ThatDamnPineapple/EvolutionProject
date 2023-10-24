@@ -1,15 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Project1.Interfaces;
-using Project1.ProjectContent.Terrain.TerrainTypes;
-using Project1.Core.Noise;
+using EvoSim.Interfaces;
+using EvoSim.ProjectContent.Terrain.TerrainTypes;
+using EvoSim.Core.Noise;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.Terrain
+namespace EvoSim.ProjectContent.Terrain
 {
     internal class TerrainManager : ILoadable, IDraw
     {
@@ -34,7 +34,7 @@ namespace Project1.ProjectContent.Terrain
         {
             terrainGrid = new TerrainSquare[gridWidth,gridHeight];
             PopulateGrid();
-            Game1.drawables.Add(this);
+            Main.drawables.Add(this);
         } 
 
         public static bool InGrid(int x, int y)
@@ -60,7 +60,7 @@ namespace Project1.ProjectContent.Terrain
             float rockThreshhold = 0.6f;
 
             float waterThreshhold = 0.01f;
-            FastNoiseLite noise = new FastNoiseLite(Game1.random.Next());
+            FastNoiseLite noise = new FastNoiseLite(Main.random.Next());
             noise.SetFrequency(0.05f);
 
             for (int i = 0; i < gridWidth; i++)

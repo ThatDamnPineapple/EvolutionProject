@@ -2,14 +2,14 @@
 using Microsoft.VisualBasic.Devices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Project1.Core.NeuralNetworks;
-using Project1.Core.NeuralNetworks.NEAT;
-using Project1.Helpers;
-using Project1.Helpers.HelperClasses;
-using Project1.Interfaces;
-using Project1.ProjectContent.Resources;
-using Project1.ProjectContent.Terrain;
-using Project1.ProjectContent.Terrain.TerrainTypes;
+using EvoSim.Core.NeuralNetworks;
+using EvoSim.Core.NeuralNetworks.NEAT;
+using EvoSim.Helpers;
+using EvoSim.Helpers.HelperClasses;
+using EvoSim.Interfaces;
+using EvoSim.ProjectContent.Resources;
+using EvoSim.ProjectContent.Terrain;
+using EvoSim.ProjectContent.Terrain.TerrainTypes;
 using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.CellStuff
+namespace EvoSim.ProjectContent.CellStuff
 {
     internal class Cell : NeatAgent
     {
@@ -150,7 +150,7 @@ namespace Project1.ProjectContent.CellStuff
             }
 
             network = dna;
-            NetworkTimer = new TimeCounter(Game1.random.NextFloat(0.4f, 0.6f), new CounterAction((object o, ref float counter, float threshhold) =>
+            NetworkTimer = new TimeCounter(Main.random.NextFloat(0.4f, 0.6f), new CounterAction((object o, ref float counter, float threshhold) =>
             {
                 counter = 0;
                 sightRays.ForEach(n => n.CastRay(this));
@@ -193,7 +193,7 @@ namespace Project1.ProjectContent.CellStuff
                    .AddLayer<SigmoidActivationFunction>(80)
                    .AddLayer<SigmoidActivationFunction>(80)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
-                   .GenerateWeights(() => Game1.random.NextFloat(-1, 1));
+                   .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
             return network;
         }
@@ -202,8 +202,8 @@ namespace Project1.ProjectContent.CellStuff
         {
             InitializeCellStats();
             Vector2 pos = Vector2.Zero;
-            pos.X = Game1.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
-            pos.Y = Game1.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
+            pos.X = Main.random.Next((int)(TerrainManager.squareWidth * TerrainManager.gridWidth));
+            pos.Y = Main.random.Next((int)(TerrainManager.squareHeight * TerrainManager.gridHeight));
             position = pos;
             color = new Color(0, 0, 1.0f);
             health = maxHealth;
@@ -248,7 +248,7 @@ namespace Project1.ProjectContent.CellStuff
         {
             if (!IsActive())
             {
-                energy -= Game1.delta * 20f;
+                energy -= Main.delta * 20f;
                 if (energy < 0)
                 {
                     if (sim != null && sim.Agents.Contains(this))
@@ -257,17 +257,17 @@ namespace Project1.ProjectContent.CellStuff
 
                 return;
             }
-            mitosisCounter += Game1.delta;
+            mitosisCounter += Main.delta;
             TileRefreshCounter.Update(this);
             if (health < maxHealth)
             {
-                float regen = RegenRate * Game1.delta;
+                float regen = RegenRate * Main.delta;
                 regen = MathF.Min(regen, maxHealth - health);
                 energy -= regen;
                 health += regen;
             }
-            energy -= Game1.delta * EnergyUsage * (CollisionHelper.CheckBoxvBoxCollision(position, Size, Vector2.Zero, TerrainManager.mapSize) ? 1.0f : 10.0f);
-            timeLived += Game1.delta;
+            energy -= Main.delta * EnergyUsage * (CollisionHelper.CheckBoxvBoxCollision(position, Size, Vector2.Zero, TerrainManager.mapSize) ? 1.0f : 10.0f);
+            timeLived += Main.delta;
 
             color = new Color(Red, Green, Blue);
             if (energy <= 50)
@@ -321,14 +321,14 @@ namespace Project1.ProjectContent.CellStuff
                 }
             }
 
-            position += velocity * Game1.delta;
+            position += velocity * Main.delta;
 
             if (fightWillingness > FightThreshhold && lifeCounter > 5)
             {
                 TryFight(fightWillingness - FightThreshhold);
             }
 
-            lifeCounter += Game1.delta;
+            lifeCounter += Main.delta;
             if (reproductionWillingness > AceThreshhold && GetSpecies() != null && energy > 40 && children.Count < 7 && mitosisCounter > 3)
             {
                 Mitosis();
@@ -502,7 +502,7 @@ namespace Project1.ProjectContent.CellStuff
             var nearestCell = CellManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.Size, Center, Size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
             if (nearestCell != default)
             {
-                float damage = Game1.delta * effort * 1000 * Scale;
+                float damage = Main.delta * effort * 1000 * Scale;
                 energy -= damage;
                 if (energy < 0)
                     return;
@@ -528,7 +528,7 @@ namespace Project1.ProjectContent.CellStuff
                 var partner = CellManager.cells.Where(n => n != this && n.IsActive() && (Center.Distance(n.Center) + n.Size.Length() + Size.Length()) < SpawnDistance && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
                 if (partner != default && partner.energy > 100 && partner.kids < 5)
                 {
-                    Vector2 newPos = position + (SpawnDistance * Game1.random.NextFloat()).ToRotationVector2();
+                    Vector2 newPos = position + (SpawnDistance * Main.random.NextFloat()).ToRotationVector2();
                     Debug.WriteLine("Mating at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
                     Cell child = new Cell(color, Size, newPos, MathHelper.Lerp(energy, partner.energy, 0.5f) * ChildEnergy);
                     child.SetGenome(GetSpecies().Breed(partner, this));
@@ -562,7 +562,7 @@ namespace Project1.ProjectContent.CellStuff
 
         public void Mitosis()
         {
-            Vector2 newPos = position + SpawnDistance * (Game1.random.NextFloat(0.0f,1.0f)).ToRotationVector2();
+            Vector2 newPos = position + SpawnDistance * (Main.random.NextFloat(0.0f,1.0f)).ToRotationVector2();
             Debug.WriteLine("Mitosis at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
             Cell child = new Cell(color, Size, newPos, energy * ChildEnergy);
             energy -= child.energy * 0.25f;

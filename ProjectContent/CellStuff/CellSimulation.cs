@@ -1,4 +1,4 @@
-﻿using Project1.Core.NeuralNetworks.NEAT;
+﻿using EvoSim.Core.NeuralNetworks.NEAT;
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.CellStuff
+namespace EvoSim.ProjectContent.CellStuff
 {
     internal class CellNeatSimulation<T> : NEATSimulation where T : Cell, new()
     {

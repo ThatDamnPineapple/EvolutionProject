@@ -1,4 +1,4 @@
-﻿using Project1.Core.NeuralNetworks.NEAT;
+﻿using EvoSim.Core.NeuralNetworks.NEAT;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -6,9 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Project1.Helpers;
+using EvoSim.Helpers;
 
-namespace Project1.Core.NeuralNetworks
+namespace EvoSim.Core.NeuralNetworks
 {
     public class BaseNeuralNetwork : INeuralNetwork
     {
@@ -97,26 +97,26 @@ namespace Project1.Core.NeuralNetworks
                     NetLayer combineeLayer = combineeNetwork.GetLayer(i);
                     for (int j = 0; j < layer.nodes.Count; j++)
                     {
-                        float biasConfirmation = Game1.random.NextFloat();
+                        float biasConfirmation = Main.random.NextFloat();
 
                         if (biasConfirmation > 0.5f) cloneLayer.nodes[j].bias = combineeLayer.nodes[j].bias;
                         else cloneLayer.nodes[j].bias = layer.nodes[j].bias;
 
-                        if (Game1.random.NextFloat(1) < mutationRate)
+                        if (Main.random.NextFloat(1) < mutationRate)
                         {
-                            cloneLayer.nodes[j].bias = Game1.random.NextFloat(-1f, 1f);
+                            cloneLayer.nodes[j].bias = Main.random.NextFloat(-1f, 1f);
                         }
 
                         for (int k = 0; k < layer.nodes[j].weights.Length; k++)
                         {
-                            float weightConfirmation = Game1.random.NextFloat();
+                            float weightConfirmation = Main.random.NextFloat();
 
                             if (weightConfirmation > 0.5f) cloneLayer.nodes[j].weights[k] = combineeLayer.nodes[j].weights[k];
                             else cloneLayer.nodes[j].weights[k] = layer.nodes[j].weights[k];
 
-                            if (Game1.random.NextFloat(1) < mutationRate)
+                            if (Main.random.NextFloat(1) < mutationRate)
                             {
-                                cloneLayer.nodes[j].weights[k] = Game1.random.NextFloat(-1f, 1f);
+                                cloneLayer.nodes[j].weights[k] = Main.random.NextFloat(-1f, 1f);
                             }
                         }
                     }

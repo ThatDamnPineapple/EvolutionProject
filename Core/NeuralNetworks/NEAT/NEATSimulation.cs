@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
-namespace Project1.Core.NeuralNetworks.NEAT
+namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class NEATSimulation : Simulation
     {
@@ -33,7 +33,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
         }
         public override void Update()
         {
-            Time+= Game1.delta;
+            Time+= Main.delta;
             int inActivity = 0;
 
             if (!pressedG && Keyboard.GetState().IsKeyDown(Keys.G))

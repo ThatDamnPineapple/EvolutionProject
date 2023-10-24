@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Helpers.HelperClasses
+namespace EvoSim.Helpers.HelperClasses
 {
     public delegate bool PressingButton();
 

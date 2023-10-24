@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Project1.Helpers;
+using EvoSim.Helpers;
 
-namespace Project1.Core.NeuralNetworks.NEAT
+namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class Genome : IDna
     {
@@ -40,7 +40,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
                         if (nodeGene.x < nodeGene2.x)
                         {
                             ConnectionGene c = Neat.getConnection(nodeGene, nodeGene2);
-                            c.weight = Game1.random.NextFloat(-1, 1);
+                            c.weight = Main.random.NextFloat(-1, 1);
                             connections.Add(c);
                         }
                     }
@@ -136,7 +136,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
                 if (in1 == in2)
                 {
-                    if (Game1.random.NextFloat(1) > 0.5f)
+                    if (Main.random.NextFloat(1) > 0.5f)
                     {
                         genome.connections.Add(NeatHost.getConnection(gene1));
                     }
@@ -182,7 +182,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
             while (p > 0)
             {
-                if (Game1.random.NextFloat() < p)
+                if (Main.random.NextFloat() < p)
                 {
                     a.Invoke();
                 }
@@ -203,8 +203,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
         {
             for (int i = 0; i < 100; i++)
             {
-                NodeGene a = nodes[Game1.random.Next(nodes.Count)];
-                NodeGene b = nodes[Game1.random.Next(nodes.Count)];
+                NodeGene a = nodes[Main.random.Next(nodes.Count)];
+                NodeGene b = nodes[Main.random.Next(nodes.Count)];
 
                 ConnectionGene con;
 
@@ -223,7 +223,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
                 if (connections.Contains(con)) continue;
 
                 con = Neat.getConnection(con.from, con.to);
-                con.weight = Game1.random.NextFloat(-1, 1) * Neat.WEIGHT_RANDOM_STRENGTH;
+                con.weight = Main.random.NextFloat(-1, 1) * Neat.WEIGHT_RANDOM_STRENGTH;
 
                 connections.Add(con);
                 connections.Sort((x, y) => x.getInovationNumber() - y.getInovationNumber());
@@ -234,7 +234,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
         public void MutateNode()
         {
             if (connections.Count == 0) return;
-            ConnectionGene con = connections[Game1.random.Next(connections.Count)];
+            ConnectionGene con = connections[Main.random.Next(connections.Count)];
             if (con == null) return;
 
             NodeGene from = con.from;
@@ -243,7 +243,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
             NodeGene middle = Neat.getNode();
 
             middle.x = (from.x + to.x) / 2f;
-            middle.y = (from.y + to.y) / 2f + Game1.random.NextFloat(-0.03f, 0.03f);
+            middle.y = (from.y + to.y) / 2f + Main.random.NextFloat(-0.03f, 0.03f);
 
             ConnectionGene c1 = Neat.getConnection(from, middle);
             ConnectionGene c2 = Neat.getConnection(middle, to);
@@ -262,27 +262,27 @@ namespace Project1.Core.NeuralNetworks.NEAT
         public void MutateWeightShift()
         {
             if (connections.Count == 0) return;
-            ConnectionGene con = connections[Game1.random.Next(connections.Count)];
+            ConnectionGene con = connections[Main.random.Next(connections.Count)];
             if (con != null)
             {
-                con.weight += Game1.random.NextFloat(-1, 1) * Neat.WEIGHT_SHIFT_STRENGTH;
+                con.weight += Main.random.NextFloat(-1, 1) * Neat.WEIGHT_SHIFT_STRENGTH;
             }
         }
 
         public void MutateWieghtRandom()
         {
             if (connections.Count == 0) return;
-            ConnectionGene con = connections[Game1.random.Next(connections.Count)];
+            ConnectionGene con = connections[Main.random.Next(connections.Count)];
             if (con != null)
             {
-                con.weight = Game1.random.NextFloat(-1, 1) * Neat.WEIGHT_RANDOM_STRENGTH;
+                con.weight = Main.random.NextFloat(-1, 1) * Neat.WEIGHT_RANDOM_STRENGTH;
             }
         }
 
         public void MutateLinkToggle()
         {
             if (connections.Count == 0) return;
-            ConnectionGene con = connections[Game1.random.Next(connections.Count)];
+            ConnectionGene con = connections[Main.random.Next(connections.Count)];
             if (con != null)
             {
                 con.enabled = !con.enabled;

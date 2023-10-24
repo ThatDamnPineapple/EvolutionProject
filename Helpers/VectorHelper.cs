@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Helpers
+namespace EvoSim.Helpers
 {
     internal static class VectorHelper
     {

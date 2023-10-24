@@ -54,7 +54,7 @@ using System.Runtime.CompilerServices;
 using FNLfloat = System.Single;
 //using FNLfloat = System.Double;
 
-namespace Project1.Core.Noise
+namespace EvoSim.Core.Noise
 {
     public class FastNoiseLite
     {

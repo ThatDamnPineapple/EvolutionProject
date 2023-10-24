@@ -1,11 +1,11 @@
-﻿using Project1.ProjectContent.CellStuff;
+﻿using EvoSim.ProjectContent.CellStuff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.Core.NeuralNetworks.NEAT
+namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class Species
     {
@@ -85,7 +85,7 @@ namespace Project1.Core.NeuralNetworks.NEAT
         {
             if (clients.Count == 0)
                 return;
-            representative = clients[Game1.random.Next(clients.Count)];
+            representative = clients[Main.random.Next(clients.Count)];
             foreach (NeatAgent c in clients)
             {
                 c.SetSpecies(null);
@@ -124,8 +124,8 @@ namespace Project1.Core.NeuralNetworks.NEAT
 
         public Genome Breed()
         {
-            NeatAgent a1 = clients[Game1.random.Next(clients.Count)];
-            NeatAgent a2 = clients[Game1.random.Next(clients.Count)];
+            NeatAgent a1 = clients[Main.random.Next(clients.Count)];
+            NeatAgent a2 = clients[Main.random.Next(clients.Count)];
 
             if (a1.Fitness > a2.Fitness) return (Genome)a1.GetGenome().Combine(a2.GetGenome(), 0);
 

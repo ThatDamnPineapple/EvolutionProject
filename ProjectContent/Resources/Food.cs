@@ -1,16 +1,16 @@
 ﻿using Microsoft.VisualBasic.Devices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Project1.Core.NeuralNetworks;
-using Project1.Helpers;
-using Project1.Interfaces;
+using EvoSim.Core.NeuralNetworks;
+using EvoSim.Helpers;
+using EvoSim.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.Resources
+namespace EvoSim.ProjectContent.Resources
 {
     internal class Food
     {

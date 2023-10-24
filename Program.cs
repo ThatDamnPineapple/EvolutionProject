@@ -1,3 +1,3 @@
 ﻿
-using var game = new Project1.Game1();
+using var game = new EvoSim.Main();
 game.Run();

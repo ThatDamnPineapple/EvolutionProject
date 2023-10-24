@@ -1,14 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Project1.Helpers;
-using Project1.Interfaces;
+using EvoSim.Helpers;
+using EvoSim.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project1.ProjectContent.Camera
+namespace EvoSim.ProjectContent.Camera
 {
     internal class Camera : IUpdatable
     {
