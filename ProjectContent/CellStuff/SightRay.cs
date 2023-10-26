@@ -12,7 +12,7 @@ namespace EvoSim.ProjectContent.CellStuff
     internal class SightRay
     {
 
-        readonly float MaxLength = 800;
+        readonly float MaxLength = 300;
         readonly float Presision = 15;
         public float rotation;
 
@@ -29,6 +29,14 @@ namespace EvoSim.ProjectContent.CellStuff
         public float health;
         public float energy;
 
+        public Vector2 velocity;
+
+        public float fitness;
+
+        public float age;
+
+        public float child;
+
         public SightRay(float _rotation)
         {
             rotation = _rotation;
@@ -36,59 +44,80 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void CastRay(Cell parent)
         {
+            distance = 10000;
+            similarity = 100;
+            color = Color.Black;
+            health = 0;
+            energy = 0;
+            fitness = 0;
+            velocity = Vector2.Zero;
+            age = -100;
+            child = 0;
             for (float i = 0; i < MaxLength; i+= Presision) 
             {
                 Vector2 offset = Vector2.One.RotatedBy(rotation) * i;
-                Vector2 checkPos = offset + parent.Center;
+                Vector2 checkPos = offset + parent.Center;     
 
-                health = 0;
-                energy = 0;
-                if (SceneManager.trainingMode)
+                while (checkPos.X > SceneManager.grid.mapSize.X)
                 {
-                    var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
-                    if (closestFood != default)
-                    {
-                        distance = i;
-                        similarity = 100;
-                        energy = closestFood.energy;
-                        health = 0;
-                        scale = closestFood.size.Length();
-                        color = closestFood.color;
-                        pickedUp = true;
-                        return;
-                    }
+                    checkPos.X -= SceneManager.grid.mapSize.X;
                 }
 
-                var closestCell = SceneManager.cells.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.Size, checkPos)).FirstOrDefault();
+                while (checkPos.X < 0)
+                {
+                    checkPos.X += SceneManager.grid.mapSize.X;
+                }
+
+                while (checkPos.Y > SceneManager.grid.mapSize.Y)
+                {
+                    checkPos.Y -= SceneManager.grid.mapSize.Y;
+                }
+
+                while (checkPos.Y < 0)
+                {
+                    checkPos.Y += SceneManager.grid.mapSize.Y;
+                }
+
+                var closestCell = SceneManager.simulation?.Agents.Where(n => CollisionHelper.CheckBoxvPointCollision((n as Cell).position, (n as Cell).Size, checkPos)).FirstOrDefault();
                 if (closestCell != default)
                 {
+                    var closestCellCast = closestCell as Cell;
                     distance = i;
-                    if (closestCell.GetGenome() != null)
-                        similarity = (float)parent.Distance(closestCell);
+                    if (closestCellCast.GetGenome() != null)
+                        similarity = (float)parent.Distance(closestCellCast);
                     else
                         similarity = 0;
-                    scale = closestCell.Size.Length();
-                    color = closestCell.color;
-                    energy = closestCell.energy;
-                    health = closestCell.health;
+                    scale = closestCellCast.Size.Length();
+                    color = closestCellCast.color;
+                    energy = closestCellCast.energy;
+                    health = closestCellCast.health;
                     pickedUp = true;
+                    fitness = closestCellCast.GetFitness(false, true);
+                    velocity = closestCellCast.velocity;
+                    age = closestCellCast.lifeCounter;
+
+                    if (parent.children.Contains(closestCellCast))
+                        child = 100;
+
+                    if (parent.parents.Contains(closestCellCast))
+                        child = -100;
                     return;
                 }
 
-                if (!CollisionHelper.CheckBoxvPointCollision(Vector2.Zero, SceneManager.grid.mapSize, checkPos))
+                var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();
+                if (closestFood != default)
                 {
                     distance = i;
                     similarity = 100;
-                    scale = 990;
-                    color = Color.Black;
+                    energy = closestFood.energy;
+                    health = 0;
+                    scale = closestFood.size.Length();
+                    color = closestFood.color;
+                    pickedUp = true;
                     return;
                 }
-
-                distance = 10000;
-                similarity = 100;
-                color = Color.Black;
-                
             }
+
         }
 
         public void FeedData(List<float> data)
@@ -100,7 +129,12 @@ namespace EvoSim.ProjectContent.CellStuff
             data.Add(similarity * 1000);
             data.Add(health);
             data.Add(energy);
-            data.Add(scale);
+            data.Add(scale * 100);
+            data.Add(fitness);
+            data.Add(velocity.X);
+            data.Add(velocity.Y);
+            data.Add(age);
+            data.Add(child);
         }
     }
 }

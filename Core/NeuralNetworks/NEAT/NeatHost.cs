@@ -27,18 +27,18 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public double CP = 6f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 10f;
-        public double WEIGHT_RANDOM_STRENGTH = 20f;
+        public double WEIGHT_SHIFT_STRENGTH = 20f;
+        public double WEIGHT_RANDOM_STRENGTH = 10f;
 
-        public double PROBABILITY_MUTATE_LINK = 5.8f;
-        public double PROBABILITY_MUTATE_NODE = 5.6f;
-        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 3.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 3.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 45f;
+        public double PROBABILITY_MUTATE_LINK = 1.8f;
+        public double PROBABILITY_MUTATE_NODE = 2.6f;
+        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.6f;
 
-        public float SURVIVORS = 0.7f;
+        public float SURVIVORS = 0.98f;
 
-        public int STALESPECIES = 600;
+        public int STALESPECIES = 20;
 
         public NeatHost(int inputSize, int outputSize, int clients, NEATSimulation parent)
         {
@@ -143,7 +143,12 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             Reproduce();
             Mutate();
 
-            foreach (NeatAgent n in GetClients()) n.GenerateCalculator();
+            foreach (NeatAgent n in GetClients())
+            {
+                if (n.Dna == null || n.Dna is not Genome)
+                    continue;
+                n.GenerateCalculator();
+            }
         }
 
         public void GenerateSpecies()
@@ -261,7 +266,8 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             foreach (GeneticAgent a in GetClients())
             {
                 NeatAgent nA = a as NeatAgent;
-                nA.Mutate();
+                if (nA.Dna != null && nA.Dna is Genome)
+                    nA.Mutate();
             }
         }
     }

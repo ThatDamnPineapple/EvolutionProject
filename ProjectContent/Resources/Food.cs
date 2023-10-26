@@ -43,13 +43,13 @@ namespace EvoSim.ProjectContent.Resources
             this.width = size.X;
             this.height = size.Y;
             this.color = color;
-            this.position = position;
+            this.Center = position;
             this.energy = energy;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            DrawHelper.DrawPixel(spriteBatch, color * 0.125f, position, width, height);
+            DrawHelper.DrawPixel(spriteBatch, color * 0.125f, position, Vector2.Zero, width, height);
         }
     }
 }

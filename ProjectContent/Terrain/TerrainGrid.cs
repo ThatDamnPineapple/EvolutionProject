@@ -19,13 +19,15 @@ namespace EvoSim.ProjectContent.Terrain
 
         #endregion
 
-        public float squareWidth = 48;
+        public float squareWidth = 96;
 
-        public float squareHeight = 48;
+        public float squareHeight = 96;
 
-        public int gridWidth = 80;
+        public int gridWidth = 60;
 
-        public int gridHeight = 80;
+        public int gridHeight = 60;
+
+        public Vector2 gridSize => new Vector2(gridWidth, gridHeight);
 
         public Vector2 mapSize => new Vector2(squareWidth * gridWidth, squareHeight * gridHeight);
 

@@ -28,7 +28,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            DrawHelper.DrawPixel(spriteBatch, color, position, width, height);
+            DrawHelper.DrawPixel(spriteBatch, color, position, Vector2.Zero, width, height);
         }
 
         public static float GetTerrainID(TerrainSquare square)

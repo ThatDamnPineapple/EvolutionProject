@@ -34,15 +34,16 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void Mutate()
         {
+            int mutationModifier = SceneManager.trainingMode ? 1 : 1;
             if (Multiplicative)
             {
-                Value *= 1 + Main.random.NextFloat(-Mutation, Mutation);
-                Mutation *= 1 + Main.random.NextFloat(-Mutation2, Mutation2);
+                Value *= 1 + (Main.random.NextFloat(-Mutation, Mutation) * mutationModifier);
+                Mutation *= 1 + (Main.random.NextFloat(-Mutation2, Mutation2) * mutationModifier);
             }
             else
             {
-                Value += Main.random.NextFloat(-Mutation, Mutation);
-                Mutation += Main.random.NextFloat(-Mutation2, Mutation2);
+                Value += (Main.random.NextFloat(-Mutation, Mutation) * mutationModifier);
+                Mutation += (Main.random.NextFloat(-Mutation2, Mutation2) * mutationModifier);
             }
 
             Value = Math.Clamp(Value, Min, Max);

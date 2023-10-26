@@ -9,7 +9,7 @@ namespace EvoSim.Helpers
 {
     public static class CollisionHelper
     {
-        public static bool CheckBoxvBoxCollision(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2) //uses center
+        public static bool CheckBoxvBoxCollision(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2) //uses position
         {
             return (pos1.X < pos2.X + size2.X &&
                 pos1.X + size1.X > pos2.X &&

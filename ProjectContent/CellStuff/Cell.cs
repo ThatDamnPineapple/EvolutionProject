@@ -28,25 +28,31 @@ namespace EvoSim.ProjectContent.CellStuff
 
         #endregion
         #region properties
-        public float maxEnergy => 1000 * Scale;
-        public float maxHealth => 50 * Scale;
+        public float maxEnergy => 1000 * (Scale * Scale);
+        public float maxHealth => 300 * (Scale * Scale);
 
         public float accelerationBase => 10.0f;
 
-        public float EnergyUsage => (Scale * velocity.Length() * 0.00004f) + 15;
+        public float EnergyUsage => ((Scale * Scale) * velocity.Length() * 0.000000825f * (1.0f / TerrainVelocity())) + 1.5f;
+
+        public float ConsumptionRate => (Scale * Scale) * 200f;
+
+        public float FoodCounterRate => 2f;
         #endregion
         #region neural network node info
         public readonly static float UPDATERATE = 0.01f;
-        public readonly static int RAYS = 16;
-        public readonly static int RAYVALUES = 8;
-        public readonly static int TERRAINRANGE = 4;
-        public readonly static int ADDITIONALVALUES = 7;
-        public static int INPUTNUM => (RAYS * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE);
-        public readonly static int OUTPUTNUM = 4;
+        public readonly static int RAYS = 8;
+        public readonly static int RAYVALUES = 13;
+        public readonly static int TERRAINRANGE = 2;
+        public readonly static int MEMORYCELLS = 3;
+        public readonly static int ADDITIONALVALUES = 10;
+        public static int INPUTNUM => (RAYS * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE) + MEMORYCELLS;
+        public readonly static int BASICOUTPUT = 7;
+        public static int OUTPUTNUM => BASICOUTPUT + MEMORYCELLS;
         #endregion
         #region cell stats
-        public float AceThreshhold => cellStats[0].Value;
-        public float SexThreshhold => cellStats[1].Value;
+        public float SexLikelihood => cellStats[0].Value;
+        public float AceLikelihood => cellStats[1].Value;
         public float Speed => cellStats[2].Value;
         public float ChildEnergy => cellStats[3].Value;
         public float Scale => cellStats[4].Value;
@@ -57,6 +63,10 @@ namespace EvoSim.ProjectContent.CellStuff
         public float RegenRate => cellStats[9].Value;
         public float DeathThreshhold => cellStats[10].Value;
         public float SpawnDistance => cellStats[11].Value;
+        public float MutationRate => cellStats[12].Value;
+        public float SwimmingProficiency => cellStats[13].Value;
+
+        public float ChildDampen => cellStats[14].Value;
 
         #endregion
         #region size and dimension stuff
@@ -113,6 +123,8 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public bool foundFood = false;
 
+        public float foodCounter = 0;
+
         public int kids = 0;
         public int kills = 0;
 
@@ -124,11 +136,20 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public Vector2 acceleration = Vector2.Zero;
 
-        private float reproductionWillingness = 0f;
+        private float mateWillingness = 0f;
+        private float splitWillingness = 0f;
 
         private float fightWillingness = 0f;
 
         public float generation = 0;
+
+        public Vector2 offspringOffset = Vector2.Zero;
+
+        public int horribleParentCounter = 0;
+
+        public float childDampMult = 1.0f;
+
+        public List<Cell> parents = new List<Cell>();
         #endregion
         #region miscellaneous data
         public List<CellStat> cellStats= new List<CellStat>();
@@ -145,6 +166,9 @@ namespace EvoSim.ProjectContent.CellStuff
 
         private TimeCounter TileRefreshCounter;
         private TimeCounter NetworkTimer;
+        private TimeCounter mutationTimer;
+
+        private List<float> memory = new List<float>();
         #endregion
 
         #region initialization methods
@@ -166,20 +190,33 @@ namespace EvoSim.ProjectContent.CellStuff
                 Response(network.Response);
             }));
 
-            TileRefreshCounter = new TimeCounter(1f, new CounterAction((object o, ref float counter, float threshhold) =>
+            TileRefreshCounter = new TimeCounter(Main.random.NextFloat(2f, 3f) * 1000, new CounterAction((object o, ref float counter, float threshhold) =>
             {
                 counter = 0;
                 UpdateLocalTiles();
             }));
 
-            SceneManager.cells.Add(this);
+            mutationTimer = new TimeCounter(MutationRate, new CounterAction((object o, ref float counter, float threshhold) =>
+            {
+                counter = 0;
+                Mutate();
+                cellStats.ForEach(n => n.Mutate());
+            }));
+
+            for (int i = 0; i < MEMORYCELLS; i++)
+            {
+                memory.Add(0);
+            }
+
+            SceneManager.simulation?.Agents.Add(this);
         }
 
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<SigmoidActivationFunction>(80)
-                   .AddLayer<SigmoidActivationFunction>(80)
+                   .AddLayer<SigmoidActivationFunction>(100)
+                   .AddLayer<LinearActivationFunction>(100)
+                   .AddLayer<LinearActivationFunction>(80)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
@@ -216,18 +253,21 @@ namespace EvoSim.ProjectContent.CellStuff
 
         private void InitializeCellStats()
         {
-            cellStats.Add(new CellStat(0.5f, 0.01f, 0.0005f, 0.25f, 0.9f, false)); //aceThreshhold
-            cellStats.Add(new CellStat(0.3f, 0.01f, 0.0005f, 0.05f, 1, false)); //sexThreshhold
-            cellStats.Add(new CellStat(200f, 0.1f, 0.01f, 20, 400, true)); //speed
-            cellStats.Add(new CellStat(0.3f, 0.01f, 0.001f, 0.1f, 0.4f, false)); //childEnergy
-            cellStats.Add(new CellStat(1.0f, 0.15f, 0.005f, 0.35f, 4f, true)); //scale
-            cellStats.Add(new CellStat(StaticColors.startingCellColor.R / 255f, 0.25f, 0.001f, 0.1f, 1, false)); //red
-            cellStats.Add(new CellStat(StaticColors.startingCellColor.G / 255f, 0.25f, 0.001f, 0.1f, 1, false)); //green
-            cellStats.Add(new CellStat(StaticColors.startingCellColor.B / 255f, 0.25f, 0.001f, 0.1f, 1, false)); //blue
+            cellStats.Add(new CellStat(10f, 0.05f, 0.02f, 4f, 20f, false)); //sexLikelihood
+            cellStats.Add(new CellStat(8f, 0.01f, 0.005f, 5.5f, 15f, false)); //aceLikelihood
+            cellStats.Add(new CellStat(200f, 1f, 0.1f, 2, 700, false)); //speed
+            cellStats.Add(new CellStat(0.25f, 0.02f, 0.001f, 0.05f, 0.49f, false)); //childEnergy
+            cellStats.Add(new CellStat(1.0f, 0.095f, 0.001f, 0.07f, 6f, false)); //scale
+            cellStats.Add(new CellStat(0.5f, 0.035f, 0.001f, 0.1f, 1, false)); //red
+            cellStats.Add(new CellStat(0.5f, 0.035f, 0.001f, 0.1f, 1, false)); //green
+            cellStats.Add(new CellStat(0.5f, 0.035f, 0.001f, 0.1f, 1, false)); //blue
             cellStats.Add(new CellStat(0.4f, 0.01f, 0.0001f, 0.1f, 1, false)); //fightThreshhold
-            cellStats.Add(new CellStat(1, 0.005f, 0.0001f, 0.1f, 10, true)); //regenRate
+            cellStats.Add(new CellStat(0.5f, 0.005f, 0.0001f, 0.05f, 5, true)); //regenRate
             cellStats.Add(new CellStat(0.95f, 0.001f, 0.0001f, 0.9f, 1.0f, false)); //deathThreshhold
-            cellStats.Add(new CellStat(150, 5, 0.001f, 5, 500, false)); //spawnDistance
+            cellStats.Add(new CellStat(35, 0.15f, 0.0001f, 15, 65, false)); //spawnDistance
+            cellStats.Add(new CellStat(40 * Main.random.NextFloat(0.8f, 1.2f), 1f, 0.01f, 20, 200, false)); //mutationRate
+            cellStats.Add(new CellStat(0.5f, 0.0f, 0.000f, 0.01f, 0.99f, false)); //SwimmingProficiency
+            cellStats.Add(new CellStat(0.87f, 0.01f, 0.001f, 0.7f, 0.99f, false)); //ChildDampen
         }
 
         #endregion
@@ -257,7 +297,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
             Movement();
             NetworkTimer.Update(this);
-            TrySpecificActions();
+            mutationTimer.Update(this);
 
             foreach (Cell child in children.ToArray())
             {
@@ -266,19 +306,40 @@ namespace EvoSim.ProjectContent.CellStuff
                     children.Remove(child);
                 }
             }
+
+            foreach(Cell parent in parents.ToArray())
+            {
+                if (!parent.IsActive())
+                {
+                    parents.Remove(parent);
+                }
+            }
             FoodInteraction();
+            TrySpecificActions();
+            if (foundFood)
+            {
+                foodCounter += FoodCounterRate * Main.delta;
+            }
+            else if (foodCounter > 0)
+            {
+                foodCounter -= FoodCounterRate * Main.delta;
+            }
+            foodCounter = MathHelper.Max(foodCounter, 0);
         }
 
         public void TrySpecificActions()
         {
-            if (fightWillingness > FightThreshhold && lifeCounter > 5)
+            if (mateWillingness > 1 && energy * ChildEnergy > 75 && lifeCounter > 3 && TryMate(mateWillingness))
+            {
+                return;
+            }
+
+            if (fightWillingness > FightThreshhold)
                 TryFight(fightWillingness - FightThreshhold);
 
-            if (reproductionWillingness > AceThreshhold && GetSpecies() != null && energy > 40 && children.Count < 7 && mitosisCounter > 3)
+            if (splitWillingness > 1 && energy * ChildEnergy > 150 && lifeCounter > 3)
                 Mitosis();
 
-            if (reproductionWillingness > SexThreshhold && GetSpecies() != null && children.Count < 7)
-                TryMate();
         }
 
         public void RegenerationLogic()
@@ -296,11 +357,17 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             if (!IsActive())
             {
-                energy -= Main.delta * 20f;
+                energy -= Main.delta * 1f;
                 if (energy < 0)
                 {
                     if (sim != null && sim.Agents.Contains(this))
                         sim.Agents.Remove(this);
+
+                    if (SceneManager.simulation != null)
+                    {
+                        if (SceneManager.simulation.Agents.Contains(this))
+                            SceneManager.simulation.Agents.Remove(this);
+                    }
                 }
                 return true;
             }
@@ -309,23 +376,35 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void Movement()
         {
-            velocity += acceleration;
+            velocity += acceleration * TerrainVelocity();
 
-            if (velocity.Length() > Speed)
+            if (velocity.Length() > Speed * TerrainVelocity())
             {
                 velocity.Normalize();
-                velocity *= Speed;
+                velocity *= Speed * TerrainVelocity();
             }
-
             TileCollision();
 
             position += velocity * Main.delta;
             rotation = velocity.ToRotation() + MathHelper.PiOver2;
         }
 
+        public float TerrainVelocity() => (InWater() ? SwimmingProficiency : 1.0f - SwimmingProficiency);
+
+        public bool InWater()
+        {
+            int x = (int)(Center.X / SceneManager.grid.squareWidth);
+            int y = (int)(Center.Y / SceneManager.grid.squareHeight);
+            if (!SceneManager.grid.InGrid(x,y)) 
+                return false;
+
+            TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
+            return square is WaterSquare;
+        }
+
         public void TileCollision()
         {
-            for (float i = Left - SceneManager.grid.squareWidth; i <= Right + SceneManager.grid.squareWidth; i += SceneManager.grid.squareWidth)
+           /* for (float i = Left - SceneManager.grid.squareWidth; i <= Right + SceneManager.grid.squareWidth; i += SceneManager.grid.squareWidth)
             {
                 for (float j = Top - SceneManager.grid.squareHeight; j <= Bottom + SceneManager.grid.squareHeight; j += SceneManager.grid.squareHeight)
                 {
@@ -333,14 +412,14 @@ namespace EvoSim.ProjectContent.CellStuff
                     int y = (int)((j + (SceneManager.grid.squareHeight / 2)) / SceneManager.grid.squareHeight);
                     if (SceneManager.grid.InGrid(x, y) && SceneManager.grid.terrainGrid[x, y] is RockSquare)
                     {
-                        if (CollisionHelper.CheckBoxvBoxCollision(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * SceneManager.grid.squareSize, SceneManager.grid.squareSize))
+                        if (CollisionHelper.CheckBoxvBoxCollision(position, Size, new Vector2(x, y) * SceneManager.grid.squareSize, SceneManager.grid.squareSize))
                         {
                             Center = CollisionHelper.StopBox(Center, Size, new Vector2(x + 0.5f, y + 0.5f) * SceneManager.grid.squareSize, SceneManager.grid.squareSize, ref velocity);
                             hitWall = true;
                         }
                     }
                 }
-            }
+            }*/
 
             if (TopLeft.X < 0)
             {
@@ -365,27 +444,30 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void FoodInteraction()
         {
-            var corpseFound = SceneManager.cells.Where(n => n != this && n.energy > 0 && !n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.Size)).FirstOrDefault();
+            foundFood = false;
+            var corpseFound = SceneManager.simulation?.Agents.Where(n => n != this && (n as Cell).energy > 0 && !(n as Cell).IsActive() && CollisionHelper.CheckBoxvBoxCollision(position, Size, (n as Cell).position, (n as Cell).Size)).FirstOrDefault();
             if (corpseFound != default)
             {
+                Cell corpseFoundCast = corpseFound as Cell;
                 float hunger = maxEnergy - energy;
 
-                float toEat = MathF.Min(hunger, corpseFound.energy);
-                corpseFound.energy -= toEat;
+                float toEat = MathF.Min(hunger, corpseFoundCast.energy);
+                toEat = MathF.Min(toEat, Main.delta * ConsumptionRate);
+                corpseFoundCast.energy -= toEat;
                 energy += toEat;
 
                 foundFood = true;
             }
 
-            if (velocity.Length() > 10 && !SceneManager.trainingMode)
-                return;
-            var foodFound = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvBoxCollision(Center, Size, n.Center, n.size)).FirstOrDefault();
+            var foodFound = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvBoxCollision(position, Size, n.position, n.size)).FirstOrDefault();
 
             if (foodFound != default)
             {
                 float hunger = maxEnergy - energy;
 
                 float toEat = MathF.Min(hunger, foodFound.energy);
+                toEat = MathF.Min(toEat, Main.delta * ConsumptionRate);
+                toEat /= (1.0f + MathF.Sqrt(velocity.Length() * 0.1f));
                 foodFound.energy -= toEat;
                 energy += toEat;
 
@@ -402,13 +484,14 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             List<float> inputs = new List<float>();
 
+            sightRays.ForEach(n => n.CastRay(this));
             sightRays.ForEach(n => n.FeedData(inputs));
 
             for (int i = 0; i < TERRAINRANGE; i++)
             {
                 for (int j = 0; j < TERRAINRANGE; j++)
                 {
-                    inputs.Add(localTiles[i, j] * 200);
+                    inputs.Add(localTiles[i, j]);
                 }
             }
 
@@ -419,6 +502,11 @@ namespace EvoSim.ProjectContent.CellStuff
             inputs.Add(velocity.X);
             inputs.Add(velocity.Y);
             inputs.Add(children.Count * 20);
+            inputs.Add(foundFood ? -200 : 200);
+            inputs.Add(Center.X);
+            inputs.Add(Center.Y);
+
+            memory.ForEach(n => inputs.Add(n));
 
             return inputs;
         }
@@ -429,88 +517,129 @@ namespace EvoSim.ProjectContent.CellStuff
             acceleration.Y = accelerationBase * (output[1] - 0.5f);
             //acceleration = acceleration.RotatedBy(rotation);
 
-            reproductionWillingness = output[2];
-            fightWillingness = output[3];
+            mateWillingness = output[2] * SexLikelihood * childDampMult * MathF.Sqrt(MathF.Sqrt(energy / maxEnergy));
+            splitWillingness = output[3] * AceLikelihood * childDampMult * MathF.Sqrt(MathF.Sqrt(energy / maxEnergy));
+            fightWillingness = output[4];
 
-            /*if (output[4] > deathThreshhold.Value && children.Count > 5)
+            for (int i = 0; i < MEMORYCELLS; i++)
             {
-                Kill();
-            }*/
+                memory[i] = (output[i + BASICOUTPUT] - 0.5f) * 10;
+            }
+
+            offspringOffset = new Vector2(0, SpawnDistance * output[5]).RotatedBy(output[6] * 6.28f);
         }
 
         public override void CalculateContinuousFitness() => Fitness = GetFitness(false);
 
         public override void CalculateCurrentFitness() => Fitness = GetFitness(true);
 
-        private float GetFitness(bool reset, bool forMating = false)
+        public float GetFitness(bool reset, bool forMating = false)
         {
-            float fitness = (energy / maxEnergy) + (children.Count * 1.3f) + (health / maxHealth) + (generation * 0.1f) + (kids * 0.5f) + (kills * 10);
-            fitness /= MathF.Sqrt(MathF.Sqrt(lifeCounter + 1));
-            fitness *= MathF.Sqrt(energy / maxEnergy);
+            if (!IsActive() && forMating)
+            {
+                return -999;
+            }
+            float fitness = (energy / maxEnergy) + MathF.Sqrt(kills * 7) + MathF.Sqrt(generation);
+            float childrenDistanceThing = 0f;
+            children.ForEach(n => childrenDistanceThing += (2f / (9 + n.Center.Distance(Center))));
+
+            float parentDistanceThing = 0f;
+            parents.ForEach(n => parentDistanceThing += (2f / (9 + n.Center.Distance(Center))));
+            fitness += MathF.Sqrt(generation) + (kids * 0.5f) + childrenDistanceThing + (children.Count * 1.2f) + parentDistanceThing;
+
+            fitness += MathF.Sqrt(foodCounter + 1);
+            fitness *= FitnessLifetimeCorrelation(lifeCounter);
+
+            //fitness *= MathF.Sqrt(energy / maxEnergy);
 
             if (hitWall)
                 fitness -= 10;
 
             if (energy <= 0)
-                fitness -= 10;
+                fitness -= 7;
 
             if (reset)
             {
                 hitWall = false;
-                foundFood = false;
             }
 
-            if (velocity.Length() < 1)
-                fitness -= 10;
+            if (foundFood)
+                fitness += 10;
+
+            //fitness -= 100 * horribleParentCounter;
 
             return fitness;
         }
 
+        private float FitnessLifetimeCorrelation(float val)
+        {
+            return 1;
+            if (val < -60)
+                return 0;
+            return ((0.001f * (val * val)) + (0.062f * val) + 0.1f);
+        }
+
         public override void Refresh()
         {
-            //SceneManager.cells.Add(this);
+            //SceneManager.simulation?.Agents.Add(this);
             hitWall = false;
-            foundFood = false;
         }
         #endregion
 
         #region specific actions
         public void TryFight(float effort)
         {
-            var nearestCell = SceneManager.cells.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision(n.Center, n.Size, Center, Size) && n.health < energy && n.lifeCounter > 5).OrderBy(n => n.health).FirstOrDefault();
+            var nearestCell = SceneManager.simulation?.Agents.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision((n as Cell).position, (n as Cell).Size, position, Size) && (n as Cell).health < energy).OrderBy(n => (n as Cell).health).FirstOrDefault();
             if (nearestCell != default)
             {
-                float damage = Main.delta * effort * 1000 * Scale;
+                float hunger = maxEnergy - energy;
+                Cell nearestCellCast = nearestCell as Cell;
+                float damage = Main.delta * effort * 10 * Scale * Scale * (1.0f + velocity.Length());
                 energy -= damage;
                 if (energy < 0)
                     return;
 
-                nearestCell.health -= damage;
-                if (nearestCell.health < 0)
+                energy += MathF.Min(MathF.Min(damage, hunger), nearestCellCast.health);
+                nearestCellCast.health -= damage;
+                foundFood = true;
+                if (nearestCellCast.health < 0)
                 {
-                    float hunger = maxEnergy - energy;
+                    if (children.Contains(nearestCellCast))
+                        horribleParentCounter++;
+                    else
+                        kills += nearestCellCast.kills + 1;
 
-                    float toEat = MathF.Min(hunger, nearestCell.energy);
-                    energy += toEat;
-                    kills += nearestCell.kills + 1;
-                    nearestCell.Kill();
+                    nearestCellCast.Kill();
+                    nearestCellCast.energy = 0;
                     Debug.WriteLine("Kill at " + ((int)position.X).ToString() + "," + ((int)position.Y).ToString());
                 }
             }
         }
 
-        public void TryMate()
+        public bool TryMate(float willingness)
         {
+            if (SceneManager.NumCells() > 600)
+                return false;
             if (true)
             {
-                var partner = SceneManager.cells.Where(n => n != this && n.IsActive() && (Center.Distance(n.Center) + n.Size.Length() + Size.Length()) < SpawnDistance && Distance(n) < GetGenome().Neat.CP * 10).FirstOrDefault();
-                if (partner != default && partner.energy > 100 && partner.kids < 5)
+                var partner = SceneManager.simulation?.Agents.Where(n => n != this && 
+                (n as Cell).IsActive() &&
+                (Center.Distance((n as Cell).Center)) < SpawnDistance && 
+                Distance(n as Cell) < GetGenome().Neat.CP * 1.5f && 
+                (n as Cell).mateWillingness > 1 &&
+                !(n as Cell).children.Contains(this) &&
+                !children.Contains(n as Cell) &&
+                parents.Intersect((n as Cell).parents).Count<Cell>() == 0 && 
+                ((SexLikelihood - willingness) / SexLikelihood) < (n as Cell).GetFitness(false, true) * 0.5f && 
+                ((n as Cell).SexLikelihood - (n as Cell).mateWillingness) / (n as Cell).SexLikelihood < GetFitness(false, true) * 0.5f).FirstOrDefault();
+                var partnerCell = partner as Cell;
+                if (partner != default && partnerCell.energy > 100)
                 {
-                    Vector2 newPos = position + (SpawnDistance * Main.random.NextFloat()).ToRotationVector2();
+                    Vector2 newPos = position + offspringOffset;
                     Debug.WriteLine("Mating at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
-                    Cell child = new Cell(color, Size, newPos, MathHelper.Lerp(energy, partner.energy, 0.5f) * ChildEnergy);
-                    child.SetGenome(GetSpecies().Breed(partner, this));
-                    child.SetSpecies(GetSpecies());
+                    Cell child = new Cell(color, Size, newPos, MathHelper.Lerp(energy, partnerCell.energy, 0.5f) * MathHelper.Lerp(ChildEnergy, partnerCell.ChildEnergy, 0.5f));
+                    child.SetGenome(GetSpecies().Breed(partnerCell, this));
+                    GetSpecies().ForceAdd(child);
 
                     sim.neatHost.GetClients().Add(child);
 
@@ -518,40 +647,54 @@ namespace EvoSim.ProjectContent.CellStuff
 
                     for (int i = 0; i < cellStats.Count; i++)
                     {
-                        child.cellStats[i] = cellStats[i].Combine(partner.cellStats[i]);
+                        child.cellStats[i] = cellStats[i].Combine(partnerCell.cellStats[i]);
                     }
 
                     child.health = child.maxHealth;
 
-                    child.generation = MathF.Max(generation, partner.generation) + 1;
+                    child.generation = MathF.Max(generation, partnerCell.generation) + 1;
 
-                    partner.energy *= 1.0f - (ChildEnergy * 0.15f);
-                    energy *= 1.0f - (ChildEnergy * 0.15f);
-                    partner.kids++;
+                    child.parents.Add(this);
+                    child.parents.Add(partnerCell);
+
+                    partnerCell.energy *= 1.0f - (partnerCell.ChildEnergy * 0.4f);
+                    energy *= 1.0f - (ChildEnergy * 0.4f);
+                    partnerCell.kids++;
                     kids++;
 
-                    partner.children.Add(child);
+                    partnerCell.children.Add(child);
                     children.Add(child);
 
                     child.Mutate();
+                    childDampMult *= ChildDampen;
+                    return true;
                 }
             }
+            return false;
         }
 
         public void Mitosis()
         {
-            Vector2 newPos = position + SpawnDistance * (Main.random.NextFloat(0.0f, 1.0f)).ToRotationVector2();
+            if (SceneManager.NumCells() > 600)
+                return;
+            if (GetSpecies() == null)
+            {
+                Debug.WriteLine("Failed mitosis from generation " + generation.ToString());
+                return;
+            }
+            Vector2 newPos = position + offspringOffset;
             Debug.WriteLine("Mitosis at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
             Cell child = new Cell(color, Size, newPos, energy * ChildEnergy);
-            energy -= child.energy * 0.25f;
+            energy *= (0.9f - ChildEnergy);
             mitosisCounter = 0;
             if (GetSpecies().Size() > 0)
             {
                 child.SetGenome(GetSpecies().Breed());
-                child.SetSpecies(GetSpecies());
+                GetSpecies().ForceAdd(child);
             }
             else
             {
+                Debug.WriteLine("Failed mitosis from generation " + generation.ToString());
                 child.Kill();
                 return;
             }
@@ -569,8 +712,10 @@ namespace EvoSim.ProjectContent.CellStuff
             child.generation = generation + 1;
 
             child.Mutate();
+            child.parents.Add(this);
 
             children.Add(child);
+            childDampMult *= ChildDampen;
             kids++;
         }
         #endregion
@@ -583,9 +728,9 @@ namespace EvoSim.ProjectContent.CellStuff
                 speciesString = GetSpecies().GetHashCode().ToString();
             }
 
-            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHealth:" + ((int)health).ToString()+ "/" + ((int)maxHealth).ToString() + "\nChildren: " + children.Count.ToString() + "\nFitness: " + Fitness.ToString() + "\nKills: " + kills.ToString();
+            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nGeneration: " + generation.ToString() + "\nChildren: " + children.Count.ToString() + "\nFitness: " + GetFitness(false).ToString() + "\nDampen: " + childDampMult.ToString();
             DrawHelper.DrawText(spriteBatch, text, StaticColors.textColor, position - new Vector2(0, 90), Vector2.One);
-            DrawHelper.DrawPixel(spriteBatch, color, position, width * Scale, height * Scale);
+            DrawHelper.DrawPixel(spriteBatch, color, position, Vector2.Zero, width * Scale, height * Scale);
         }
 
         public override void OnKill()
@@ -593,7 +738,16 @@ namespace EvoSim.ProjectContent.CellStuff
             color = StaticColors.deadCellColor;
             if (GetSpecies() != null)
                 GetSpecies().clients.Remove(this);
-            //SceneManager.cells.Remove(this);
+            //SceneManager.simulation?.Agents.Remove(this);
+        }
+
+        public bool ToCull()
+        {
+            if (!SceneManager.simulation.Agents.Contains(this))
+            {
+                return true;
+            }
+            return false;
         }
 
         private void UpdateLocalTiles()
@@ -610,10 +764,10 @@ namespace EvoSim.ProjectContent.CellStuff
                     if (SceneManager.grid.InGrid(coordX, coordY))
                     {
                         TerrainSquare square = SceneManager.grid.terrainGrid[coordX, coordY];
-                        localTiles[i + tileRadius, j + tileRadius] = TerrainSquare.GetTerrainID(square);
+                        localTiles[i + tileRadius, j + tileRadius] = TerrainSquare.GetTerrainID(square) * 100;
                     }
                     else
-                        localTiles[i + tileRadius, j + tileRadius] = 3;
+                        localTiles[i + tileRadius, j + tileRadius] = 0;
                 }
             }
         }      

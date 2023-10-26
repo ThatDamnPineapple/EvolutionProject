@@ -28,13 +28,13 @@ namespace EvoSim.ProjectContent.Resources
 
         public static List<Food> foods = new List<Food>();
 
-        public static float FoodEnergy => 70;
+        public static float FoodEnergy => 4000;
 
-        public static Vector2 FoodSize => new Vector2(96, 96);
+        public static Vector2 FoodSize => new Vector2(500, 500);
 
-        public static int FoodAmount => 400;
+        public static int FoodAmount => 10;
 
-        public static float FoodSpawnRate => 0.02f;
+        public static float FoodSpawnRate => 4;
 
 
         private TimeCounter AutomaticFoodSpawner;
@@ -47,7 +47,7 @@ namespace EvoSim.ProjectContent.Resources
 
             AutomaticFoodSpawner = new TimeCounter(FoodSpawnRate, new CounterAction((object o, ref float counter, float threshhold) =>
             {
-                counter -= threshhold;
+                counter -= FoodSpawnRate;
                 NewFood(1);
             }));
 
@@ -62,7 +62,8 @@ namespace EvoSim.ProjectContent.Resources
         public void Update(GameTime gameTime)
         {
             ManualFoodSpawner.Update(this);
-            AutomaticFoodSpawner.Update(this);
+            if (SceneManager.simulation != null)
+                AutomaticFoodSpawner.Update(this);
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -75,8 +76,11 @@ namespace EvoSim.ProjectContent.Resources
 
         private void NewFood(int numFood)
         {
+            if (foods.Count > 10)
+                return;
             for (int i = 0; i < numFood; i++)
             {
+                float scale = Main.random.NextFloat(0.5f, 1.0f);
                 Vector2 pos = Vector2.Zero;
                 pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                 pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
@@ -86,7 +90,7 @@ namespace EvoSim.ProjectContent.Resources
                     pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                     pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
                 }
-                Food newFood = new Food(FoodSize, FoodEnergy, StaticColors.foodColor, pos);
+                Food newFood = new Food(FoodSize * scale, FoodEnergy * scale, StaticColors.foodColor, pos);
                 foods.Add(newFood);
             }
         }

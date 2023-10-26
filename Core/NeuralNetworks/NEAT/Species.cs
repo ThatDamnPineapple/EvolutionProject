@@ -23,6 +23,8 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public bool Add(NeatAgent agent)
         {
+            if (agent.Dna == null || agent.Dna is not Genome || representative.Dna == null || representative.Dna is not Genome)
+                return false;
             if (agent.Distance(representative) < representative.GetGenome().Neat.CP)
             {
                 agent.SetSpecies(this);
@@ -36,7 +38,6 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         {
             agent.SetSpecies(this);
             clients.Add(agent);
-            SceneManager.cells.Add(agent as Cell);
         }
 
         public void GoExtinct()
@@ -124,6 +125,8 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public Genome Breed()
         {
+            if (clients.Count == 0)
+                return (Genome)(SceneManager.simulation.Agents[0] as NeatAgent).GetGenome().Combine((SceneManager.simulation.Agents[0] as NeatAgent).GetGenome(), 0);
             NeatAgent a1 = clients[Main.random.Next(clients.Count)];
             NeatAgent a2 = clients[Main.random.Next(clients.Count)];
 

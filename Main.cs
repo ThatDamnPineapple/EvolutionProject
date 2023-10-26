@@ -28,6 +28,8 @@ namespace EvoSim
         public static float delta;
         private static float oldTime;
 
+        public static Vector2 ScreenSize => new Vector2(1900, 950);
+
         internal static List<ILoadable> loadCache;
 
         internal static List<IDraw> drawables = new List<IDraw>();
@@ -45,8 +47,8 @@ namespace EvoSim
         {
             // TODO: Add your initialization logic here
             _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = 2000;
-            _graphics.PreferredBackBufferHeight = 1000;
+            _graphics.PreferredBackBufferWidth = (int)ScreenSize.X;
+            _graphics.PreferredBackBufferHeight = (int)ScreenSize.Y;
             _graphics.ApplyChanges();
             base.Initialize();
         }

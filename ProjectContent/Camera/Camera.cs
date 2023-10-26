@@ -34,29 +34,49 @@ namespace EvoSim.ProjectContent.Camera
             KeyboardState state = Keyboard.GetState();
             if (state.IsKeyDown(Keys.W))
             {
-                newVelocity.Y = 1;
+                newVelocity.Y = -1;
             }
 
             if(state.IsKeyDown(Keys.S))
             {
-                newVelocity.Y = -1;
+                newVelocity.Y = 1;
             }
 
             if (state.IsKeyDown(Keys.A))
             {
-                newVelocity.X = 1;
+                newVelocity.X = -1;
             }
 
             if (state.IsKeyDown(Keys.D))
             {
-                newVelocity.X = -1;
+                newVelocity.X = 1;
             }
 
             newVelocity = newVelocity.SafeNormalize() * maxSpeed;
 
             velocity = Vector2.Lerp(velocity, newVelocity, acceleration);
 
-            position += velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            position += velocity * Main.delta;
+
+            while (position.X > SceneManager.grid.mapSize.X)
+            {
+                position.X -= SceneManager.grid.mapSize.X;
+            }
+
+            while (position.X < 0)
+            {
+                position.X += SceneManager.grid.mapSize.X;
+            }
+
+            while (position.Y > SceneManager.grid.mapSize.Y)
+            {
+                position.Y -= SceneManager.grid.mapSize.Y;
+            }
+
+            while (position.Y < 0)
+            {
+                position.Y += SceneManager.grid.mapSize.Y;
+            }
         }
     }
 }

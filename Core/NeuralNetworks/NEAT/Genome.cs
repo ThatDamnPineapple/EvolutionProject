@@ -178,15 +178,19 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public void MutateWithProbability(double probability, Action a)
         {
-            double p = probability;
-
-            while (p > 0)
+            int mutationModifier = SceneManager.trainingMode ? 8 : 1;
+            for (int i = 0; i < mutationModifier; i++)
             {
-                if (Main.random.NextFloat() < p)
+                double p = probability;
+
+                while (p > 0)
                 {
-                    a.Invoke();
+                    if (Main.random.NextFloat() < p)
+                    {
+                        a.Invoke();
+                    }
+                    p--;
                 }
-                p--;
             }
         }
 
