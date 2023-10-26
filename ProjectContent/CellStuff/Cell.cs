@@ -33,7 +33,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float accelerationBase => 10.0f;
 
-        public float EnergyUsage => ((Scale * Scale) * velocity.Length() * 0.000000825f * (1.0f / TerrainVelocity())) + 1.5f;
+        public float EnergyUsage => ((Scale * Scale) * velocity.Length() * 0.000000855f * (1.0f / TerrainVelocity())) + 1f;
 
         public float ConsumptionRate => (Scale * Scale) * 200f;
 
@@ -41,7 +41,7 @@ namespace EvoSim.ProjectContent.CellStuff
         #endregion
         #region neural network node info
         public readonly static float UPDATERATE = 0.01f;
-        public readonly static int RAYS = 8;
+        public readonly static int RAYS = 16;
         public readonly static int RAYVALUES = 13;
         public readonly static int TERRAINRANGE = 2;
         public readonly static int MEMORYCELLS = 3;
@@ -467,7 +467,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
                 float toEat = MathF.Min(hunger, foodFound.energy);
                 toEat = MathF.Min(toEat, Main.delta * ConsumptionRate);
-                toEat /= (1.0f + MathF.Sqrt(velocity.Length() * 0.1f));
+                toEat /= (1.0f + MathF.Sqrt(velocity.Length() * 0.03f));
                 foodFound.energy -= toEat;
                 energy += toEat;
 

@@ -34,7 +34,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             return simulation.Agents.Count;
         }
 
-        public int StartingCells => 50;
+        public int StartingCells => 90;
 
         public static bool trainingMode = false;
 
