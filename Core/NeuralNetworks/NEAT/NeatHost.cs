@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EvoSim.Helpers;
+using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 
 namespace EvoSim.Core.NeuralNetworks.NEAT
 {
@@ -163,7 +164,6 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             foreach (GeneticAgent a in agents)
             {
                 NeatAgent nA = a as NeatAgent;
-
                 if (nA.GetSpecies() != null) continue;
 
                 bool found = false;
@@ -250,12 +250,17 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
                 if (nA.GetSpecies() == null)
                 {
+                    if (nA is SightRay ray)
+                        ray.debugInfoRepopulation = 5;
                     if (species.Count > 0)
                     {
                         Species s = PickWeightedSpecies();
                         nA.SetGenome(s.Breed());
                         nA.Mutate();
                         s.ForceAdd(nA);
+
+                        if (nA is SightRay ray2)
+                            ray2.debugInfoRepopulation = 10;
                     }
                 }
             }

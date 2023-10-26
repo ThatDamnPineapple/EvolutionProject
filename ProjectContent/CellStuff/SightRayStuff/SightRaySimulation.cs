@@ -10,14 +10,14 @@ using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 
 namespace EvoSim.ProjectContent.CellStuff
 {
-    public class CellNeatSimulation<T> : NEATSimulation where T : Cell, new()
+    internal class SightRayNeatSimulation<T> : NEATSimulation where T : SightRay, new()
     {
 
         public Func<IDna, T> GenerateAgentWithDNA;
         public int Size => 300;
 
 
-        public CellNeatSimulation(
+        public SightRayNeatSimulation(
             int inputSize,
             int outputSize,
             int GenerationSize,
@@ -36,11 +36,5 @@ namespace EvoSim.ProjectContent.CellStuff
         {
         }
 
-        public override void PreEvolve()
-        {
-            //SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugInfo6 = 9);
-            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Ray evolution"));
-            (SceneManager.sightRaySimulation as NEATSimulation).neatHost.Evolve();
         }
-    }
 }

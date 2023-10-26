@@ -31,6 +31,11 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             neatHost.Reset(inputSize, outputSize, maxClients);
             //base.Deploy();
         }
+
+        public virtual void PreEvolve()
+        {
+
+        }
         public override void Update()
         {
             Time+= Main.delta;
@@ -71,7 +76,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                     else */agent.CalculateCurrentFitness();
                 }
 
-
+                PreEvolve();
                 BestAgent = FindBestAgent();
                 neatHost.Evolve();
                 Time = 0;

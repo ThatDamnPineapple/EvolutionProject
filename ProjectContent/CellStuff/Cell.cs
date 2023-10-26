@@ -19,10 +19,11 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 
 namespace EvoSim.ProjectContent.CellStuff
 {
-    internal class Cell : NeatAgent
+    public class Cell : NeatAgent
     {
         #region constants
 
@@ -41,8 +42,8 @@ namespace EvoSim.ProjectContent.CellStuff
         #endregion
         #region neural network node info
         public readonly static float UPDATERATE = 0.01f;
-        public readonly static int RAYS = 16;
-        public readonly static int RAYVALUES = 13;
+        public const int RAYS = 16;
+        public static int RAYVALUES => SightRay.OUTPUTNUM;
         public readonly static int TERRAINRANGE = 2;
         public readonly static int MEMORYCELLS = 3;
         public readonly static int ADDITIONALVALUES = 10;
@@ -154,9 +155,10 @@ namespace EvoSim.ProjectContent.CellStuff
         #region miscellaneous data
         public List<CellStat> cellStats= new List<CellStat>();
 
-        public CellNeatSimulation<Cell> sim => SceneManager.simulation as CellNeatSimulation<Cell>;  
+        public CellNeatSimulation<Cell> sim => SceneManager.cellSimulation as CellNeatSimulation<Cell>;  
 
         public List<SightRay> sightRays = new List<SightRay>();
+        public bool sightRaysInitialized = false;
 
         public List<Cell> children = new List<Cell>();
 
@@ -169,6 +171,8 @@ namespace EvoSim.ProjectContent.CellStuff
         private TimeCounter mutationTimer;
 
         private List<float> memory = new List<float>();
+
+        public IDna[] SightRayDNA = new IDna[RAYS];
         #endregion
 
         #region initialization methods
@@ -176,16 +180,12 @@ namespace EvoSim.ProjectContent.CellStuff
         public void BaseInitializer(IDna dna)
         {
             health = maxHealth;
-            for (int i = 0; i < RAYS; i++)
-            {
-                sightRays.Add(new SightRay((i / (float)RAYS) * 6.28f));
-            }
 
             network = dna;
             NetworkTimer = new TimeCounter(Main.random.NextFloat(0.4f, 0.6f), new CounterAction((object o, ref float counter, float threshhold) =>
             {
                 counter = 0;
-                sightRays.ForEach(n => n.CastRay(this));
+                sightRays.ForEach(n => n.UpdateNetwork());
                 network.Compute(FeedInputs().ToArray());
                 Response(network.Response);
             }));
@@ -201,6 +201,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 counter = 0;
                 Mutate();
                 cellStats.ForEach(n => n.Mutate());
+                sightRays.ForEach(n => n.Mutate());
             }));
 
             for (int i = 0; i < MEMORYCELLS; i++)
@@ -208,7 +209,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 memory.Add(0);
             }
 
-            SceneManager.simulation?.Agents.Add(this);
+            SceneManager.cellSimulation?.Agents.Add(this);
         }
 
         public override IDna GenerateRandomAgent()
@@ -218,7 +219,7 @@ namespace EvoSim.ProjectContent.CellStuff
                    .AddLayer<LinearActivationFunction>(100)
                    .AddLayer<LinearActivationFunction>(80)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
-                   .GenerateWeights(() => Main.random.NextFloat(-1, 1));
+                   .GenerateWeights(() => Main.random.NextFloat(-4, 4));
 
             return network;
         }
@@ -233,7 +234,7 @@ namespace EvoSim.ProjectContent.CellStuff
             color = new Color(0, 0, 1.0f);
             health = maxHealth;
             Size = new Vector2(width, height) * Scale;
-
+            InitializeRays();
             BaseInitializer(Dna);
         }
 
@@ -247,6 +248,7 @@ namespace EvoSim.ProjectContent.CellStuff
             energy = _energy;
             health = maxHealth;
             Size = size * Scale;
+            InitializeRays();
 
             BaseInitializer(NewDNA ?? Dna);
         }
@@ -268,6 +270,47 @@ namespace EvoSim.ProjectContent.CellStuff
             cellStats.Add(new CellStat(40 * Main.random.NextFloat(0.8f, 1.2f), 1f, 0.01f, 20, 200, false)); //mutationRate
             cellStats.Add(new CellStat(0.5f, 0.0f, 0.000f, 0.01f, 0.99f, false)); //SwimmingProficiency
             cellStats.Add(new CellStat(0.87f, 0.01f, 0.001f, 0.7f, 0.99f, false)); //ChildDampen
+        }
+
+        public void InitializeRays(IDna[] oldDNA, IDna[] oldDNA2, Cell fitterParent, Cell lessFitParent)
+        {
+            List<SightRay> tempSightRays = new List<SightRay>();
+            Debug.WriteLine("-------PART 1-----");
+            for (int i = 0; i < RAYS; i++)
+            {
+                Species raySpecies = fitterParent.sightRays[i].GetSpecies();
+                float debug1 = (SceneManager.sightRaySimulation as NEATSimulation).neatHost.species.Count();
+                float debug2 = fitterParent.sightRays[i].debugInfo;
+                float debug3 = fitterParent.sightRays[i].debugInfo2;
+                float debug4 = fitterParent.sightRays[i].debugInfo3;
+                bool debug5 = SceneManager.sightRaySimulation.Agents.Contains(fitterParent.sightRays[i]);
+                float debug6 = fitterParent.sightRays[i].debugInfo4;
+                float debug7 = fitterParent.sightRays[i].debugInfo5;
+                float debug8 = fitterParent.sightRays[i].debugInfo6;
+                float debug9 = fitterParent.sightRays[i].debugInfo7;
+
+                float debugRe = fitterParent.sightRays[i].debugInfoRepopulation;
+                float debugNull = fitterParent.sightRays[i].debugNulled;
+
+                fitterParent.sightRays[i].debugLog.ForEach(n => Debug.WriteLine(n));
+                IDna newDNA = raySpecies.Breed(fitterParent.sightRays[i], lessFitParent.sightRays[i]);
+                tempSightRays.Add(new SightRay((i / (float)RAYS) * 6.28f, this, i, newDNA, raySpecies));
+                SightRayDNA[i] = newDNA;
+            }
+            sightRays = tempSightRays;
+            sightRaysInitialized = true;
+        }
+
+        public void InitializeRays()
+        {
+            List<SightRay> tempSightRays = new List<SightRay>();
+            for (int i = 0; i < RAYS; i++)
+            {
+                tempSightRays.Add(new SightRay((i / (float)RAYS) * 6.28f, this, i, default, default));
+                SightRayDNA[i] = tempSightRays[i].Dna;
+            }
+            sightRays = tempSightRays;
+            sightRaysInitialized = true;
         }
 
         #endregion
@@ -363,10 +406,10 @@ namespace EvoSim.ProjectContent.CellStuff
                     if (sim != null && sim.Agents.Contains(this))
                         sim.Agents.Remove(this);
 
-                    if (SceneManager.simulation != null)
+                    if (SceneManager.cellSimulation != null)
                     {
-                        if (SceneManager.simulation.Agents.Contains(this))
-                            SceneManager.simulation.Agents.Remove(this);
+                        if (SceneManager.cellSimulation.Agents.Contains(this))
+                            SceneManager.cellSimulation.Agents.Remove(this);
                     }
                 }
                 return true;
@@ -445,7 +488,7 @@ namespace EvoSim.ProjectContent.CellStuff
         public void FoodInteraction()
         {
             foundFood = false;
-            var corpseFound = SceneManager.simulation?.Agents.Where(n => n != this && (n as Cell).energy > 0 && !(n as Cell).IsActive() && CollisionHelper.CheckBoxvBoxCollision(position, Size, (n as Cell).position, (n as Cell).Size)).FirstOrDefault();
+            var corpseFound = SceneManager.cellSimulation?.Agents.Where(n => n != this && (n as Cell).energy > 0 && !(n as Cell).IsActive() && CollisionHelper.CheckBoxvBoxCollision(position, Size, (n as Cell).position, (n as Cell).Size)).FirstOrDefault();
             if (corpseFound != default)
             {
                 Cell corpseFoundCast = corpseFound as Cell;
@@ -484,7 +527,6 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             List<float> inputs = new List<float>();
 
-            sightRays.ForEach(n => n.CastRay(this));
             sightRays.ForEach(n => n.FeedData(inputs));
 
             for (int i = 0; i < TERRAINRANGE; i++)
@@ -527,6 +569,29 @@ namespace EvoSim.ProjectContent.CellStuff
             }
 
             offspringOffset = new Vector2(0, SpawnDistance * output[5]).RotatedBy(output[6] * 6.28f);
+        }
+
+        public override double Distance(NeatAgent other)
+        {
+            Cell otherCell = other as Cell;
+            double ret = BaseDistance(otherCell);
+            if (sightRaysInitialized && otherCell.sightRaysInitialized)
+            {
+                for (int i = 0; i < RAYS; i++)
+                {
+                    SightRay localRay = sightRays[i];
+                    SightRay otherRay = otherCell.sightRays[i];
+                    if (localRay.Dna == null || localRay.Dna is not Genome || otherRay.Dna == null || otherRay.Dna is not Genome)
+                        continue;
+                    ret += localRay.GetGenome().Distance(otherRay.GetGenome()) / RAYS;
+                }
+            }
+            return ret;
+        }
+
+        public double BaseDistance(NeatAgent other)
+        {
+            return GetGenome().Distance(other.GetGenome());
         }
 
         public override void CalculateContinuousFitness() => Fitness = GetFitness(false);
@@ -589,7 +654,7 @@ namespace EvoSim.ProjectContent.CellStuff
         #region specific actions
         public void TryFight(float effort)
         {
-            var nearestCell = SceneManager.simulation?.Agents.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision((n as Cell).position, (n as Cell).Size, position, Size) && (n as Cell).health < energy).OrderBy(n => (n as Cell).health).FirstOrDefault();
+            var nearestCell = SceneManager.cellSimulation?.Agents.Where(n => n != this && CollisionHelper.CheckBoxvBoxCollision((n as Cell).position, (n as Cell).Size, position, Size) && (n as Cell).health < energy).OrderBy(n => (n as Cell).health).FirstOrDefault();
             if (nearestCell != default)
             {
                 float hunger = maxEnergy - energy;
@@ -622,7 +687,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 return false;
             if (true)
             {
-                var partner = SceneManager.simulation?.Agents.Where(n => n != this && 
+                var partner = SceneManager.cellSimulation?.Agents.Where(n => n != this && 
                 (n as Cell).IsActive() &&
                 (Center.Distance((n as Cell).Center)) < SpawnDistance && 
                 Distance(n as Cell) < GetGenome().Neat.CP * 1.5f && 
@@ -667,6 +732,15 @@ namespace EvoSim.ProjectContent.CellStuff
 
                     child.Mutate();
                     childDampMult *= ChildDampen;
+
+                    if (partnerCell.Fitness > Fitness)
+                    {
+                        child.InitializeRays(partnerCell.SightRayDNA, SightRayDNA, partnerCell, this);
+                    }
+                    else
+                    {
+                        child.InitializeRays(SightRayDNA, partnerCell.SightRayDNA, this, partnerCell);
+                    }
                     return true;
                 }
             }
@@ -683,6 +757,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 return;
             }
             Vector2 newPos = position + offspringOffset;
+            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Mitosis started"));
             Debug.WriteLine("Mitosis at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
             Cell child = new Cell(color, Size, newPos, energy * ChildEnergy);
             energy *= (0.9f - ChildEnergy);
@@ -698,6 +773,8 @@ namespace EvoSim.ProjectContent.CellStuff
                 child.Kill();
                 return;
             }
+            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Mitosis confirmed"));
+            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Null: " + (n.Dna == null).ToString()));
             sim.neatHost.GetClients().Add(child);
 
             sim.Agents.Add(child);
@@ -715,8 +792,13 @@ namespace EvoSim.ProjectContent.CellStuff
             child.parents.Add(this);
 
             children.Add(child);
+
+            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Null before ray initialization: " + (n.Dna == null).ToString()));
+            child.InitializeRays(SightRayDNA, SightRayDNA, this, this);
+            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Null after ray initialization: " + (n.Dna == null).ToString()));
             childDampMult *= ChildDampen;
             kids++;
+            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Mitosis ended"));
         }
         #endregion
 
@@ -738,12 +820,14 @@ namespace EvoSim.ProjectContent.CellStuff
             color = StaticColors.deadCellColor;
             if (GetSpecies() != null)
                 GetSpecies().clients.Remove(this);
+
+            sightRays.ForEach(n => n.Cull());
             //SceneManager.simulation?.Agents.Remove(this);
         }
 
         public bool ToCull()
         {
-            if (!SceneManager.simulation.Agents.Contains(this))
+            if (!SceneManager.cellSimulation.Agents.Contains(this))
             {
                 return true;
             }

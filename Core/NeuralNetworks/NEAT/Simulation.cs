@@ -64,7 +64,10 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             for (int i = 0; i < Agents.Count; i++)
             {
                 IDna newDNA = PickFitnessWeightedAgent().Dna.Combine(PickFitnessWeightedAgent().Dna, MutationRate);
-
+                if (newDNA == null)
+                {
+                    int w = 5;
+                }
                 var newAgent = InitialiseAgent(newDNA);
                 agents.Add(newAgent);
             }

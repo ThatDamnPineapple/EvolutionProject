@@ -62,7 +62,7 @@ namespace EvoSim.ProjectContent.Resources
         public void Update(GameTime gameTime)
         {
             ManualFoodSpawner.Update(this);
-            if (SceneManager.simulation != null)
+            if (SceneManager.cellSimulation != null)
                 AutomaticFoodSpawner.Update(this);
         }
 

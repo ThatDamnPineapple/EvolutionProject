@@ -1,4 +1,5 @@
-﻿using SharpDX.MediaFoundation;
+﻿using EvoSim.ProjectContent.CellStuff.SightRayStuff;
+using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,15 +12,29 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
     {
         private Species species;
 
-        public void SetSpecies(Species species) => this.species = species;
+        public void SetSpecies(Species species)
+        {
+            if (species == null && this is SightRay ray)
+            {
+                float debug1 = ray.debugInfo;
+                float debug2 = ray.debugInfo;
+                ray.debugInfo3 = 5;
+            }
+            this.species = species;
+        }
 
         public Species GetSpecies() => species;
 
         public Genome GetGenome() => Dna as Genome;
 
-        public void SetGenome(Genome g) => Dna = g;
+        public void SetGenome(Genome g)
+        {
+            if (this is SightRay ray && g == null)
+                ray.debugNulled = 5;
+            Dna = g;
+        }
 
-        public double Distance(NeatAgent other) => GetGenome().Distance(other.GetGenome());
+        public virtual double Distance(NeatAgent other) => GetGenome().Distance(other.GetGenome());
 
         public void Mutate() => GetGenome().Mutate();
 

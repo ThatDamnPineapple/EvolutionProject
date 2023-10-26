@@ -14,6 +14,7 @@ using EvoSim.Helpers;
 using EvoSim.Helpers.HelperClasses;
 using System.Drawing.Text;
 using EvoSim.ProjectContent.Resources;
+using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 
 namespace EvoSim.ProjectContent.SceneStuff
 {
@@ -29,16 +30,18 @@ namespace EvoSim.ProjectContent.SceneStuff
         #endregion
         public static float NumCells()
         {
-            if (simulation == null)
+            if (cellSimulation == null)
                 return 0;
-            return simulation.Agents.Count;
+            return cellSimulation.Agents.Count;
         }
 
-        public int StartingCells => 90;
+        public int StartingCells => 80;
 
         public static bool trainingMode = false;
 
-        public static Simulation simulation;
+        public static Simulation cellSimulation;
+
+        public static Simulation sightRaySimulation;
 
         private List<ButtonToggle> Toggles = new List<ButtonToggle>();
 
@@ -69,20 +72,20 @@ namespace EvoSim.ProjectContent.SceneStuff
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            simulation?.Agents.ForEach(cell => (cell as Cell).Draw(spriteBatch));
+            cellSimulation?.Agents.ForEach(cell => (cell as Cell).Draw(spriteBatch));
 
             float totalEnergy = 0;
-            simulation?.Agents.ForEach(n => totalEnergy += (n as Cell).energy);
+            cellSimulation?.Agents.ForEach(n => totalEnergy += (n as Cell).energy);
             FoodManager.foods.ForEach(n => totalEnergy += n.energy);
 
-            string debugInfo = "Total Cells: " + simulation?.Agents.Count.ToString();
+            string debugInfo = "Total Cells: " + cellSimulation?.Agents.Count.ToString();
             debugInfo += "\nTotal energy: " + ((int)totalEnergy).ToString();
 
-            if (simulation != null && simulation.Agents.Count > 0)
-                debugInfo += "\nHighest generation: " + (simulation?.Agents.OrderBy(n => (n as Cell).generation).LastOrDefault() as Cell).generation;
-            if (simulation != null && simulation != default)
+            if (cellSimulation != null && cellSimulation.Agents.Count > 0)
+                debugInfo += "\nHighest generation: " + (cellSimulation?.Agents.OrderBy(n => (n as Cell).generation).LastOrDefault() as Cell).generation;
+            if (cellSimulation != null && cellSimulation != default)
             {
-                debugInfo += "\nGlobal Sharing: " + (simulation as NEATSimulation).globalSharing.ToString();
+                debugInfo += "\nGlobal Sharing: " + (cellSimulation as NEATSimulation).globalSharing.ToString();
             }
             debugInfo += "\nTraining mode: " + trainingMode.ToString();
             DrawHelper.DrawText(spriteBatch, debugInfo, StaticColors.textColor, new Vector2(50, 50), Vector2.One * 2, false);
@@ -94,14 +97,17 @@ namespace EvoSim.ProjectContent.SceneStuff
         {
             Toggles.ForEach(n => n.Update(this));
 
-            simulation?.Update();
+            cellSimulation?.Update();
+           sightRaySimulation?.Update();
         }
 
         private void NewCells(int numCells)
         {
+            sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
+            (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
             var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 1f);
             newsim.Deploy();
-            simulation = newsim;
+            cellSimulation = newsim;   
         }
 
         private Cell CreateRawCell(IDna dna)
@@ -117,6 +123,11 @@ namespace EvoSim.ProjectContent.SceneStuff
             }
             Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 300, dna);
             return newCell;
+        }
+
+        private SightRay CreateRawSightRay(IDna dna)
+        {
+            return new SightRay();
         }
 
         private void DrawMinimap(SpriteBatch spriteBatch, Vector2 center, Vector2 scale)
@@ -151,7 +162,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             DrawHelper.DrawLine(spriteBatch, Color.Red, bottomLeftCamera, topLeftCamera, scale.Y, false);
 
             FoodManager.foods.ForEach(n => DrawHelper.DrawPixel(spriteBatch, n.color * 0.3f, MapToMap(n.Center, mapSize), new Vector2(0.5f, 0.5f), n.width * (scale.X / grid.squareWidth), n.height * (scale.Y / grid.squareHeight), false));
-            simulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, mapSize), new Vector2(0.5f, 0.5f), (n as Cell).Size.X * (scale.X / grid.squareWidth), (n as Cell).Size.Y * (scale.Y / grid.squareHeight), false));
+            cellSimulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, mapSize), new Vector2(0.5f, 0.5f), (n as Cell).Size.X * (scale.X / grid.squareWidth), (n as Cell).Size.Y * (scale.Y / grid.squareHeight), false));
             
         }
     }
