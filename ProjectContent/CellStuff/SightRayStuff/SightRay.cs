@@ -16,7 +16,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     {
 
         public readonly static int INPUTNUM = 14;
-        public readonly static int OUTPUTNUM = 4;
+        public readonly static int OUTPUTNUM = 6;
 
         readonly float MaxLength = 300;
         readonly float Presision = 15;
@@ -49,33 +49,12 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public Cell owner;
 
-        public float debugInfo;
-
-        public float debugInfo2;
-
-        public float debugInfo3 = 0;
-
-        public float debugInfo4 = 0;
-
-        public float debugInfo5 = 0;
-
-        public float debugInfo6 = 0;
-
-        public float debugInfo7 = 0;
-
-        public float debugInfoRepopulation = 0;
-
-        public float debugNulled = 0;
-
         public int ID;
-
-        public List<string> debugLog = new List<string>();
 
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
                    .AddLayer<SigmoidActivationFunction>(30)
-                   .AddLayer<LinearActivationFunction>(30)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
@@ -93,25 +72,19 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                     Species closestSpecies = closestOwner.sightRays[ID].GetSpecies();
                     //SetGenome(closestSpecies.Breed());
                     closestSpecies.ForceAdd(this);
-                    debugInfo = 0;
                     return closestSpecies;
                 }
             }
             Species newSpecies = new Species(this);
             (SceneManager.sightRaySimulation as NEATSimulation).neatHost.species.Add(newSpecies);
-            debugInfo = 1;
             return newSpecies;        
         }
 
         public SightRay() : base()
         {
-            debugLog.Add("Created parameterless");
-            debugInfo2 = 2;
             rotation = 0;
-            debugInfo7 = 1;
             if (Dna == null || Dna is not Genome)
             {
-                debugInfo7 = 2;
                 Dna = (SceneManager.sightRaySimulation as NEATSimulation).neatHost.GenerateEmptyGenome();
             }
             network = Dna;
@@ -122,30 +95,23 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public SightRay(float _rotation, Cell parent, int id, IDna NewDNA = null, Species species = default)
         {
-            debugLog.Add("Created with parameters");
             ID = id;
-            debugInfo2 = 5;
             owner = parent;
             rotation = _rotation;
 
             IDna actualNewDNA = null;
-            debugInfo7 = 3;
             if (NewDNA == null || NewDNA is not Genome)
             {
-                debugLog.Add("NewDNA was null, creating empty genome");
-                debugInfo7 = 4;
                 actualNewDNA = (SceneManager.sightRaySimulation as NEATSimulation).neatHost.GenerateEmptyGenome();
             }
             else
             {
-                debugLog.Add("NewDNA was not null, using it");
                 actualNewDNA = NewDNA;
             }
             Dna= actualNewDNA;
             network = Dna;
             if (species != default)
             {
-                debugInfo = 2;
                 species.ForceAdd(this);
             }
             else
@@ -295,7 +261,6 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public void Cull()
         {
             SceneManager.sightRaySimulation.Agents.Remove(this);
-            debugInfo4 = 8;
         }
 
         public override double Distance(NeatAgent other)
@@ -307,7 +272,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public override void OnKill()
         {
-            debugInfo5 = 9;
+            
         }
     }
 }

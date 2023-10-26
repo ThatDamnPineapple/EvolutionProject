@@ -113,8 +113,6 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 if (clients.Count <= 1) break;
 
                 clients[0].SetSpecies(null);
-                if (clients[0] is SightRay ray)
-                    ray.debugInfo = 3;
                 clients.RemoveAt(0);
             }
         }

@@ -250,17 +250,12 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
                 if (nA.GetSpecies() == null)
                 {
-                    if (nA is SightRay ray)
-                        ray.debugInfoRepopulation = 5;
                     if (species.Count > 0)
                     {
                         Species s = PickWeightedSpecies();
                         nA.SetGenome(s.Breed());
                         nA.Mutate();
                         s.ForceAdd(nA);
-
-                        if (nA is SightRay ray2)
-                            ray2.debugInfoRepopulation = 10;
                     }
                 }
             }

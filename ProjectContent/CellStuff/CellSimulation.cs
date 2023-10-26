@@ -39,7 +39,6 @@ namespace EvoSim.ProjectContent.CellStuff
         public override void PreEvolve()
         {
             //SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugInfo6 = 9);
-            SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugLog.Add("Ray evolution"));
             (SceneManager.sightRaySimulation as NEATSimulation).neatHost.Evolve();
         }
     }

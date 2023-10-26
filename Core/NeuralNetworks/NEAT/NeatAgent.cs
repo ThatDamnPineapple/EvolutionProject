@@ -14,12 +14,6 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public void SetSpecies(Species species)
         {
-            if (species == null && this is SightRay ray)
-            {
-                float debug1 = ray.debugInfo;
-                float debug2 = ray.debugInfo;
-                ray.debugInfo3 = 5;
-            }
             this.species = species;
         }
 
@@ -29,8 +23,6 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public void SetGenome(Genome g)
         {
-            if (this is SightRay ray && g == null)
-                ray.debugNulled = 5;
             Dna = g;
         }
 
