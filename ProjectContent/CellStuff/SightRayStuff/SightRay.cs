@@ -15,11 +15,11 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     public class SightRay : NeatAgent
     {
 
-        public readonly static int INPUTNUM = 14;
-        public readonly static int OUTPUTNUM = 6;
+        public readonly static int INPUTNUM = 15;
+        public readonly static int OUTPUTNUM = 8;
 
-        readonly float MaxLength = 300;
-        readonly float Presision = 15;
+        readonly float MaxLength = 400;
+        readonly float Presision = 10;
         public float rotation;
 
         public float distance;
@@ -42,6 +42,8 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public float age;
 
         public float child;
+
+        public float mateWillingness = 0;
 
         public IDna network;
 
@@ -150,7 +152,8 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 velocity.Y,
                 age,
                 child,
-                rotation
+                rotation,
+                mateWillingness
             };
             return inputs;
         }
@@ -175,6 +178,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             velocity = Vector2.Zero;
             age = -100;
             child = 0;
+            mateWillingness = 0;
             for (float i = 0; i < MaxLength; i += Presision)
             {
                 Vector2 offset = Vector2.One.RotatedBy(rotation) * i;
@@ -217,13 +221,40 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                     fitness = closestCellCast.GetFitness(false, true);
                     velocity = closestCellCast.velocity;
                     age = closestCellCast.lifeCounter;
+                    mateWillingness = closestCellCast.mateWillingness;
 
-                    if (parent.children.Contains(closestCellCast))
+                    if (parent.livingChildren.Contains(closestCellCast))
                         child = 100;
 
                     if (parent.parents.Contains(closestCellCast))
                         child = -100;
                     return;
+                }  
+            }
+
+            for (float i = 0; i < MaxLength; i += Presision)
+            {
+                Vector2 offset = Vector2.One.RotatedBy(rotation) * i;
+                Vector2 checkPos = offset + parent.Center;
+
+                while (checkPos.X > SceneManager.grid.mapSize.X)
+                {
+                    checkPos.X -= SceneManager.grid.mapSize.X;
+                }
+
+                while (checkPos.X < 0)
+                {
+                    checkPos.X += SceneManager.grid.mapSize.X;
+                }
+
+                while (checkPos.Y > SceneManager.grid.mapSize.Y)
+                {
+                    checkPos.Y -= SceneManager.grid.mapSize.Y;
+                }
+
+                while (checkPos.Y < 0)
+                {
+                    checkPos.Y += SceneManager.grid.mapSize.Y;
                 }
 
                 var closestFood = FoodManager.foods.Where(n => CollisionHelper.CheckBoxvPointCollision(n.position, n.size, checkPos)).FirstOrDefault();

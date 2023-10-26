@@ -105,9 +105,11 @@ namespace EvoSim.ProjectContent.SceneStuff
         {
             sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
             (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 1f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 5f);
             newsim.Deploy();
-            cellSimulation = newsim;   
+            cellSimulation = newsim;
+
+            (cellSimulation as NEATSimulation).neatHost.Evolve();
         }
 
         private Cell CreateRawCell(IDna dna)
@@ -121,7 +123,7 @@ namespace EvoSim.ProjectContent.SceneStuff
                 pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                 pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
             }
-            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 300, dna);
+            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 200, dna);
             return newCell;
         }
 
