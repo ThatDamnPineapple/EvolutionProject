@@ -38,8 +38,22 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public override void PreEvolve()
         {
-            //SceneManager.sightRaySimulation.Agents.ForEach(n => (n as SightRay).debugInfo6 = 9);
-            (SceneManager.sightRaySimulation as NEATSimulation).neatHost.Evolve();
+            NEATSimulation sightRaySim = (SceneManager.sightRaySimulation as NEATSimulation);
+            NeatHost sightRayHost = sightRaySim.neatHost;
+            foreach (GeneticAgent agent in sightRaySim.Agents)
+            {
+                /*if (agent is ContinuousGeneticAgent r)
+                {
+                    if (r.IsActive()) r.Kill();
+                }
+                else */
+                agent.CalculateCurrentFitness();
+            }
+
+            sightRaySim.BestAgent = sightRaySim.FindBestAgent();
+            sightRayHost.Evolve();
+            sightRaySim.Time = 0;
+            sightRaySim.Generation++;
         }
     }
 }

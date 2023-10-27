@@ -15,11 +15,11 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     public class SightRay : NeatAgent
     {
 
-        public readonly static int INPUTNUM = 15;
-        public readonly static int OUTPUTNUM = 10;
+        public readonly static int INPUTNUM = 17;
+        public readonly static int OUTPUTNUM = 4;
 
         readonly float MaxLength = 400;
-        readonly float Presision = 10;
+        readonly float Presision = 20;
         public float rotation;
 
         public float distance;
@@ -53,11 +53,15 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public int ID;
 
+        public float waterDistance;
+
+        public float landDistance;
+
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<TanhActivationFunction>(20)
-                   .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
+                   .AddLayer<TanhActivationFunction>(12)
+                   .SetOutput<TanhActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
             return network;
@@ -65,14 +69,12 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         private Species FindSpecies()
         {
-            if (SceneManager.cellSimulation != null && SceneManager.cellSimulation.Agents.Count > 1 && owner != null && owner.Dna is Genome)
-            { 
-                Cell closestOwner = SceneManager.cellSimulation.Agents.Where(n => n != owner && (n as Cell).IsActive() && (n as Cell).sightRays[ID].GetSpecies() != null).OrderBy(n => (n as Cell).Distance(owner)).FirstOrDefault() as Cell;
-
-                if (closestOwner != default)
+            if (SceneManager.sightRaySimulation.Agents.Count > 1 && owner != null && owner.Dna is Genome)
+            {
+                SightRay closestRelative = SceneManager.sightRaySimulation.Agents.Where(n => (n as SightRay).IsActive() && (n as SightRay) != this && (n as SightRay).Distance(this) < GetGenome().Neat.CP).OrderBy(n => (n as SightRay).Distance(this)).FirstOrDefault() as SightRay;
+                if (closestRelative != default)
                 {
-                    Species closestSpecies = closestOwner.sightRays[ID].GetSpecies();
-                    //SetGenome(closestSpecies.Breed());
+                    Species closestSpecies = closestRelative.GetSpecies();
                     closestSpecies.ForceAdd(this);
                     return closestSpecies;
                 }
@@ -109,6 +111,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             else
             {
                 actualNewDNA = NewDNA;
+                (actualNewDNA as Genome).Mutate();
             }
             Dna= actualNewDNA;
             network = Dna;
@@ -142,23 +145,28 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public List<float> FeedInputs()
         {
+            float distanceMult = distance / MaxLength;
+            float distanceSqrt = 1;
             List<float> inputs = new List<float>
             {
-                StretchNegative(distance / MaxLength),
-                StretchNegative(color.R / 255f),
-                StretchNegative(color.G / 255f),
-                StretchNegative(color.B / 255f),
-                StretchNegative(similarity),
-                StretchNegative(health * 0.01f),
-                StretchNegative(energy * 0.005f),
-                StretchNegative(scale / 10000f),
-                fitness,
-                velocity.X / 100f,
-                velocity.Y / 100f,
-                StretchNegative(age / 30f),
-                child,
+
+                StretchNegative(distanceMult),
+                StretchNegative((color.R / 255f ) * distanceSqrt),
+                StretchNegative((color.G / 255f ) * distanceSqrt),
+                StretchNegative((color.R / 255f ) * distanceSqrt),
+                StretchNegative(similarity * distanceSqrt),
+                StretchNegative(health * 0.01f * distanceSqrt),
+                StretchNegative(energy * 0.005f * distanceSqrt),
+                StretchNegative(MathF.Sqrt(MathF.Sqrt(scale)) * distanceSqrt),
+                MathF.Sqrt(MathF.Abs(fitness)) * distanceSqrt * MathF.Sign(fitness),
+                (velocity.X * distanceSqrt) / 100f,
+                (velocity.Y * distanceSqrt) / 100f,
+                StretchNegative((age * distanceSqrt) / 30f),
+                child * distanceSqrt,
                 ((rotation - 3.14f) / 6.28f),
-                mateWillingness - 1
+                ((mateWillingness * 0.1f) - 1) * distanceSqrt,
+                StretchNegative(waterDistance / MaxLength),
+                StretchNegative(landDistance / MaxLength),
             };
             return inputs;
         }
@@ -175,7 +183,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public void CastRay(Cell parent)
         {
             distance = MaxLength;
-            similarity = 100;
+            similarity = 3;
             color = Color.Black;
             health = 0;
             energy = 0;
@@ -184,6 +192,8 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             age = 0;
             child = 0;
             mateWillingness = 0;
+            waterDistance = MaxLength;
+            landDistance = MaxLength;
             for (float i = 0; i < MaxLength; i += Presision)
             {
                 Vector2 offset = Vector2.One.RotatedBy(rotation) * i;
@@ -209,13 +219,23 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                     checkPos.Y += SceneManager.grid.mapSize.Y;
                 }
 
-                var closestCell = SceneManager.cellSimulation?.Agents.Where(n => CollisionHelper.CheckBoxvPointCollision((n as Cell).position, (n as Cell).Size, checkPos)).FirstOrDefault();
+                if (waterDistance == MaxLength && SceneManager.grid.TileID(checkPos) == 2)
+                {
+                    waterDistance = i;
+                }
+
+                if (landDistance == MaxLength && SceneManager.grid.TileID(checkPos) == 1)
+                {
+                    landDistance = i;
+                }
+
+                var closestCell = SceneManager.cellSimulation?.Agents.Where(n => (n as Cell) != parent && CollisionHelper.CheckBoxvPointCollision((n as Cell).position, (n as Cell).Size, checkPos)).FirstOrDefault();
                 if (closestCell != default)
                 {
                     var closestCellCast = closestCell as Cell;
                     distance = i;
                     if (closestCellCast.GetGenome() != null)
-                        similarity = (float)parent.BaseDistance(closestCellCast);
+                        similarity = (float)parent.BaseDistance(closestCellCast) / (float)GetGenome().Neat.CP;
                     else
                         similarity = 0;
                     scale = closestCellCast.Size.LengthSquared();
@@ -266,7 +286,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 if (closestFood != default)
                 {
                     distance = i;
-                    similarity = 100;
+                    similarity = 3;
                     energy = closestFood.energy;
                     health = 0;
                     scale = closestFood.size.LengthSquared();
@@ -283,15 +303,13 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             outputData.ForEach(n => inputs.Add(n));
         }
 
-        public override void CalculateContinuousFitness() => Fitness = GetFitness();
-
         public override void CalculateCurrentFitness() => Fitness = GetFitness();
 
         public float GetFitness()
         {
             if (owner == null)
                 return 0;
-            return owner.GetFitness(false, false);
+            return owner.GetFitness(false, false) * MathF.Sqrt(owner.sightRays.Count(n => n.GetSpecies() == GetSpecies()));
         }
 
         public void Cull()
@@ -302,8 +320,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public override double Distance(NeatAgent other)
         {
             Cell otherCell = (other as SightRay).owner;
-            double ret = GetGenome().Distance(other.GetGenome());
-            return ret + otherCell.GetGenome().Distance(owner.GetGenome());
+            return otherCell.BaseDistance(owner) * 10;
         }
 
         public override void OnKill()

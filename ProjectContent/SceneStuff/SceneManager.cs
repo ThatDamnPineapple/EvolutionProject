@@ -48,6 +48,8 @@ namespace EvoSim.ProjectContent.SceneStuff
         public static CameraObject camera;
         public static TerrainGrid grid;
 
+        public static int successfulMates = 0;
+
         public void Load()
         {
             Main.drawables.Add(this);
@@ -76,10 +78,24 @@ namespace EvoSim.ProjectContent.SceneStuff
 
             float totalEnergy = 0;
             cellSimulation?.Agents.ForEach(n => totalEnergy += (n as Cell).energy);
-            FoodManager.foods.ForEach(n => totalEnergy += n.energy);
 
             string debugInfo = "Total Cells: " + cellSimulation?.Agents.Count.ToString();
-            debugInfo += "\nTotal energy: " + ((int)totalEnergy).ToString();
+            debugInfo += "\nTotal living cells: " + cellSimulation?.Agents.Where(n => (n as Cell).IsActive()).Count().ToString();
+            debugInfo += "\nTotal cell energy: " + ((int)totalEnergy).ToString();
+            totalEnergy = 0;
+            FoodManager.foods.ForEach(n => totalEnergy += n.energy);
+            debugInfo += "\nTotal food energy: " + ((int)totalEnergy).ToString();
+            debugInfo += "\nSuccessful mates:" + successfulMates.ToString();
+
+            if (cellSimulation != null)
+            {
+                debugInfo += "\nTotal cell species: " + (cellSimulation as NEATSimulation).neatHost.species.Count().ToString();
+            }
+
+            if (sightRaySimulation != null)
+            {
+                debugInfo += "\nTotal ray species: " + (sightRaySimulation as NEATSimulation).neatHost.species.Count().ToString();
+            }
 
             if (cellSimulation != null && cellSimulation.Agents.Count > 0)
                 debugInfo += "\nHighest generation: " + (cellSimulation?.Agents.OrderBy(n => (n as Cell).generation).LastOrDefault() as Cell).generation;
@@ -105,11 +121,11 @@ namespace EvoSim.ProjectContent.SceneStuff
         {
             sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
             (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 2f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 11.5f);
             newsim.Deploy();
             cellSimulation = newsim;
 
-            (cellSimulation as NEATSimulation).neatHost.Evolve();
+            (cellSimulation as NEATSimulation).Time = 30;
         }
 
         private Cell CreateRawCell(IDna dna)
@@ -123,7 +139,7 @@ namespace EvoSim.ProjectContent.SceneStuff
                 pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                 pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
             }
-            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 200, dna);
+            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 200, 0, dna);
             return newCell;
         }
 
@@ -137,34 +153,41 @@ namespace EvoSim.ProjectContent.SceneStuff
             Vector2 MapToMap(Vector2 worldPos, Vector2 mapSize)
             {
                 Vector2 ret = center;
-                ret.X += MathHelper.Lerp(-mapSize.X * 0.5f, mapSize.X * 0.5f, worldPos.X / grid.mapSize.X);
-                ret.Y += MathHelper.Lerp(-mapSize.Y * 0.5f, mapSize.Y * 0.5f, worldPos.Y / grid.mapSize.Y);
+                ret.X += MathHelper.Lerp(-mapSize.X, mapSize.X, worldPos.X / grid.mapSize.X);
+                ret.Y += MathHelper.Lerp(-mapSize.Y, mapSize.Y, worldPos.Y / grid.mapSize.Y);
                 return ret;
             }
             Vector2 mapSize = (grid.gridSize + new Vector2(4,4)) * scale;
-            DrawHelper.DrawPixel(spriteBatch, Color.White, center - (mapSize * 0.5f), Vector2.Zero, mapSize.X, mapSize.Y, false);
+            Vector2 halfMapSize = mapSize * 0.5f;
+
+            Vector2 halfGridSize = new Vector2(grid.gridWidth / 2, grid.gridHeight / 2);
+            DrawHelper.DrawPixel(spriteBatch, Color.White, center - halfMapSize, Vector2.Zero, mapSize.X, mapSize.Y, false);
             for (int i = 0; i < grid.gridWidth; i++)
             {
                 for (int j = 0; j < grid.gridHeight; j++)
                 {
-                    Vector2 drawPos = center + (new Vector2(i - (grid.gridWidth / 2), j - (grid.gridHeight / 2)) * scale);
+                    Vector2 drawPos = center + ((new Vector2(i,j) - halfGridSize) * scale);
                     TerrainSquare square = grid.terrainGrid[i, j];
                     DrawHelper.DrawPixel(spriteBatch, square.color, drawPos, Vector2.Zero, scale.X, scale.Y, false);
                 }
             }
 
             mapSize = grid.gridSize * scale;
-            Vector2 topLeftCamera = MapToMap(camera.position, mapSize);
-            Vector2 topRightCamera = MapToMap(camera.position + new Vector2(Main.ScreenSize.X, 0), mapSize);
-            Vector2 bottomLeftCamera = MapToMap(camera.position + new Vector2(0, Main.ScreenSize.Y), mapSize);
-            Vector2 bottomRightCamera = MapToMap(camera.position + new Vector2(Main.ScreenSize.X, Main.ScreenSize.Y), mapSize);
+            Vector2 topLeftCamera = MapToMap(camera.position, halfMapSize);
+            Vector2 topRightCamera = MapToMap(camera.position + new Vector2(Main.ScreenSize.X, 0), halfMapSize);
+            Vector2 bottomLeftCamera = MapToMap(camera.position + new Vector2(0, Main.ScreenSize.Y), halfMapSize);
+            Vector2 bottomRightCamera = MapToMap(camera.position + new Vector2(Main.ScreenSize.X, Main.ScreenSize.Y), halfMapSize);
             DrawHelper.DrawLine(spriteBatch, Color.Red, topLeftCamera, topRightCamera, scale.X, false);
             DrawHelper.DrawLine(spriteBatch, Color.Red, topRightCamera, bottomRightCamera, scale.Y, false);
             DrawHelper.DrawLine(spriteBatch, Color.Red, bottomRightCamera, bottomLeftCamera, scale.X, false);
             DrawHelper.DrawLine(spriteBatch, Color.Red, bottomLeftCamera, topLeftCamera, scale.Y, false);
 
-            FoodManager.foods.ForEach(n => DrawHelper.DrawPixel(spriteBatch, n.color * 0.3f, MapToMap(n.Center, mapSize), new Vector2(0.5f, 0.5f), n.width * (scale.X / grid.squareWidth), n.height * (scale.Y / grid.squareHeight), false));
-            cellSimulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, mapSize), new Vector2(0.5f, 0.5f), (n as Cell).Size.X * (scale.X / grid.squareWidth) * 4, (n as Cell).Size.Y * (scale.Y / grid.squareHeight) * 4, false));
+            float xShrink = (scale.X / grid.squareWidth);
+            float yShrink = (scale.Y / grid.squareHeight);
+
+            Vector2 genericCenter = new Vector2(0.5f, 0.5f);
+            FoodManager.foods.ForEach(n => DrawHelper.DrawPixel(spriteBatch, n.color * 0.3f, MapToMap(n.Center, halfMapSize), genericCenter, n.width * xShrink, n.height * yShrink, false));
+            cellSimulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, halfMapSize), genericCenter, (n as Cell).Size.X * xShrink * 4, (n as Cell).Size.Y * yShrink * 4, false));
             
         }
     }

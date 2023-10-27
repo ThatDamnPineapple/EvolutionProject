@@ -29,7 +29,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public Vector2 gridSize => new Vector2(gridWidth, gridHeight);
 
-        public Vector2 mapSize => new Vector2(squareWidth * gridWidth, squareHeight * gridHeight);
+        public Vector2 mapSize = Vector2.Zero;
 
         public Vector2 squareSize => new Vector2(squareWidth, squareHeight);
 
@@ -37,6 +37,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public TerrainGrid()
         {
+            mapSize = new Vector2(squareWidth * gridWidth, squareHeight * gridHeight);
             terrainGrid = new TerrainSquare[gridWidth, gridHeight];   
             PopulateGrid();
         }
@@ -68,6 +69,18 @@ namespace EvoSim.ProjectContent.Terrain
             return false;
         }
 
+        public int TileID(Vector2 pos)
+        {
+            int x = (int)(pos.X / squareWidth);
+            int y = (int)(pos.Y / squareHeight);
+            if (InGrid(x, y))
+            {
+                TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
+                return square.ID;
+            }
+            return -1;
+        }
+
         public void PopulateGrid()
         {
             float rockThreshhold = 6.6f;
@@ -94,11 +107,16 @@ namespace EvoSim.ProjectContent.Terrain
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = 0; i < gridWidth; i++)
+            int left = (int)((SceneManager.camera.position.X - squareWidth) / squareWidth);
+            int right = (int)(((SceneManager.camera.position.X + Main.ScreenSize.X) + squareWidth) / squareWidth);
+            int top = (int)((SceneManager.camera.position.Y - squareHeight) / squareHeight);
+            int bottom = (int)(((SceneManager.camera.position.Y + Main.ScreenSize.Y) + squareHeight) / squareHeight);
+            for (int i = left; i < right; i++)
             {
-                for (int j = 0; j < gridHeight; j++)
+                for (int j = top; j < bottom; j++)
                 {
-                    terrainGrid[i, j].Draw(spriteBatch);
+                    if (InGrid(i,j))
+                        terrainGrid[i, j].Draw(spriteBatch);
                 }
             }
         }

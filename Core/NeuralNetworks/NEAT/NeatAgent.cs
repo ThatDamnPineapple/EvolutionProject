@@ -33,6 +33,11 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         public void GenerateCalculator() => GetGenome().GenerateCalculator();
 
         public virtual void Refresh() { }
+
+        public virtual void Inherit(NeatAgent other) 
+        { 
+        
+        }
         public virtual void Initialise()
         {
             Active = true;

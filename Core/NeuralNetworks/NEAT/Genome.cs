@@ -178,19 +178,15 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public void MutateWithProbability(double probability, Action a)
         {
-            int mutationModifier = SceneManager.trainingMode ? 8 : 1;
-            for (int i = 0; i < mutationModifier; i++)
-            {
-                double p = probability;
+            double p = probability * (SceneManager.trainingMode ? 30 : 1);
 
-                while (p > 0)
+            while (p > 0)
+            {
+                if (p > 1 || Main.random.NextFloat() < p)
                 {
-                    if (Main.random.NextFloat() < p)
-                    {
-                        a.Invoke();
-                    }
-                    p--;
+                    a.Invoke();
                 }
+                p--;
             }
         }
 
@@ -201,6 +197,13 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             MutateWithProbability(Neat.PROBABILITY_MUTATE_WEIGHT_SHIFT, MutateWeightShift);
             MutateWithProbability(Neat.PROBABILITY_MUTATE_WEIGHT_RANDOM, MutateWieghtRandom);
             MutateWithProbability(Neat.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK, MutateLinkToggle);
+            /*foreach (ConnectionGene con in connections)
+            {
+                if (double.IsNaN(con.weight))
+                {
+                    throw new NotFiniteNumberException();
+                }
+            }*/
         }
 
         public void MutateLink()

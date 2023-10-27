@@ -9,6 +9,7 @@ namespace EvoSim.ProjectContent.Terrain.TerrainTypes
 {
     internal class GrassSquare : TerrainSquare
     {
+        public override int ID => 3;
         public override Color color => Color.Green;
 
         public GrassSquare(Vector2 position) : base(position) { }

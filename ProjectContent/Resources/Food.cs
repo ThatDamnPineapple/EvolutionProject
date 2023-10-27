@@ -24,7 +24,7 @@ namespace EvoSim.ProjectContent.Resources
 
         public Vector2 position;
 
-        public Vector2 size => new Vector2(width, height);
+        public Vector2 size = Vector2.Zero;
 
         public Vector2 Center
         {
@@ -42,6 +42,7 @@ namespace EvoSim.ProjectContent.Resources
         {
             this.width = size.X;
             this.height = size.Y;
+            this.size = size;
             this.color = color;
             this.Center = position;
             this.energy = energy;
@@ -51,5 +52,6 @@ namespace EvoSim.ProjectContent.Resources
         {
             DrawHelper.DrawPixel(spriteBatch, color * 0.125f, position, Vector2.Zero, width, height);
         }
+
     }
 }

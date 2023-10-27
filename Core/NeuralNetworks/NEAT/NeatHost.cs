@@ -26,20 +26,20 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         public double C2 = 1;
         public double C3 = 0.5f;
 
-        public double CP = 9f;
+        public double CP = 5f;
 
         public double WEIGHT_SHIFT_STRENGTH = 2f;
         public double WEIGHT_RANDOM_STRENGTH = 5f;
 
         public double PROBABILITY_MUTATE_LINK = 1.8f;
-        public double PROBABILITY_MUTATE_NODE = 2.6f;
+        public double PROBABILITY_MUTATE_NODE = 1.6f;
         public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
         public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.6f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.8f;
 
-        public float SURVIVORS = 0.5f;
+        public float SURVIVORS = 0.4f;
 
-        public int STALESPECIES = 5;
+        public int STALESPECIES = 3;
 
         public NeatHost(int inputSize, int outputSize, int clients, NEATSimulation parent)
         {
@@ -254,6 +254,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                     {
                         Species s = PickWeightedSpecies();
                         nA.SetGenome(s.Breed());
+                        nA.Inherit(s.representative);
                         nA.Mutate();
                         s.ForceAdd(nA);
                     }

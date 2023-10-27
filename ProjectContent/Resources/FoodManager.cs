@@ -28,13 +28,13 @@ namespace EvoSim.ProjectContent.Resources
 
         public static List<Food> foods = new List<Food>();
 
-        public static float FoodEnergy => 2000;
+        public static float FoodEnergy => 1000;
 
-        public static Vector2 FoodSize => new Vector2(400, 400);
+        public static Vector2 FoodSize => new Vector2(500, 500);
 
-        public static int FoodAmount => 10;
+        public static int FoodAmount => 40;
 
-        public static float FoodSpawnRate => 10;
+        public static float FoodSpawnRate => 5;
 
 
         private TimeCounter AutomaticFoodSpawner;
@@ -48,7 +48,7 @@ namespace EvoSim.ProjectContent.Resources
             AutomaticFoodSpawner = new TimeCounter(FoodSpawnRate, new CounterAction((object o, ref float counter, float threshhold) =>
             {
                 counter -= FoodSpawnRate;
-                NewFood(6);
+                NewFood(1);
             }));
 
             ManualFoodSpawner = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.E)), new ButtonAction((object o) => NewFood(FoodAmount)));

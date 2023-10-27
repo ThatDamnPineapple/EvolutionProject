@@ -22,6 +22,13 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public bool Multiplicative;
 
+        public static float Distance(CellStat a, CellStat b)
+        {
+            float range = a.Max - a.Min;
+
+            return range * MathF.Abs(a.Value - b.Value);
+        }
+
         public CellStat(float value, float mutation, float mutation2, float min, float max, bool multiplicative)
         {
             Value = value;

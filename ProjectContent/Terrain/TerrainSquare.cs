@@ -21,6 +21,8 @@ namespace EvoSim.ProjectContent.Terrain
 
         public Vector2 position = Vector2.Zero;
 
+        public virtual int ID => 0;
+
         public TerrainSquare(Vector2 _position)
         {
             position = _position;
@@ -29,17 +31,6 @@ namespace EvoSim.ProjectContent.Terrain
         public void Draw(SpriteBatch spriteBatch)
         {
             DrawHelper.DrawPixel(spriteBatch, color, position, Vector2.Zero, width, height);
-        }
-
-        public static float GetTerrainID(TerrainSquare square)
-        {
-            if (square is GrassSquare)
-                return 1.0f;
-            if (square is WaterSquare)
-                return 2.0f;
-            if (square is RockSquare)
-                return 3.0f;
-            return 0;
         }
     }
 }
