@@ -218,7 +218,7 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
                    .AddLayer<TanhActivationFunction>(61)
-                   .AddLayer<LinearActivationFunction>(61)
+                   .AddLayer<TanhActivationFunction>(61)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-4, 4));
 

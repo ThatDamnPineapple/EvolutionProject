@@ -164,7 +164,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             DrawHelper.DrawLine(spriteBatch, Color.Red, bottomLeftCamera, topLeftCamera, scale.Y, false);
 
             FoodManager.foods.ForEach(n => DrawHelper.DrawPixel(spriteBatch, n.color * 0.3f, MapToMap(n.Center, mapSize), new Vector2(0.5f, 0.5f), n.width * (scale.X / grid.squareWidth), n.height * (scale.Y / grid.squareHeight), false));
-            cellSimulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, mapSize), new Vector2(0.5f, 0.5f), (n as Cell).Size.X * (scale.X / grid.squareWidth), (n as Cell).Size.Y * (scale.Y / grid.squareHeight), false));
+            cellSimulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, mapSize), new Vector2(0.5f, 0.5f), (n as Cell).Size.X * (scale.X / grid.squareWidth) * 4, (n as Cell).Size.Y * (scale.Y / grid.squareHeight) * 4, false));
             
         }
     }

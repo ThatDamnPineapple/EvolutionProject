@@ -16,7 +16,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     {
 
         public readonly static int INPUTNUM = 15;
-        public readonly static int OUTPUTNUM = 6;
+        public readonly static int OUTPUTNUM = 10;
 
         readonly float MaxLength = 400;
         readonly float Presision = 10;
@@ -56,7 +56,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<TanhActivationFunction>(16)
+                   .AddLayer<TanhActivationFunction>(20)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
