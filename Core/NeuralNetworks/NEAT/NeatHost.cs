@@ -28,8 +28,8 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public double CP = 9f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 20f;
-        public double WEIGHT_RANDOM_STRENGTH = 10f;
+        public double WEIGHT_SHIFT_STRENGTH = 2f;
+        public double WEIGHT_RANDOM_STRENGTH = 5f;
 
         public double PROBABILITY_MUTATE_LINK = 1.8f;
         public double PROBABILITY_MUTATE_NODE = 2.6f;
@@ -39,7 +39,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public float SURVIVORS = 0.5f;
 
-        public int STALESPECIES = 20;
+        public int STALESPECIES = 5;
 
         public NeatHost(int inputSize, int outputSize, int clients, NEATSimulation parent)
         {

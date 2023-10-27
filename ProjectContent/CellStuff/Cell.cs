@@ -44,9 +44,9 @@ namespace EvoSim.ProjectContent.CellStuff
         public readonly static float UPDATERATE = 0.01f;
         public const int RAYS = 12;
         public static int RAYVALUES => SightRay.OUTPUTNUM;
-        public readonly static int TERRAINRANGE = 2;
+        public readonly static int TERRAINRANGE = 0;
         public readonly static int MEMORYCELLS = 3;
-        public readonly static int ADDITIONALVALUES = 11;
+        public readonly static int ADDITIONALVALUES = 12;
         public static int INPUTNUM => (RAYS * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE) + MEMORYCELLS;
         public readonly static int BASICOUTPUT = 7;
         public static int OUTPUTNUM => BASICOUTPUT + MEMORYCELLS;
@@ -217,9 +217,8 @@ namespace EvoSim.ProjectContent.CellStuff
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<LinearActivationFunction>(100)
-                   .AddLayer<SigmoidActivationFunction>(100)
-                   .AddLayer<LinearActivationFunction>(80)
+                   .AddLayer<TanhActivationFunction>(61)
+                   .AddLayer<LinearActivationFunction>(61)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-4, 4));
 
@@ -259,7 +258,7 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             cellStats.Add(new CellStat(15f, 0.02f, 0.02f, 10f, 20f, false)); //sexLikelihood
             cellStats.Add(new CellStat(15f, 0.01f, 0.01f, 10f, 20f, false)); //aceLikelihood
-            cellStats.Add(new CellStat(Main.random.NextFloat(0f, 500f), 1f, 0.1f, 0, 700, false)); //speed
+            cellStats.Add(new CellStat(200, 1f, 0.1f, 0, 700, false)); //speed
             cellStats.Add(new CellStat(0.35f, 0.02f, 0.001f, 0.05f, 0.49f, false)); //childEnergy
             cellStats.Add(new CellStat(1.0f, 0.095f, 0.001f, 0.07f, 6f, false)); //scale
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.001f, 0.1f, 1, false)); //red
@@ -348,7 +347,7 @@ namespace EvoSim.ProjectContent.CellStuff
             TrySpecificActions();
             if (foundSunlight)
             {
-                sunlightCounter += (FoodCounterRate * Main.delta) * (40f / (40.0f + velocity.Length()));
+                sunlightCounter += (FoodCounterRate * Main.delta) * (150f / (150.0f + velocity.Length()));
             }
             else if (sunlightCounter > 0)
             {
@@ -508,7 +507,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
                 float toEat = MathF.Min(hunger, sunlightFound.energy);
                 toEat = MathF.Min(toEat, Main.delta * ConsumptionRate);
-                toEat /= (1.0f + MathF.Sqrt(velocity.Length() * 0.3f));
+                toEat /= (1.0f + (velocity.Length() * 0.003f));
                 sunlightFound.energy -= toEat;
                 energy += toEat;
 
@@ -535,17 +534,18 @@ namespace EvoSim.ProjectContent.CellStuff
                 }
             }
 
-            inputs.Add(rotation);
-            inputs.Add(energy);
-            inputs.Add(lifeCounter);
-            inputs.Add(health);
-            inputs.Add(velocity.X);
-            inputs.Add(velocity.Y);
-            inputs.Add(livingChildren.Count * 20);
-            inputs.Add(foundSunlight ? -200 : 200);
-            inputs.Add(foundFood ? -200 : 200);
-            inputs.Add(Center.X);
-            inputs.Add(Center.Y);
+            inputs.Add((rotation - 3.14f) / 6.28f);
+            inputs.Add(energy * 0.005f);
+            inputs.Add(energy / maxEnergy);
+            inputs.Add(health * 0.01f);
+            inputs.Add(velocity.X * 0.01f);
+            inputs.Add(velocity.Y * 0.01f);
+            inputs.Add(livingChildren.Count);
+            inputs.Add(foundSunlight ? -1 : 1);
+            inputs.Add(foundFood ? -1 : 1);
+            inputs.Add(((Center.X / SceneManager.grid.mapSize.X) - 0.5f) * 2);
+            inputs.Add(((Center.Y / SceneManager.grid.mapSize.Y) - 0.5f) * 2);
+            inputs.Add(lifeCounter / 30f);
 
             memory.ForEach(n => inputs.Add(n));
 
@@ -603,15 +603,15 @@ namespace EvoSim.ProjectContent.CellStuff
             {
                 return -999;
             }
-            float fitness = (energy / maxEnergy) + MathF.Sqrt(kills * 4) + MathF.Sqrt(generation * 5);
+            float fitness = (energy / maxEnergy) + MathF.Sqrt(kills * 4);
             float childrenDistanceThing = 0f;
             livingChildren.ForEach(n => childrenDistanceThing += (4f / (9 + n.Center.Distance(Center))));
 
             float parentDistanceThing = 0f;
             parents.ForEach(n => parentDistanceThing += (4f / (9 + n.Center.Distance(Center))));
-            fitness += MathF.Sqrt(generation) + (kids * 3.2f) + childrenDistanceThing + (livingChildren.Count * 4f) + parentDistanceThing;
+            fitness += MathF.Sqrt(generation * 3) + childrenDistanceThing + (livingChildren.Count * 4f) + parentDistanceThing;
 
-            fitness += MathF.Sqrt(MathF.Min(foodCounter + 1, 20));
+            fitness += MathF.Sqrt(MathF.Min(foodCounter + 1, 5));
             fitness *= FitnessLifetimeCorrelation(lifeCounter);
 
             //fitness *= MathF.Sqrt(energy / maxEnergy);
@@ -628,12 +628,13 @@ namespace EvoSim.ProjectContent.CellStuff
             }
 
             if (foundSunlight)
-                fitness += 400f / (40.0f + velocity.Length());
+                fitness += 40f / (400.0f + velocity.Length());
 
             if (foundFood)
                 fitness += 10f;
 
             return fitness;
+
         }
 
         private float FitnessLifetimeCorrelation(float val)

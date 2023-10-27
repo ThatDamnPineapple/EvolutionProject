@@ -16,7 +16,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     {
 
         public readonly static int INPUTNUM = 15;
-        public readonly static int OUTPUTNUM = 8;
+        public readonly static int OUTPUTNUM = 6;
 
         readonly float MaxLength = 400;
         readonly float Presision = 10;
@@ -56,7 +56,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<SigmoidActivationFunction>(30)
+                   .AddLayer<TanhActivationFunction>(16)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
@@ -135,25 +135,30 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             Response(network.Response);
         }
 
+        private float StretchNegative(float n)
+        {
+            return (n - 0.5f) * 2;
+        }
+
         public List<float> FeedInputs()
         {
             List<float> inputs = new List<float>
             {
-                distance - MaxLength / 2.0f,
-                color.R - 128,
-                color.G - 128,
-                color.B - 128,
-                similarity * 1000,
-                health,
-                energy,
-                scale * 100,
+                StretchNegative(distance / MaxLength),
+                StretchNegative(color.R / 255f),
+                StretchNegative(color.G / 255f),
+                StretchNegative(color.B / 255f),
+                StretchNegative(similarity),
+                StretchNegative(health * 0.01f),
+                StretchNegative(energy * 0.005f),
+                StretchNegative(scale / 10000f),
                 fitness,
-                velocity.X,
-                velocity.Y,
-                age,
+                velocity.X / 100f,
+                velocity.Y / 100f,
+                StretchNegative(age / 30f),
                 child,
-                rotation,
-                mateWillingness
+                ((rotation - 3.14f) / 6.28f),
+                mateWillingness - 1
             };
             return inputs;
         }
@@ -169,14 +174,14 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public void CastRay(Cell parent)
         {
-            distance = 10000;
+            distance = MaxLength;
             similarity = 100;
             color = Color.Black;
             health = 0;
             energy = 0;
             fitness = 0;
             velocity = Vector2.Zero;
-            age = -100;
+            age = 0;
             child = 0;
             mateWillingness = 0;
             for (float i = 0; i < MaxLength; i += Presision)
@@ -213,7 +218,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                         similarity = (float)parent.BaseDistance(closestCellCast);
                     else
                         similarity = 0;
-                    scale = closestCellCast.Size.Length();
+                    scale = closestCellCast.Size.LengthSquared();
                     color = closestCellCast.color;
                     energy = closestCellCast.energy;
                     health = closestCellCast.health;
@@ -224,10 +229,10 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                     mateWillingness = closestCellCast.mateWillingness;
 
                     if (parent.livingChildren.Contains(closestCellCast))
-                        child = 100;
+                        child = 1;
 
                     if (parent.parents.Contains(closestCellCast))
-                        child = -100;
+                        child = -1;
                     return;
                 }  
             }
@@ -264,7 +269,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                     similarity = 100;
                     energy = closestFood.energy;
                     health = 0;
-                    scale = closestFood.size.Length();
+                    scale = closestFood.size.LengthSquared();
                     color = closestFood.color;
                     pickedUp = true;
                     return;

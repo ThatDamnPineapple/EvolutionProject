@@ -35,7 +35,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             return cellSimulation.Agents.Count;
         }
 
-        public int StartingCells => 80;
+        public int StartingCells => 100;
 
         public static bool trainingMode = false;
 
@@ -90,7 +90,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             debugInfo += "\nTraining mode: " + trainingMode.ToString();
             DrawHelper.DrawText(spriteBatch, debugInfo, StaticColors.textColor, new Vector2(50, 50), Vector2.One * 2, false);
 
-            DrawMinimap(spriteBatch, Main.ScreenSize * new Vector2(0.9f, 0.8f), Vector2.One * 4);
+            DrawMinimap(spriteBatch, Main.ScreenSize * new Vector2(0.8f, 0.7f), Vector2.One * 2);
         }
 
         public void Update(GameTime gameTime)
@@ -105,7 +105,7 @@ namespace EvoSim.ProjectContent.SceneStuff
         {
             sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
             (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 5f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 2f);
             newsim.Deploy();
             cellSimulation = newsim;
 

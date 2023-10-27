@@ -24,4 +24,17 @@ namespace EvoSim.Core.NeuralNetworks
             return 1f / (float)(1 + Math.Pow(MathHelper.E, -x));
         }
     }
+
+    public class TanhActivationFunction : ActivationFunction
+    {
+        public override float Compute(float x)
+        {
+            float e = MathHelper.E;
+            float ex = MathF.Pow(e, x / 1000);
+            float enx = MathF.Pow(e, -x / 1000);
+
+            float ret = (ex - enx) / (ex + enx);
+            return (ex - enx) / (ex + enx);
+        }
+    }
 }
