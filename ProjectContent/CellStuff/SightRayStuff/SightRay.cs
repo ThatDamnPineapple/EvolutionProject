@@ -16,7 +16,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     {
 
         public readonly static int INPUTNUM = 17;
-        public readonly static int OUTPUTNUM = 4;
+        public readonly static int OUTPUTNUM = 8;
 
         readonly float MaxLength = 400;
         readonly float Presision = 20;
@@ -71,7 +71,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         {
             if (SceneManager.sightRaySimulation.Agents.Count > 1 && owner != null && owner.Dna is Genome)
             {
-                SightRay closestRelative = SceneManager.sightRaySimulation.Agents.Where(n => (n as SightRay).IsActive() && (n as SightRay) != this && (n as SightRay).Distance(this) < GetGenome().Neat.CP).OrderBy(n => (n as SightRay).Distance(this)).FirstOrDefault() as SightRay;
+                SightRay closestRelative = SceneManager.sightRaySimulation.Agents.Where(n => (n as SightRay).IsActive() && (n as SightRay) != this && (n as SightRay).Distance(this) < GetGenome().Neat.CP * 2).OrderBy(n => (n as SightRay).Distance(this)).FirstOrDefault() as SightRay;
                 if (closestRelative != default)
                 {
                     Species closestSpecies = closestRelative.GetSpecies();
@@ -103,15 +103,16 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             owner = parent;
             rotation = _rotation;
 
-            IDna actualNewDNA = null;
+            Genome actualNewDNA = null;
             if (NewDNA == null || NewDNA is not Genome)
             {
                 actualNewDNA = (SceneManager.sightRaySimulation as NEATSimulation).neatHost.GenerateEmptyGenome();
             }
             else
             {
-                actualNewDNA = NewDNA;
-                (actualNewDNA as Genome).Mutate();
+                actualNewDNA = (NewDNA as Genome);
+                if (Main.random.Next(20) == 3)
+                    actualNewDNA.Mutate();
             }
             Dna= actualNewDNA;
             network = Dna;

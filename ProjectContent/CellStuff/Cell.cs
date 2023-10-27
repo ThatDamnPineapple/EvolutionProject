@@ -36,7 +36,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float EnergyUsage => ((Scale * Scale) * velocity.Length() * 0.000002f * (1.0f / terrainVelocity)) + 1.7f;
 
-        public float ConsumptionRate => (Scale * Scale) * 60f;
+        public float ConsumptionRate => (Scale * Scale) * 100f;
 
         public float FoodCounterRate => 2f;
         #endregion
@@ -344,7 +344,7 @@ namespace EvoSim.ProjectContent.CellStuff
             TrySpecificActions();
             if (foundSunlight)
             {
-                sunlightCounter += (FoodCounterRate * Main.delta) * (150f / (150.0f + velocity.Length()));
+                sunlightCounter += (FoodCounterRate * Main.delta) * (250f / (250.0f + velocity.Length()));
             }
             else if (sunlightCounter > 0)
             {
@@ -365,9 +365,10 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void TrySpecificActions()
         {
-            if (mateWillingness > 1 && energy * ChildEnergy > 75 && lifeCounter > 1 && TryMate(mateWillingness))
+            if (mateWillingness > 1 && energy * ChildEnergy > 75 && lifeCounter > 1)
             {
-                return;
+                if (TryMate(mateWillingness))
+                    return;
             }
 
             if (fightWillingness > FightThreshhold)
@@ -604,19 +605,19 @@ namespace EvoSim.ProjectContent.CellStuff
             {
                 return -999;
             }
-            float fitness = ((energy / maxEnergy) * 3) + MathF.Sqrt(kills * 4);
+            float fitness = ((energy / maxEnergy) * 5) + MathF.Sqrt(kills * 4);
             float childrenDistanceThing = 0f;
-            livingChildren.ForEach(n => childrenDistanceThing += (4f / (9 + n.Center.Distance(Center))));
+            livingChildren.ForEach(n => childrenDistanceThing += (2f / (9 + n.Center.Distance(Center))));
 
             float parentDistanceThing = 0f;
-            parents.ForEach(n => parentDistanceThing += (4f / (9 + n.Center.Distance(Center))));
+            parents.ForEach(n => parentDistanceThing += (2f / (9 + n.Center.Distance(Center))));
 
 
             fitness += MathF.Sqrt(MathF.Min(foodCounter + 1, 15));
             fitness += MathF.Sqrt(MathF.Min(sunlightCounter + 1, 15));
             fitness *= FitnessLifetimeCorrelation(lifeCounter);
 
-            fitness += (terrainVelocity - 0.5f) * 5;
+            fitness += (terrainVelocity - 0.5f) * 2;
 
             //fitness *= MathF.Sqrt(energy / maxEnergy);
 
@@ -624,25 +625,25 @@ namespace EvoSim.ProjectContent.CellStuff
                 fitness -= 10;
 
             if (energy <= 50)
-                fitness -= 3;
+                fitness -= 8;
 
             if (foundSunlight)
-                fitness += 80f / (40.0f + velocity.Length());
+                fitness += 160f / (80.0f + velocity.Length());
 
             if (foundFood)
                 fitness += 2f;
 
-            fitness += (MathF.Sqrt(generation) * 0.6f) + childrenDistanceThing + MathF.Sqrt(kids) + parentDistanceThing;
+            fitness += (MathF.Sqrt(generation) * 0.6f) + childrenDistanceThing + kids + parentDistanceThing;
 
             float newOldFitness = fitness;
-            fitness += (fitness - oldFitness) * 0.1f;
+            //fitness += (fitness - oldFitness) * 0.1f;
             if (reset)
             {
                 //oldFitness = newOldFitness;
                 hitWall = false;
             }
 
-            fitness += (livingChildren.Count * 4f);
+            fitness += (livingChildren.Count * 1f);
 
             if (double.IsNaN(fitness))
             {
@@ -706,7 +707,7 @@ namespace EvoSim.ProjectContent.CellStuff
             var partner = SceneManager.cellSimulation?.Agents.Where(n => (n as Cell) != this && 
             (n as Cell).IsActive() &&
             CollisionHelper.CheckBoxvBoxCollision(position, Size, (n as Cell).position, (n as Cell).Size) && 
-            Distance(n as Cell) < GetGenome().Neat.CP * 10 && 
+            Distance(n as Cell) < GetGenome().Neat.CP * 100 && 
             (n as Cell).mateWillingness > 1 &&
             !(n as Cell).livingChildren.Contains(this) &&
             !livingChildren.Contains(n as Cell) &&
@@ -816,7 +817,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 speciesString = GetSpecies().GetHashCode().ToString();
             }
 
-            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nGeneration: " + generation.ToString() + "\nChildren: " + livingChildren.Count.ToString() + "\nFitness: " + GetFitness(false).ToString() + "\nMitosis likelihood: " + splitWillingness + "\nMating likelihood: " + mateWillingness;
+            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nGeneration: " + generation.ToString() + "\nChildren: " + livingChildren.Count.ToString() + "\nFitness: " + GetFitness(false).ToString() + "\nMating likelihood: " + mateWillingness;
             DrawHelper.DrawText(spriteBatch, text, StaticColors.textColor, position - new Vector2(0, 120), Vector2.One);
             DrawHelper.DrawPixel(spriteBatch, color, position, Vector2.Zero, width * Scale, height * Scale);
         }

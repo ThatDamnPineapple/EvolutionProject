@@ -26,9 +26,9 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         public double C2 = 1;
         public double C3 = 0.5f;
 
-        public double CP = 5f;
+        public double CP = 8f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 2f;
+        public double WEIGHT_SHIFT_STRENGTH = 5f;
         public double WEIGHT_RANDOM_STRENGTH = 5f;
 
         public double PROBABILITY_MUTATE_LINK = 1.8f;
@@ -37,7 +37,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
         public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.8f;
 
-        public float SURVIVORS = 0.4f;
+        public float SURVIVORS = 0.2f;
 
         public int STALESPECIES = 3;
 
