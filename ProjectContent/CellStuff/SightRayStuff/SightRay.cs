@@ -16,9 +16,9 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     {
 
         public readonly static int INPUTNUM = 17;
-        public readonly static int OUTPUTNUM = 8;
+        public readonly static int OUTPUTNUM = 5;
 
-        readonly float MaxLength = 400;
+        readonly float MaxLength = 700;
         readonly float Presision = 20;
         public float rotation;
 
@@ -60,7 +60,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<TanhActivationFunction>(12)
+                   .AddLayer<TanhActivationFunction>(23)
                    .SetOutput<TanhActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-1, 1));
 
@@ -111,7 +111,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             else
             {
                 actualNewDNA = (NewDNA as Genome);
-                if (Main.random.Next(20) == 3)
+                if (Main.random.Next(5) == 3)
                     actualNewDNA.Mutate();
             }
             Dna= actualNewDNA;

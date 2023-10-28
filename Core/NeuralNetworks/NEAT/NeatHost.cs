@@ -28,16 +28,16 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public double CP = 8f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 5f;
-        public double WEIGHT_RANDOM_STRENGTH = 5f;
+        public double WEIGHT_SHIFT_STRENGTH = 20f;
+        public double WEIGHT_RANDOM_STRENGTH = 20f;
 
-        public double PROBABILITY_MUTATE_LINK = 1.8f;
-        public double PROBABILITY_MUTATE_NODE = 1.6f;
-        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 1.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.8f;
+        public double PROBABILITY_MUTATE_LINK = 2.8f;
+        public double PROBABILITY_MUTATE_NODE = 2.6f;
+        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 2.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 2.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 4.8f;
 
-        public float SURVIVORS = 0.2f;
+        public float SURVIVORS = 0.6f;
 
         public int STALESPECIES = 3;
 

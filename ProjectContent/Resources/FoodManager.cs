@@ -28,13 +28,13 @@ namespace EvoSim.ProjectContent.Resources
 
         public static List<Food> foods = new List<Food>();
 
-        public static float FoodEnergy => 1000;
+        public static float FoodEnergy => 1200;
 
-        public static Vector2 FoodSize => new Vector2(500, 500);
+        public static Vector2 FoodSize => new Vector2(300, 300);
 
-        public static int FoodAmount => 40;
+        public static int FoodAmount => 30;
 
-        public static float FoodSpawnRate => 5;
+        public static float FoodSpawnRate => 6f;
 
 
         private TimeCounter AutomaticFoodSpawner;
