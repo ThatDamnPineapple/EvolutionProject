@@ -71,8 +71,8 @@ namespace EvoSim.ProjectContent.Terrain
 
         public int TileID(Vector2 pos)
         {
-            int x = (int)(pos.X / squareWidth);
-            int y = (int)(pos.Y / squareHeight);
+            int x = (int)((pos.X + (squareWidth / 2)) / squareWidth);
+            int y = (int)((pos.Y + (squareHeight /2)) / squareHeight);
             if (InGrid(x, y))
             {
                 TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
@@ -87,7 +87,7 @@ namespace EvoSim.ProjectContent.Terrain
 
             float waterThreshhold = 0.01f;
             FastNoiseLite noise = new FastNoiseLite(Main.random.Next());
-            noise.SetFrequency(0.05f);
+            noise.SetFrequency(0.01f);
 
             for (int i = 0; i < gridWidth; i++)
             {

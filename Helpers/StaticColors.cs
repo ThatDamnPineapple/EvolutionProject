@@ -8,7 +8,7 @@ namespace EvoSim.Helpers
 {
     internal class StaticColors
     {
-        public static Color startingCellColor => Color.Yellow;
+        public static Color startingCellColor => Color.Cyan;
 
         public static Color foodColor => Color.Yellow;
 

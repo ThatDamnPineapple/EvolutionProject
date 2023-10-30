@@ -35,11 +35,14 @@ namespace EvoSim.ProjectContent.SceneStuff
             return cellSimulation.Agents.Count;
         }
 
+        public const int PARTITIONROWS = 6;
+        public const int PARTITIONCOLUMNS = 6;
+
         public int StartingCells => 100;
 
         public static bool trainingMode = false;
 
-        public static Simulation cellSimulation;
+        public static CellNeatSimulation<Cell> cellSimulation;
 
         public static Simulation sightRaySimulation;
 
@@ -49,6 +52,8 @@ namespace EvoSim.ProjectContent.SceneStuff
         public static TerrainGrid grid;
 
         public static int successfulMates = 0;
+
+        public static bool firstMutation = false;
 
         public void Load()
         {
@@ -83,7 +88,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             debugInfo += "\nTotal living cells: " + cellSimulation?.Agents.Where(n => (n as Cell).IsActive()).Count().ToString();
             debugInfo += "\nTotal cell energy: " + ((int)totalEnergy).ToString();
             totalEnergy = 0;
-            FoodManager.foods.ForEach(n => totalEnergy += n.energy);
+            FoodManager.foods.basicList.ForEach(n => totalEnergy += n.energy);
             debugInfo += "\nTotal food energy: " + ((int)totalEnergy).ToString();
             debugInfo += "\nSuccessful mates:" + successfulMates.ToString();
 
@@ -119,9 +124,10 @@ namespace EvoSim.ProjectContent.SceneStuff
 
         private void NewCells(int numCells)
         {
+            firstMutation = true;
             sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
             (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 11.5f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 7f);
             newsim.Deploy();
             cellSimulation = newsim;
 
@@ -131,15 +137,17 @@ namespace EvoSim.ProjectContent.SceneStuff
         private Cell CreateRawCell(IDna dna)
         {
             Vector2 pos = Vector2.Zero;
-            pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
-            pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
+            pos.X = Main.random.Next((int)(SceneManager.grid.mapSize.X));
+            pos.Y = Main.random.Next((int)(SceneManager.grid.mapSize.Y));
 
-            while (SceneManager.grid.ContainsRockWorld(pos))
+            int tries = 0;
+            while (grid.TileID(pos) != 3 && tries < 30)
             {
+                tries++;
                 pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                 pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
             }
-            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 200, 0, dna);
+            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 200 + Cell.DEADENERGY, 0, dna);
             return newCell;
         }
 
@@ -186,7 +194,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             float yShrink = (scale.Y / grid.squareHeight);
 
             Vector2 genericCenter = new Vector2(0.5f, 0.5f);
-            FoodManager.foods.ForEach(n => DrawHelper.DrawPixel(spriteBatch, n.color * 0.3f, MapToMap(n.Center, halfMapSize), genericCenter, n.width * xShrink, n.height * yShrink, false));
+            FoodManager.foods.basicList.ForEach(n => DrawHelper.DrawPixel(spriteBatch, n.color * 0.3f, MapToMap(n.Center, halfMapSize), genericCenter, n.width * xShrink, n.height * yShrink, false));
             cellSimulation?.Agents.ForEach(n => DrawHelper.DrawPixel(spriteBatch, (n as Cell).color, MapToMap((n as Cell).Center, halfMapSize), genericCenter, (n as Cell).Size.X * xShrink * 4, (n as Cell).Size.Y * yShrink * 4, false));
             
         }

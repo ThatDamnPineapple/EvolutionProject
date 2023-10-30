@@ -26,15 +26,15 @@ namespace EvoSim.ProjectContent.Resources
 
         #endregion
 
-        public static List<Food> foods = new List<Food>();
+        public static PartitionedFoodList<Food> foods;
 
         public static float FoodEnergy => 1200;
 
         public static Vector2 FoodSize => new Vector2(300, 300);
 
-        public static int FoodAmount => 30;
+        public static int FoodAmount => 100;
 
-        public static float FoodSpawnRate => 6f;
+        public static float FoodSpawnRate => 5f;
 
 
         private TimeCounter AutomaticFoodSpawner;
@@ -44,7 +44,7 @@ namespace EvoSim.ProjectContent.Resources
         {
             Main.drawables.Add(this);
             Main.updatables.Add(this);
-
+            foods = new PartitionedFoodList<Food>(SceneManager.PARTITIONROWS, SceneManager.PARTITIONCOLUMNS);
             AutomaticFoodSpawner = new TimeCounter(FoodSpawnRate, new CounterAction((object o, ref float counter, float threshhold) =>
             {
                 counter -= FoodSpawnRate;
@@ -68,7 +68,7 @@ namespace EvoSim.ProjectContent.Resources
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (Food food in foods)
+            foreach (Food food in foods.basicList)
             {
                 food.Draw(spriteBatch);
             }

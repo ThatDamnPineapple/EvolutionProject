@@ -19,7 +19,7 @@ namespace EvoSim.ProjectContent.Camera
 
         public float acceleration = 0.25f;
 
-        public float maxSpeed = 600;
+        public float maxSpeed = 1500;
 
         public Vector2 velocity = Vector2.Zero;
 

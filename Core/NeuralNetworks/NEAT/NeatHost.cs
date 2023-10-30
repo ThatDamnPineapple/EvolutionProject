@@ -26,18 +26,18 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         public double C2 = 1;
         public double C3 = 0.5f;
 
-        public double CP = 8f;
+        public double CP = 13f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 20f;
-        public double WEIGHT_RANDOM_STRENGTH = 20f;
+        public double WEIGHT_SHIFT_STRENGTH = 7f;
+        public double WEIGHT_RANDOM_STRENGTH = 2.5f;
 
-        public double PROBABILITY_MUTATE_LINK = 2.8f;
-        public double PROBABILITY_MUTATE_NODE = 2.6f;
-        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 2.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 2.3f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 4.8f;
+        public double PROBABILITY_MUTATE_LINK = 4.8f;
+        public double PROBABILITY_MUTATE_NODE = 4.6f;
+        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 4.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 4.3f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 7.0f;
 
-        public float SURVIVORS = 0.6f;
+        public float SURVIVORS = 0.3f;
 
         public int STALESPECIES = 3;
 
@@ -58,7 +58,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             return g;
         }
 
-        public List<GeneticAgent> GetClients() => simulation.Agents;
+        public List<GeneticAgent> GetClients() => simulation.GetAgents();
 
         public void Reset(int inputSize, int outputSize, int maxClients)
         {
@@ -68,7 +68,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
             allConnections.Clear();
             allNodes.Clear();
-            simulation.Agents.Clear();
+            simulation.ClearAgents();
 
             for (int i = 0; i < inputSize; i++)
             {
@@ -90,7 +90,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 //g.FullyConnect();
                 NeatAgent a = simulation.InitialiseAgent(g) as NeatAgent;
                 a.SetGenome(g);
-                GetClients().Add(a);
+                simulation.AddAgent(a);
             }
         }
 
@@ -268,7 +268,12 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             {
                 NeatAgent nA = a as NeatAgent;
                 if (nA.Dna != null && nA.Dna is Genome)
-                    nA.Mutate();
+                {
+
+                    int numCycles = SceneManager.firstMutation ? 40 : 1;
+                    for (int i = 0; i < numCycles; i++)
+                        nA.Mutate();
+                }
             }
         }
     }

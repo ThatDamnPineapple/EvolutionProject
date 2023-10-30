@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace EvoSim.ProjectContent.Resources
 {
-    internal class Food
+    public class Food
     {
         public float width;
 

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace EvoSim.ProjectContent.Terrain.TerrainTypes
 {
-    internal class GrassSquare : TerrainSquare
+    internal class RockSquare : TerrainSquare
     {
-        public override int ID => 3;
-        public override Color color => Color.Green;
+        public override int ID => 1;
+        public override Color color => Color.Gray;
 
-        public GrassSquare(Vector2 position) : base(position) { }
+        public RockSquare(Vector2 position) : base(position) { }
     }
 }

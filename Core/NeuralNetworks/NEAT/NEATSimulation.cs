@@ -25,6 +25,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             maxClients = GenerationSize;
 
             neatHost = new NeatHost(inputSize, outputSize, GenerationSize, this);
+            UpdateHostStats();
         }
         public override void Deploy()
         {
@@ -33,6 +34,33 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         }
 
         public virtual void PreEvolve()
+        {
+
+        }
+
+        public virtual void UpdateHostStats()
+        {
+            neatHost.C1 = 1;
+            neatHost.C2 = 1;
+            neatHost.C3 = 0.5f;
+
+            neatHost.CP = 13f;
+
+            neatHost.WEIGHT_SHIFT_STRENGTH = 7f;
+            neatHost.WEIGHT_RANDOM_STRENGTH = 2.5f;
+
+            neatHost.PROBABILITY_MUTATE_LINK = 4.8f;
+            neatHost.PROBABILITY_MUTATE_NODE = 4.6f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 4.3f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 4.3f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 7.0f;
+
+            neatHost.SURVIVORS = 0.3f;
+
+            neatHost.STALESPECIES = 3;
+        }
+
+        public virtual void PostEvolve()
         {
 
         }
@@ -81,6 +109,8 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 neatHost.Evolve();
                 Time = 0;
                 Generation++;
+
+                PostEvolve();
             }
         }
     }

@@ -12,7 +12,19 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 {
     public class Simulation
     {
-        public List<GeneticAgent> Agents = new List<GeneticAgent>();
+        public List<GeneticAgent> Agents
+        {
+            get
+            {
+                return GetAgents();
+            }
+            set
+            {
+                SetAgents(value);
+            }
+        }
+
+        public List<GeneticAgent> agents;
         public GeneticAgent BestAgent;
 
         public int GenerationSize;
@@ -25,10 +37,22 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public Simulation(int GenerationSize, float MutationRate = 0.1f, float MaxSimulationTime = 1)
         {
+            agents = new List<GeneticAgent>();
             this.GenerationSize = GenerationSize;
             this.MutationRate = MutationRate;
             this.MaxSimulationTime = MaxSimulationTime;
         }
+
+        public virtual List<GeneticAgent> GetAgents() { return agents; }
+        public virtual void SetAgents(List<GeneticAgent> value) { agents = value; }
+
+        public virtual void AddAgent(GeneticAgent agent) => agents.Add(agent);
+
+        public virtual void RemoveAgent(GeneticAgent agent) => agents.Remove(agent);
+
+        public virtual GeneticAgent GetAgent(int index) => agents[index];
+
+        public virtual void ClearAgents() => agents.Clear();
 
         public virtual GeneticAgent InitialiseAgent() { return new GeneticAgent(); }
         public virtual GeneticAgent InitialiseAgent(IDna dna) { return new GeneticAgent(dna); }
@@ -37,7 +61,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         {
             for (int i = 0; i < GenerationSize; i++)
             {
-                Agents.Add(InitialiseAgent());
+                AddAgent(InitialiseAgent());
             }
         }
 
@@ -51,11 +75,11 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             int index = 0;
             while (r > 0)
             {
-                r -= Agents[index].Fitness;
+                r -= GetAgent(index).Fitness;
                 index++;
             }
 
-            return Agents[index - 1];
+            return GetAgent(index - 1);
         }
 
         public List<GeneticAgent> GenerateFitnessWeightedPopulation()
@@ -95,7 +119,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 if (agent is ContinuousGeneticAgent r) r.Kill();
             }
 
-            Agents.Clear();
+            ClearAgents();
         }
 
         public virtual void Update()
@@ -130,7 +154,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 BestAgent = FindBestAgent();
 
                 List<GeneticAgent> newPop = GenerateFitnessWeightedPopulation();
-                Agents = newPop;
+                Agents = newPop; //maybreak
                 Time = 0;
                 Generation++;
             }

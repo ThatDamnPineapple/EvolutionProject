@@ -120,14 +120,6 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         public Genome Breed(NeatAgent a1, NeatAgent a2)
         {
             if (a1.Fitness > a2.Fitness) return (Genome)a1.GetGenome().Combine(a2.GetGenome(), 0.001f);
-
-            int debug = 0;
-            if (a1.GetGenome() == null)
-                debug = 1;
-            if (a1 == null)
-                debug = 2;
-            if (a1.Dna == null)
-                debug = 3;
             return (Genome)a2.GetGenome().Combine(a1.GetGenome(), 0.001f);
         }
 
@@ -136,9 +128,9 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             if (clients.Count == 0)
             {
                 if (representative is Cell)
-                    return (Genome)(SceneManager.cellSimulation.Agents[0] as NeatAgent).GetGenome().Combine((SceneManager.cellSimulation.Agents[0] as NeatAgent).GetGenome(), 0);
+                    return (Genome)(SceneManager.cellSimulation.GetAgent(0) as NeatAgent).GetGenome().Combine((SceneManager.cellSimulation.GetAgent(0) as NeatAgent).GetGenome(), 0);
                 if (representative is SightRay)
-                    return (Genome)(SceneManager.sightRaySimulation.Agents[0] as NeatAgent).GetGenome().Combine((SceneManager.sightRaySimulation.Agents[0] as NeatAgent).GetGenome(), 0);
+                    return (Genome)(SceneManager.sightRaySimulation.GetAgent(0) as NeatAgent).GetGenome().Combine((SceneManager.sightRaySimulation.GetAgent(0) as NeatAgent).GetGenome(), 0);
             }
             NeatAgent a1 = clients[Main.random.Next(clients.Count)];
             NeatAgent a2 = clients[Main.random.Next(clients.Count)];

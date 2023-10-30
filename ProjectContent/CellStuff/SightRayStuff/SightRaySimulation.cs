@@ -32,9 +32,27 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public override GeneticAgent InitialiseAgent(IDna dna) => GenerateAgentWithDNA.Invoke(dna);
 
-        public override void Draw(SpriteBatch sb)
+        public override void UpdateHostStats()
         {
+            neatHost.C1 = 1;
+            neatHost.C2 = 1;
+            neatHost.C3 = 0.5f;
+
+            neatHost.CP = 13f;
+
+            neatHost.WEIGHT_SHIFT_STRENGTH = 1f;
+            neatHost.WEIGHT_RANDOM_STRENGTH = 0.5f;
+
+            neatHost.PROBABILITY_MUTATE_LINK = 0.8f;
+            neatHost.PROBABILITY_MUTATE_NODE = 0.6f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 0.3f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.3f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.05f;
+
+            neatHost.SURVIVORS = 0.2f;
+
+            neatHost.STALESPECIES = 3;
         }
 
-        }
+    }
 }
