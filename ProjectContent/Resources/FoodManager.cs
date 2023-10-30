@@ -26,15 +26,26 @@ namespace EvoSim.ProjectContent.Resources
 
         #endregion
 
+        public delegate void PassiveFoodAction(ref float item, Point index);
+
         public static PartitionedFoodList<Food> foods;
 
         public static float FoodEnergy => 1200;
 
         public static Vector2 FoodSize => new Vector2(300, 300);
 
+        public static int FOODROWS = 32;
+        public static int FOODCOLUMNS = 32;
+
+        public static float[,] passiveFood = new float[FOODROWS, FOODCOLUMNS];
+        public static float passiveFoodRegen = 500f;
+        public static float passiveFoodCap = 9000f;
+        public static float passiveFoodStart = 3000f;
+
         public static int FoodAmount => 150;
 
-        public static float FoodSpawnRate => 3f;
+        public static float FoodSpawnRate => 3000f;
+
 
 
         private TimeCounter AutomaticFoodSpawner;
@@ -51,7 +62,38 @@ namespace EvoSim.ProjectContent.Resources
                 NewFood(1);
             }));
 
+            ChangeEveryPassiveFood(new PassiveFoodAction((ref float i, Point point) =>
+            {
+                i = passiveFoodStart;
+            }));
+
             ManualFoodSpawner = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.E)), new ButtonAction((object o) => NewFood(FoodAmount)));
+        }
+
+        public static void ChangeEveryPassiveFood(PassiveFoodAction action)
+        {
+            for (int i = 0; i < FOODROWS; i++)
+            {
+                for (int j = 0; j < FOODCOLUMNS; j++)
+                {
+                    action.Invoke(ref passiveFood[i, j], new Point(i, j));
+                }
+            }
+        }
+
+        public static void ChangeSpecificPassiveFood(Vector2 pos, PassiveFoodAction action)
+        {
+            Point point = new Point((int)(pos.X / SceneManager.grid.mapSize.X) * FOODROWS, (int)(pos.Y / SceneManager.grid.mapSize.Y) * FOODCOLUMNS);
+            point.X %= FOODROWS;
+            point.Y %= FOODCOLUMNS;
+
+            while (point.X < 0)
+                point.X += FOODROWS;
+
+            while (point.Y < 0)
+                point.Y += FOODCOLUMNS;
+
+            action.Invoke(ref passiveFood[point.X, point.Y], point);
         }
 
         public void Unload()
@@ -61,6 +103,12 @@ namespace EvoSim.ProjectContent.Resources
 
         public void Update(GameTime gameTime)
         {
+            ChangeEveryPassiveFood(new PassiveFoodAction((ref float i, Point point) =>
+            {
+                i += passiveFoodRegen * Main.delta;
+                i = MathF.Min(i, passiveFoodCap);
+            }));
+
             ManualFoodSpawner.Update(this);
             if (SceneManager.cellSimulation != null)
                 AutomaticFoodSpawner.Update(this);
@@ -88,7 +136,7 @@ namespace EvoSim.ProjectContent.Resources
                     pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                     pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
                 }
-                Food newFood = new Food(FoodSize * scale, FoodEnergy * scale, StaticColors.foodColor, pos);
+                Food newFood = new Food(FoodSize * scale, FoodEnergy * scale, ColorHelper.foodColor, pos);
                 foods.Add(newFood);
             }
         }

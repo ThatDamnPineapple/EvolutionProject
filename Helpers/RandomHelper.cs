@@ -26,9 +26,14 @@ namespace EvoSim.Helpers
             return ret * (max - min) + min;
         }
 
-        internal static bool NextBool(this Random random, int chance)
+        internal static bool NextBool(this Random random, int chance = 2)
         {
             return random.Next(chance) == 0;
+        }
+
+        internal static int NextSign(this Random random)
+        {
+            return random.NextBool() ? -1 : 1;
         }
     }
 }

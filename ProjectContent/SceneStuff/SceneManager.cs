@@ -109,7 +109,7 @@ namespace EvoSim.ProjectContent.SceneStuff
                 debugInfo += "\nGlobal Sharing: " + (cellSimulation as NEATSimulation).globalSharing.ToString();
             }
             debugInfo += "\nTraining mode: " + trainingMode.ToString();
-            DrawHelper.DrawText(spriteBatch, debugInfo, StaticColors.textColor, new Vector2(50, 50), Vector2.One * 2, false);
+            DrawHelper.DrawText(spriteBatch, debugInfo, ColorHelper.textColor, new Vector2(50, 50), Vector2.One * 2, false);
 
             DrawMinimap(spriteBatch, Main.ScreenSize * new Vector2(0.8f, 0.7f), Vector2.One * 2);
         }
@@ -147,7 +147,7 @@ namespace EvoSim.ProjectContent.SceneStuff
                 pos.X = Main.random.Next((int)(SceneManager.grid.squareWidth * SceneManager.grid.gridWidth));
                 pos.Y = Main.random.Next((int)(SceneManager.grid.squareHeight * SceneManager.grid.gridHeight));
             }
-            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 200 + Cell.DEADENERGY, 0, dna);
+            Cell newCell = new Cell(new Color(0, 0, 1.0f), Vector2.One * 32, pos, 0.75f, 0, dna);
             return newCell;
         }
 

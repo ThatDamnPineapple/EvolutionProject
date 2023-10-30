@@ -43,5 +43,29 @@ namespace EvoSim.Helpers
             float y = MathF.Abs(vector1.Y - vector2.Y);
             return MathF.Sqrt((x * x) + (y * y));
         }
+
+        public static Vector2 Wrap(this Vector2 vector, float width, float height)
+        {
+            Vector2 ret = new Vector2(vector.X, vector.Y);
+            while (ret.X < 0)
+                ret.X += width;
+            while (ret.Y < 0)
+                ret.Y += height;
+
+            ret.X %= width;
+            ret.Y %= height;
+            return ret;
+        } 
+
+        public static void WrapPoints(ref float x, ref float y, float width, float height)
+        {
+            while (x < 0)
+                x += width;
+            while (y < 0)
+                y += height;
+
+            x %= width;
+            y %= height;
+        }
     }
 }

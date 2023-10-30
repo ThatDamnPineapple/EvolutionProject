@@ -15,7 +15,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     public class SightRay : NeatAgent
     {
 
-        public readonly static int INPUTNUM = 18;
+        public readonly static int INPUTNUM = 20;
         public readonly static int OUTPUTNUM = 8;
 
         readonly float MaxLength = 500;
@@ -43,6 +43,8 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
         public float child;
 
+        public float parentVal;
+
         public float mateWillingness = 0;
 
         public IDna network;
@@ -56,6 +58,8 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public float waterDistance;
 
         public float landDistance;
+
+        public float rockDistance;
 
         public float damageCapcity;
 
@@ -157,13 +161,14 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             distanceMult = MathF.Pow(1.0f - distanceMult, 0.5f);
 
             float distanceSqrt = MathHelper.Lerp(0.8f, 1.0f, distanceMult);
+            HSV hsv = ColorHelper.RGBToHSV(color);
             List<float> inputs = new List<float>
             {
 
                 StretchNegative(distanceMult) * 15,
-                StretchNegative((color.R / 255f ) * distanceSqrt),
-                StretchNegative((color.G / 255f ) * distanceSqrt),
-                StretchNegative((color.B / 255f ) * distanceSqrt),
+                StretchNegative((hsv.H / 360f) * distanceSqrt),
+                StretchNegative(hsv.S * distanceSqrt),
+                StretchNegative(hsv.V * distanceSqrt),
                 StretchNegative(similarity * distanceSqrt),
                 StretchNegative(health * 0.01f * distanceSqrt),
                 StretchNegative(energy * 0.005f * distanceSqrt),
@@ -172,11 +177,13 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 (velocity.X * distanceSqrt) / 100f,
                 (velocity.Y * distanceSqrt) / 100f,
                 StretchNegative((age * distanceSqrt) / 30f),
-                child * distanceSqrt,
+                StretchNegative(child) * 3,
+                StretchNegative(parentVal) * 3,
                 ((rotation - 3.14f) / 6.28f),
                 ((mateWillingness * 0.1f) - 1) * distanceSqrt,
                 StretchNegative(1.0f - (waterDistance / MaxLength)) * 25,
                 StretchNegative(1.0f - (landDistance / MaxLength)) * 25,
+                StretchNegative(1.0f - (rockDistance / MaxLength)) * 25,
                 StretchNegative(damageCapcity / 10f) * 3
             };
             return inputs;
@@ -202,9 +209,11 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             velocity = Vector2.Zero;
             age = 0;
             child = 0;
+            parentVal = 0;
             mateWillingness = 0;
             waterDistance = MaxLength;
             landDistance = MaxLength;
+            rockDistance = MaxLength;
             damageCapcity = 0;
             for (float i = 0; i < MaxLength; i += Presision)
             {
@@ -229,6 +238,11 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 while (checkPos.Y < 0)
                 {
                     checkPos.Y += SceneManager.grid.mapSize.Y;
+                }
+
+                if (rockDistance == MaxLength && SceneManager.grid.TileID(checkPos) == 1)
+                {
+                    rockDistance = i;
                 }
 
                 if (waterDistance == MaxLength && SceneManager.grid.TileID(checkPos) == 2)
@@ -265,10 +279,12 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                         child = 1;
 
                     if (parent.parents.Contains(closestCell))
-                        child = -1;
+                        parentVal = 1;
                     return;
                 }  
             }
+
+            return;
 
             for (float i = 0; i < MaxLength; i += Presision)
             {

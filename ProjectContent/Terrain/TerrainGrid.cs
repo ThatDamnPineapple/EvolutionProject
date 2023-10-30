@@ -1,4 +1,5 @@
 ﻿using EvoSim.Core.Noise;
+using EvoSim.Helpers;
 using EvoSim.Helpers.HelperClasses;
 using EvoSim.ProjectContent.Terrain.TerrainTypes;
 using Microsoft.Xna.Framework.Input;
@@ -83,7 +84,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public void PopulateGrid()
         {
-            float rockThreshhold = 6.6f;
+            float rockThreshhold = 1.6f;
 
             float waterThreshhold = 0.01f;
             FastNoiseLite noise = new FastNoiseLite(Main.random.Next());
@@ -111,12 +112,14 @@ namespace EvoSim.ProjectContent.Terrain
             int right = (int)(((SceneManager.camera.position.X + Main.ScreenSize.X) + squareWidth) / squareWidth);
             int top = (int)((SceneManager.camera.position.Y - squareHeight) / squareHeight);
             int bottom = (int)(((SceneManager.camera.position.Y + Main.ScreenSize.Y) + squareHeight) / squareHeight);
-            for (int i = left; i < right; i++)
+            for (float i = left; i < right; i++)
             {
-                for (int j = top; j < bottom; j++)
+                for (float j = top; j < bottom; j++)
                 {
-                    if (InGrid(i,j))
-                        terrainGrid[i, j].Draw(spriteBatch);
+                    float x = i;
+                    float y = j;
+                    VectorHelper.WrapPoints(ref x, ref y, gridWidth, gridHeight);
+                    terrainGrid[(int)x, (int)y].Draw(spriteBatch);
                 }
             }
         }

@@ -25,7 +25,7 @@ namespace EvoSim.Helpers
                 pointPos.Y < boxPos.Y + boxSize.Y);
         }
 
-        public static Vector2 StopBox(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2, ref Vector2 vel) //uses center
+        public static Vector2 StopBox(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2, ref Vector2 vel) //uses position
         {
             if (!CheckBoxvBoxCollision(pos1, size1, pos2, size2))
                 return pos1;
@@ -46,7 +46,7 @@ namespace EvoSim.Helpers
                 //pos1.Y = pos2.Y - (((size2.Y / 2) + (size1.Y / 2)) * collisionsignY);
             }
 
-            return pos1;
+            return vel;
         }
     }
 }
