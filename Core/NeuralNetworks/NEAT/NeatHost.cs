@@ -257,6 +257,8 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                         nA.Inherit(s.representative);
                         nA.Mutate();
                         s.ForceAdd(nA);
+                        if (nA is SightRay h)
+                            h.SpeciesOrigin = "Evolved";
                     }
                 }
             }
@@ -270,7 +272,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 if (nA.Dna != null && nA.Dna is Genome)
                 {
 
-                    int numCycles = SceneManager.firstMutation ? 40 : 1;
+                    int numCycles = SceneManager.firstMutation ? 20 : 1;
                     for (int i = 0; i < numCycles; i++)
                         nA.Mutate();
                 }

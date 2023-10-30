@@ -127,7 +127,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             firstMutation = true;
             sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
             (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 7f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 15f);
             newsim.Deploy();
             cellSimulation = newsim;
 

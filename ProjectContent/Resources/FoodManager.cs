@@ -32,9 +32,9 @@ namespace EvoSim.ProjectContent.Resources
 
         public static Vector2 FoodSize => new Vector2(300, 300);
 
-        public static int FoodAmount => 100;
+        public static int FoodAmount => 150;
 
-        public static float FoodSpawnRate => 5f;
+        public static float FoodSpawnRate => 3f;
 
 
         private TimeCounter AutomaticFoodSpawner;

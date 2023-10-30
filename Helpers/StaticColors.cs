@@ -12,7 +12,7 @@ namespace EvoSim.Helpers
 
         public static Color foodColor => Color.Yellow;
 
-        public static Color deadCellColor => Color.LimeGreen;
+        public static Color deadCellColor => Color.Blue;
 
         public static Color textColor => Color.Black;
     }

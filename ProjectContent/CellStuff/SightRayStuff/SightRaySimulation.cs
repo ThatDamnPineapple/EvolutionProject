@@ -38,16 +38,16 @@ namespace EvoSim.ProjectContent.CellStuff
             neatHost.C2 = 1;
             neatHost.C3 = 0.5f;
 
-            neatHost.CP = 13f;
+            neatHost.CP = 3.5f;
 
-            neatHost.WEIGHT_SHIFT_STRENGTH = 1f;
+            neatHost.WEIGHT_SHIFT_STRENGTH = 5f;
             neatHost.WEIGHT_RANDOM_STRENGTH = 0.5f;
 
-            neatHost.PROBABILITY_MUTATE_LINK = 0.8f;
-            neatHost.PROBABILITY_MUTATE_NODE = 0.6f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 0.3f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.3f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.05f;
+            neatHost.PROBABILITY_MUTATE_LINK = 4.8f;
+            neatHost.PROBABILITY_MUTATE_NODE = 4.6f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 5.3f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 2f;
 
             neatHost.SURVIVORS = 0.2f;
 

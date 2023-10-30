@@ -25,5 +25,10 @@ namespace EvoSim.Helpers
             float ret = random.NextFloat();
             return ret * (max - min) + min;
         }
+
+        internal static bool NextBool(this Random random, int chance)
+        {
+            return random.Next(chance) == 0;
+        }
     }
 }

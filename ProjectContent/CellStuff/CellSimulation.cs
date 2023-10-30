@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 using EvoSim.ProjectContent.CellStuff;
+using EvoSim.Helpers;
 
 namespace EvoSim.ProjectContent.CellStuff
 {
@@ -78,12 +79,20 @@ namespace EvoSim.ProjectContent.CellStuff
         {
             /*foreach (GeneticAgent a in neatHost.GetClients())
             {
-                if (neatHost.species.Count > 0)
+                if (neatHost.species.Count > 0 && Main.random.NextBool(15))
                 {
                     Cell cell = a as Cell;
 
-                    Cell rep = (cell.GetSpecies().representative as Cell);
-                    cell.InitializeRays(rep, rep);
+                    List<SightRay> orderedRays = cell.sightRays.OrderBy(n => n.GetSpecies().score).ToList();
+
+                    for (int i = 0; i < Cell.RAYS; i++)
+                    {
+                        int index = (int)MathHelper.Clamp(Main.random.NextFloat(Cell.RAYS) * Main.random.NextFloat(Cell.RAYS), 0, Cell.RAYS - 1);
+                        SightRay referenceRay = orderedRays[index];
+                        cell.sightRays[i].Kill();
+                        cell.sightRays[i] = new SightRay((i * 6.28f) / (float)Cell.RAYS, cell, i, referenceRay.Dna, referenceRay.GetSpecies());
+                    }
+
                 }
             }*/
             SceneManager.firstMutation = false;
@@ -95,20 +104,20 @@ namespace EvoSim.ProjectContent.CellStuff
             neatHost.C2 = 1;
             neatHost.C3 = 0.5f;
 
-            neatHost.CP = 13f;
+            neatHost.CP = 10f;
 
-            neatHost.WEIGHT_SHIFT_STRENGTH = 7f;
-            neatHost.WEIGHT_RANDOM_STRENGTH = 2.5f;
+            neatHost.WEIGHT_SHIFT_STRENGTH = 30f;
+            neatHost.WEIGHT_RANDOM_STRENGTH = 20f;
 
-            neatHost.PROBABILITY_MUTATE_LINK = 3.8f;
-            neatHost.PROBABILITY_MUTATE_NODE = 3.6f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 5.3f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.3f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 9.0f;
+            neatHost.PROBABILITY_MUTATE_LINK = 1.8f;
+            neatHost.PROBABILITY_MUTATE_NODE = 1.6f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 1.3f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 1.0f;
 
-            neatHost.SURVIVORS = 0.3f;
+            neatHost.SURVIVORS = 0.2f;
 
-            neatHost.STALESPECIES = 3;
+            neatHost.STALESPECIES = 2;
         }
     }
 }
