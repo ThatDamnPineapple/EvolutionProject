@@ -13,6 +13,6 @@ namespace EvoSim.ProjectContent.Terrain.TerrainTypes
 
         public override Color color => Color.Aqua;
 
-        public WaterSquare(Vector2 position) : base(position) { }
+        public WaterSquare(Vector2 position, float width, float height) : base(position, width, height) { }
     }
 }

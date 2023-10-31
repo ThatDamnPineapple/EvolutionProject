@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EvoSim.ProjectContent.Terrain.TerrainTypes;
+using Aardvark.Base;
 
 namespace EvoSim.ProjectContent.Terrain
 {
@@ -15,16 +16,22 @@ namespace EvoSim.ProjectContent.Terrain
     {
         public virtual Color color => Color.White;
 
-        public virtual float width => SceneManager.grid.squareWidth;
+        public float width;
 
-        public virtual float height => SceneManager.grid.squareHeight;
+        public float height;
 
         public Vector2 position = Vector2.Zero;
 
+        public Box2d box = new Box2d();
+
         public virtual int ID => 0;
 
-        public TerrainSquare(Vector2 _position)
+        public TerrainSquare(Vector2 _position, float width, float height)
         {
+            this.width = width; 
+            this.height = height;
+            box.Min = _position.ToV2d();
+            box.Max = box.Min + new V2d(width, height);
             position = _position;
         }
 

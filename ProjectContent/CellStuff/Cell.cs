@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 using static EvoSim.ProjectContent.Resources.FoodManager;
+using Aardvark.Base;
 
 namespace EvoSim.ProjectContent.CellStuff
 {
@@ -34,7 +35,7 @@ namespace EvoSim.ProjectContent.CellStuff
         public float maxEnergy => (1000 * (scale * scale * scale)) + DEADENERGY;
         public float maxHealth => (100 * (scale * scale)) + 20;
 
-        public float accelerationBase => 80.0f;
+        public float accelerationBase => 250.0f;
 
         public float EnergyUsage => (scale * scale) * ((velocity.Length() * 0.005f * MathF.Pow(1.0f / terrainVelocity, 2.4f)) + 1.25f + (0.6f / terrainVelocity) + (0.6f * DamageCapacity) + (SunlightConsumption * 0.0525f) + (RayDistance / 5000f));
 
@@ -51,7 +52,7 @@ namespace EvoSim.ProjectContent.CellStuff
         public static int RAYVALUES => SightRay.OUTPUTNUM;
         public readonly static int TERRAINRANGE = 0;
         public readonly static int MEMORYCELLS = 10;
-        public readonly static int ADDITIONALVALUES = 11;
+        public readonly static int ADDITIONALVALUES = 12;
         public static int INPUTNUM => ((RAYS + 1) * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE) + MEMORYCELLS;
         public readonly static int BASICOUTPUT = 9;
         public static int OUTPUTNUM => BASICOUTPUT + MEMORYCELLS;
@@ -116,6 +117,8 @@ namespace EvoSim.ProjectContent.CellStuff
         public Vector2 oldCenter = Vector2.Zero;
 
         public Vector2 velocity;
+
+        public Box2d box = new Box2d();
 
         public float lifeCounter;
 
@@ -257,6 +260,8 @@ namespace EvoSim.ProjectContent.CellStuff
             Size = new Vector2(width, height) * scale;
             BaseInitializer(Dna);
             energy = maxEnergy;
+            box.Size = new V2d(Size.X, Size.Y);
+            box.Min = new V2d(position.X, position.Y);
         }
 
         public Cell(Color _color, Vector2 size, Vector2 _position, float scale, int generation, IDna NewDNA = null) : base()
@@ -273,6 +278,8 @@ namespace EvoSim.ProjectContent.CellStuff
             this.generation = generation;
             BaseInitializer(NewDNA ?? Dna);
             energy = maxEnergy;
+            box.Size = new V2d(Size.X, Size.Y);
+            box.Min = new V2d(position.X, position.Y);
         }
 
         private void InitializeCellStats()
@@ -330,7 +337,6 @@ namespace EvoSim.ProjectContent.CellStuff
         #region Behavior methods
         public override void OnUpdate()
         {
-            Size = new Vector2(width, height) * scale;
             if (CorpseLogic())
                 return;
 
@@ -345,6 +351,10 @@ namespace EvoSim.ProjectContent.CellStuff
 
             scale += currentGrowthRate * Main.delta;
             scale = MathF.Min(scale, MaxScale);
+            Size = new Vector2(width, height) * scale;
+
+            box.Size = new V2d(Size.X, Size.Y);
+            box.Min = new V2d(position.X, position.Y);
 
             terrainVelocity = TerrainVelocity();
             mitosisCounter += Main.delta;
@@ -398,6 +408,8 @@ namespace EvoSim.ProjectContent.CellStuff
                 foodCounter -= FoodCounterRate * Main.delta;
             }
             foodCounter = MathHelper.Max(foodCounter, 0);
+
+            hitWall = false;
         }
 
         public void TrySpecificActions()
@@ -455,7 +467,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void Movement()
         {
-            velocity += acceleration * terrainVelocity;
+            velocity += acceleration * terrainVelocity * Main.delta;
             velocity = velocity.RotatedBy(turnAcceleration * Main.delta);
 
             if (velocity.Length() > Speed * terrainVelocity)
@@ -478,20 +490,45 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void TileCollision()
         {
-            for (float i = Left - SceneManager.grid.squareWidth * 2; i <= Right + SceneManager.grid.squareWidth * 2; i += SceneManager.grid.squareWidth)
+            int tries = 0;
+            while (tries < 20)
             {
-                for (float j = Top - SceneManager.grid.squareHeight * 2; j <= Bottom + SceneManager.grid.squareHeight * 2; j += SceneManager.grid.squareHeight)
+                tries++;
+                bool inWall = false;
+                double longestLength = 0;
+                V2d realShift = new V2d(0, 0);
+                Vector2 newVel = velocity;
+                for (float i = Left - SceneManager.grid.squareWidth; i <= Right + SceneManager.grid.squareWidth; i += SceneManager.grid.squareWidth)
                 {
-                    int x = (int)(i / SceneManager.grid.squareWidth) - 1;
-                    int y = (int)(j / SceneManager.grid.squareHeight) - 1;
-                    if (SceneManager.grid.TileID(new Vector2(i,j)) == 1)
+                    for (float j = Top - SceneManager.grid.squareHeight; j <= Bottom + SceneManager.grid.squareHeight; j += SceneManager.grid.squareHeight)
                     {
-                        if (CollisionHelper.CheckBoxvBoxCollision(position, Size, new Vector2(x, y) * SceneManager.grid.squareSize, SceneManager.grid.squareSize))
+                        Vector2 check = new Vector2(i, j);
+                        check.Wrap(SceneManager.grid.mapSize.X, SceneManager.grid.mapSize.Y);
+                        int x = (int)(check.X / SceneManager.grid.squareWidth);
+                        int y = (int)(check.Y / SceneManager.grid.squareHeight);
+                        if (SceneManager.grid.TileID(check) == 1)
                         {
-                            velocity = CollisionHelper.StopBox(position, Size, new Vector2(x, y) * SceneManager.grid.squareSize, SceneManager.grid.squareSize, ref velocity);
-                            hitWall = true;
+                            VectorHelper.WrapPoints(ref x, ref y, SceneManager.grid.gridWidth, SceneManager.grid.gridHeight);
+                            TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
+                            Vector2 tempVel = velocity;
+
+                            V2d tempShift = CollisionHelper.StopBox(box, square.box, ref tempVel);
+                            if (Math.Abs(tempShift.X) > longestLength || Math.Abs(tempShift.Y) > longestLength)
+                            {
+                                inWall = true;
+                                longestLength = Math.Max(Math.Abs(tempShift.X), Math.Abs(tempShift.Y));
+                                newVel = tempVel;
+                                realShift = tempShift;
+                            }
                         }
                     }
+                }
+                if (inWall)
+                {
+                    hitWall = true;
+                    velocity = newVel;
+                    box = box.Translated(realShift);
+                    break;
                 }
             }
 
@@ -604,6 +641,7 @@ namespace EvoSim.ProjectContent.CellStuff
             inputs.Add(foundSunlight ? -1 : 1);
             inputs.Add(foundFood ? -1 : 1);
             inputs.Add(lifeCounter / 30f);
+            inputs.Add(hitWall ? -5 : 5);
             inputs.Add(InWater() ? -1 : 1);
 
             for (int i = 0; i < RAYVALUES; i++)
@@ -637,7 +675,11 @@ namespace EvoSim.ProjectContent.CellStuff
                 memory[i] *= 0.99f;
             }
 
-            offspringOffset = new Vector2(0, SpawnDistance * MathF.Pow(output[6], 0.3f)).RotatedBy((output[7] * 6.28f) + rotation);
+            x = output[6] - 0.5f;
+            y = output[7] - 0.5f;
+            offspringOffset = SpawnDistance * new Vector2(
+                MathF.Pow(MathF.Abs(x * 2), 0.2f) * MathF.Sign(x),
+                MathF.Pow(MathF.Abs(y * 2), 0.2f) * MathF.Sign(y));
 
             currentGrowthRate = output[8] * GrowthRate;
         }
@@ -703,7 +745,7 @@ namespace EvoSim.ProjectContent.CellStuff
             //fitness *= MathF.Sqrt(energy / maxEnergy);
 
             if (hitWall)
-                fitness -= 20;
+                fitness -= 2;
 
             if (foundSunlight)
                 fitness += 2f;
@@ -812,6 +854,9 @@ namespace EvoSim.ProjectContent.CellStuff
             if (partnerCell != default)
             {
                 Vector2 newPos = Center + offspringOffset;
+                if (SceneManager.grid.TileID(newPos) == 1)
+                    return false;
+
                 Debug.WriteLine("Mating at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
                 Cell child = new Cell(color, Vector2.One * 32, newPos, MathHelper.Lerp(ChildScale, partnerCell.ChildScale, 0.5f), (int)MathF.Max(generation, partnerCell.generation) + 1);
                 child.SetGenome(GetSpecies().Breed(partnerCell, this));
@@ -885,6 +930,8 @@ namespace EvoSim.ProjectContent.CellStuff
                 return;
             }
             Vector2 newPos = Center + offspringOffset;
+            if (SceneManager.grid.TileID(newPos) == 1)
+                return;
             Debug.WriteLine("Mitosis at " + ((int)newPos.X).ToString() + "," + ((int)newPos.Y).ToString());
             Cell child = new Cell(color, Vector2.One * 32, newPos, ChildScale, (int)generation + 1);
 
@@ -940,13 +987,7 @@ namespace EvoSim.ProjectContent.CellStuff
         #endregion
 
         public void Draw(SpriteBatch spriteBatch)
-        {
-            string speciesString = "null";
-            if (GetSpecies() != null)
-            {
-                speciesString = GetSpecies().GetHashCode().ToString();
-            }
-
+        { 
             string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHas sight: " + HasSight.ToString() + "\nChildren: " + livingChildren.Count.ToString() + "\nFitness: " + GetFitness(false).ToString() + "\nMitosis likelihood: " + AceLikelihood;
             if (IsActive())
                 DrawHelper.DrawText(spriteBatch, text, ColorHelper.textColor, position - new Vector2(0, 120), Vector2.One);

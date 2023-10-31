@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using EvoSim.Core.NeuralNetworks.NEAT;
 using EvoSim.Core.NeuralNetworks;
 using EvoSim.Helpers.HelperClasses;
+using Aardvark.Base;
 
 namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 {
@@ -243,6 +244,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 if (rockDistance == MaxLength && SceneManager.grid.TileID(checkPos) == 1)
                 {
                     rockDistance = i;
+                    return;
                 }
 
                 if (waterDistance == MaxLength && SceneManager.grid.TileID(checkPos) == 2)
@@ -255,8 +257,10 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                     landDistance = i;
                 }
 
+                V2d v = checkPos.ToV2d();
+
                 //maybreak
-                var closestCell = SceneManager.cellSimulation.PList.GetList(checkPos).Where(n => n != parent && CollisionHelper.CheckBoxvPointCollision(n.position, n.Size, checkPos)).FirstOrDefault();
+                var closestCell = SceneManager.cellSimulation.PList.GetList(checkPos).Where(n => n != parent && n.box.Contains(v)).FirstOrDefault();
                 if (closestCell != default)
                 {
                     distance = i;

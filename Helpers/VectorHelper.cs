@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Aardvark.Base;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +56,7 @@ namespace EvoSim.Helpers
             ret.X %= width;
             ret.Y %= height;
             return ret;
-        } 
+        }
 
         public static void WrapPoints(ref float x, ref float y, float width, float height)
         {
@@ -66,6 +67,27 @@ namespace EvoSim.Helpers
 
             x %= width;
             y %= height;
+        }
+
+        public static void WrapPoints(ref int x, ref int y, int width, int height)
+        {
+            while (x < 0)
+                x += width;
+            while (y < 0)
+                y += height;
+
+            x %= width;
+            y %= height;
+        }
+
+        public static V2d ToV2d(this Vector2 vector)
+        {
+            return new V2d(vector.X, vector.Y);
+        }
+
+        public static Vector2 ToVector2(this V2d v)
+        {
+            return new Vector2((float)v.X, (float)v.Y);
         }
     }
 }

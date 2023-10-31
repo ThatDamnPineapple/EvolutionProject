@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Aardvark.Base;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,28 +26,83 @@ namespace EvoSim.Helpers
                 pointPos.Y < boxPos.Y + boxSize.Y);
         }
 
-        public static Vector2 StopBox(Vector2 pos1, Vector2 size1, Vector2 pos2, Vector2 size2, ref Vector2 vel) //uses position
+        public static V2d StopBox(Box2d box1, Box2d box2, ref Vector2 vel) //uses position
         {
-            if (!CheckBoxvBoxCollision(pos1, size1, pos2, size2))
-                return pos1;
-
-            int velsignX = MathF.Sign(vel.X);
-            int collisionsignX = MathF.Sign(pos2.X - pos1.X);
-            if (velsignX == collisionsignX)
+            if (box1.Intersects(box2))
             {
-                vel.X = 0;
-                //pos1.X = pos2.X - (((size2.X / 2) + (size1.X / 2)) * collisionsignX);
-            }
+                V2d shift = new V2d();
 
-            int velsignY = MathF.Sign(vel.Y);
-            int collisionsignY = MathF.Sign(pos2.Y - pos1.Y);
-            if (velsignY == collisionsignY)
-            {
-                vel.Y = 0;
-                //pos1.Y = pos2.Y - (((size2.Y / 2) + (size1.Y / 2)) * collisionsignY);
-            }
+                int dirX = 0;
+                int dirY = 0;
+                if (box1.Center.X > box2.Center.X)
+                {
+                    dirX = 1;
+                    shift.X = box2.Max.X - box1.Min.X;
+                }
+                else
+                {
+                    dirX = -1;
+                    shift.X = box2.Min.X - box1.Max.X;
+                }
 
-            return vel;
+                if (box1.Center.Y > box2.Center.Y)
+                {
+                    dirY = 1;
+                    shift.Y = box2.Max.Y - box1.Min.Y;
+                }
+                else
+                {
+                    dirY = -1;
+                    shift.Y = box2.Min.Y - box1.Max.Y;
+                }
+
+                int xShift = (int)shift.X;
+                int yShift = (int)shift.Y;
+                int xVel = (int)vel.X;
+                int yVel = (int)vel.Y;
+
+                if (MathF.Sign(vel.X) != MathF.Sign((float)(-shift.X)))
+                {
+                    //shift.X = 0;
+                }
+                else
+                {
+                    vel.X = 0;
+                }
+
+                if (MathF.Sign(vel.Y) != MathF.Sign((float)(-shift.Y)))
+                {
+                    //shift.Y = 0;
+                }
+                else
+                {
+                    vel.Y = 0;
+                }
+
+                
+
+                double absX = Math.Abs(vel.X);
+                double absY = Math.Abs(vel.Y);
+
+                if (absX > absY)
+                {
+                    shift.Y *= (absY / absX);
+                }
+                else if (absX < absY)
+                {
+                    shift.X *= (absX / absY);
+                }
+
+                shift.X += 2 * Math.Sign(shift.X);
+                shift.Y += 2 * Math.Sign(shift.Y);
+
+                if (shift.Length != 0)
+                {
+                    int y = 0;
+                }
+                return shift;
+            }
+            return new V2d(0, 0);
         }
     }
 }

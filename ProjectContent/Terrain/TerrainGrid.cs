@@ -72,8 +72,8 @@ namespace EvoSim.ProjectContent.Terrain
 
         public int TileID(Vector2 pos)
         {
-            int x = (int)((pos.X + (squareWidth / 2)) / squareWidth);
-            int y = (int)((pos.Y + (squareHeight /2)) / squareHeight);
+            int x = (int)((pos.X) / squareWidth);
+            int y = (int)((pos.Y) / squareHeight);
             if (InGrid(x, y))
             {
                 TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
@@ -84,7 +84,7 @@ namespace EvoSim.ProjectContent.Terrain
 
         public void PopulateGrid()
         {
-            float rockThreshhold = 1.6f;
+            float rockThreshhold = 0.8f;
 
             float waterThreshhold = 0.01f;
             FastNoiseLite noise = new FastNoiseLite(Main.random.Next());
@@ -97,11 +97,11 @@ namespace EvoSim.ProjectContent.Terrain
                     float threshhold = noise.GetNoise(i, j);
 
                     if (threshhold > rockThreshhold)
-                        terrainGrid[i, j] = new RockSquare(new Vector2(i * squareWidth, j * squareHeight));
+                        terrainGrid[i, j] = new RockSquare(new Vector2(i * squareWidth, j * squareHeight), squareWidth, squareHeight);
                     else if (threshhold > waterThreshhold)
-                        terrainGrid[i, j] = new GrassSquare(new Vector2(i * squareWidth, j * squareHeight));
+                        terrainGrid[i, j] = new GrassSquare(new Vector2(i * squareWidth, j * squareHeight), squareWidth, squareHeight);
                     else
-                        terrainGrid[i, j] = new WaterSquare(new Vector2(i * squareWidth, j * squareHeight));
+                        terrainGrid[i, j] = new WaterSquare(new Vector2(i * squareWidth, j * squareHeight), squareWidth, squareHeight);
                 }
             }
         }

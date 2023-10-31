@@ -12,6 +12,6 @@ namespace EvoSim.ProjectContent.Terrain.TerrainTypes
         public override int ID => 3;
         public override Color color => Color.Green;
 
-        public GrassSquare(Vector2 position) : base(position) { }
+        public GrassSquare(Vector2 position, float width, float height) : base(position, width, height) { }
     }
 }
