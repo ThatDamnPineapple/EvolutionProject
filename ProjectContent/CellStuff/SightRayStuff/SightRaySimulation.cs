@@ -51,7 +51,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
             neatHost.SURVIVORS = 0.2f;
 
-            neatHost.STALESPECIES = 7;
+            neatHost.STALESPECIES = 3;
         }
 
     }

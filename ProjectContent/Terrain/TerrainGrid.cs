@@ -24,9 +24,9 @@ namespace EvoSim.ProjectContent.Terrain
 
         public float squareHeight = 50;
 
-        public int gridWidth = 250;
+        public int gridWidth = 125;
 
-        public int gridHeight = 250;
+        public int gridHeight = 125;
 
         public Vector2 gridSize => new Vector2(gridWidth, gridHeight);
 

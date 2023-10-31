@@ -34,12 +34,12 @@ namespace EvoSim.ProjectContent.Resources
 
         public static Vector2 FoodSize => new Vector2(300, 300);
 
-        public static int FOODROWS = 32;
-        public static int FOODCOLUMNS = 32;
+        public static int FOODROWS = 80;
+        public static int FOODCOLUMNS = 80;
 
         public static float[,] passiveFood = new float[FOODROWS, FOODCOLUMNS];
-        public static float passiveFoodRegen = 500f;
-        public static float passiveFoodCap = 9000f;
+        public static float passiveFoodRegen = 2000f;
+        public static float passiveFoodCap = 3000f;
         public static float passiveFoodStart = 3000f;
 
         public static int FoodAmount => 150;

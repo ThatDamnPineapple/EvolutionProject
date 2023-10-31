@@ -57,8 +57,8 @@ namespace EvoSim.ProjectContent.CellStuff
             }
             else
             {
-                Value += (Main.random.NextFloat(-Mutation, Mutation) * mutationModifier);
-                Mutation += (Main.random.NextFloat(-Mutation2, Mutation2) * mutationModifier);
+                Value += CreateWeightedMutation(Mutation, MutationPower);
+                Mutation += CreateWeightedMutation(Mutation2, MutationPower);
             }
 
             Value = Math.Clamp(Value, Min, Max);

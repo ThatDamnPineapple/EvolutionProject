@@ -171,7 +171,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 StretchNegative(hsv.V * distanceSqrt),
                 StretchNegative(similarity * distanceSqrt),
                 StretchNegative(health * 0.01f * distanceSqrt),
-                StretchNegative(energy * 0.005f * distanceSqrt),
+                (energy - (500 + Cell.DEADENERGY)) * 0.01f * distanceSqrt,
                 StretchNegative(MathF.Sqrt(MathF.Sqrt(scale)) * distanceSqrt),
                 MathF.Sqrt(MathF.Abs(fitness)) * distanceSqrt * MathF.Sign(fitness),
                 (velocity.X * distanceSqrt) / 100f,
