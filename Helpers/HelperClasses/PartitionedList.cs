@@ -9,139 +9,13 @@ using System.Collections.ObjectModel;
 
 namespace EvoSim.Helpers.HelperClasses
 {
-    public class IndexedInstance<T>
-    {
-        public T obj;
-
-        public Point position;
-
-        public IndexedInstance(T item, Point pos)
-        {
-            obj = item;
-            position = pos;
-        }
-
-        public override bool Equals(object compare)
-        {
-            if (compare is not IndexedInstance<T>)
-                return false;
-            IndexedInstance<T> cast = compare as IndexedInstance<T>;
-            if (cast.obj is T castObj)
-            {
-                if (cast.position != position)
-                    return false;
-                if (castObj.Equals(obj))
-                    return true;
-            }
-            return false;
-        }
-    }
-
-    public class BasicPList<T>
-    {
-        public List<IndexedInstance<T>> list;
-
-        public List<T> basicList;
-
-        public BasicPList()
-        {
-            list= new List<IndexedInstance<T>>();
-            basicList= new List<T>();
-        }
-
-        public T this[int index]
-        {
-            get
-            {
-                return list[index].obj;
-            }
-
-            set
-            {
-                list[index].obj = value;
-            }
-        }
-
-        public bool Remove(T item)
-        {
-            List<IndexedInstance<T>> toRemove = new List<IndexedInstance<T>>();
-            int listCount = list.Count();
-            for (int i = 0; i < list.Count(); i++)
-            {
-                IndexedInstance<T> II = list[i];
-                object o = II.obj;
-                if (o.Equals(item))
-                {
-                    toRemove.Add(II);
-                }
-            }
-
-            toRemove.ForEach(n => list.Remove(n));
-
-            basicList.Remove(item);
-            return true;
-        }
-
-        public void Remove(IndexedInstance<T> instance)
-        {
-            int listCount = list.Count();
-            for (int i = 0; i < list.Count(); i++)
-            {
-                IndexedInstance<T> II = list[i];
-                if (instance.Equals(II))
-                {
-                    list.RemoveAt(i);
-                    return;
-                }
-            }
-        }
-
-        public bool Contains(T item)
-        {
-            return basicList.Contains(item);
-        }
-
-        public void Clear()
-        {
-            list.Clear();
-            basicList.Clear();
-        }
-
-        public int Count()
-        {
-            return list.Count();
-        }
-
-        public int CountNoDuplicates()
-        {
-            return basicList.Count();
-        }
-
-        public void Add(T item, Point index)
-        {
-            IndexedInstance<T> newInstance = new IndexedInstance<T>(item, index);
-            list.Add(newInstance);
-
-            if (!basicList.Contains(item))
-                basicList.Add(item);
-        }
-
-        public void CullDuplicates(IndexedInstance<T> instance)
-        {
-            List<IndexedInstance<T>> toRemove = list.Where(n => instance.Equals(instance)).ToList();
-            toRemove.ForEach(n => list.Remove(n));
-        }
-    }
-
     public abstract class PartitionedList<T>
     {
         public delegate void ListAction(ref List<T> item, Point index);
 
         public List<T>[,] list;
 
-        public BasicPList<T> centralList;
-
-        public List<T> basicList => centralList.basicList;
+        public List<T> basicList = new List<T>();
 
         public int Rows;
         public int Columns;
@@ -158,7 +32,6 @@ namespace EvoSim.Helpers.HelperClasses
             {
                 subList = new List<T>();
             }));
-            centralList = new BasicPList<T>();
         }
 
         public void InvokeInEverySector(ListAction action)
@@ -246,33 +119,19 @@ namespace EvoSim.Helpers.HelperClasses
 
         public virtual void Add(T obj)
         {
-            if (!centralList.Contains(obj))
+            if (!basicList.Contains(obj))
             {
                 AddToCorrectList(obj);
-                centralList.Add(obj, GetListID(obj));
+                basicList.Add(obj);
             }
-        }
-
-        public void UpdateInstanceList(List<IndexedInstance<T>> instances, IndexedInstance<T> instance, T item)
-        {
-            if (instance.obj.Equals(item))
-                instances.Add(instance);
-        }
-
-        public void RemoveInstanceList(List<IndexedInstance<T>> instances)
-        {
-            instances.ForEach(n => RemoveFromSpecificList(n.obj, n.position));
         }
 
         public bool Remove(T item)
         {
-            if (!centralList.Contains(item))
+            if (!basicList.Contains(item))
                 return false;
 
-            List<IndexedInstance<T>> instances = new List<IndexedInstance<T>>();
-            centralList.list.ForEach(n => UpdateInstanceList(instances, n, item));
-            RemoveInstanceList(instances);
-            centralList.Remove(item);
+            basicList.Remove(item);
             InvokeInEverySector(new ListAction((ref List<T> subList, Point testPoint) =>
             {
                 subList.Remove(item);
@@ -282,12 +141,12 @@ namespace EvoSim.Helpers.HelperClasses
 
         public bool Contains(T obj)
         {
-            return centralList.Contains(obj);
+            return basicList.Contains(obj);
         }
 
         public void Clear()
         {
-            centralList.list.Clear();
+            basicList.Clear();
             InvokeInEverySector(new ListAction((ref List<T> subList, Point testPoint) =>
             {
                 subList = new List<T>();
@@ -296,7 +155,7 @@ namespace EvoSim.Helpers.HelperClasses
 
         public int Count()
         {
-            return centralList.CountNoDuplicates();
+            return basicList.Count();
         }
     }
 
@@ -362,7 +221,6 @@ namespace EvoSim.Helpers.HelperClasses
             {
                 if (!ValidInList(obj, testPoint))
                 {
-                    centralList.Remove(new IndexedInstance<T>(obj, testPoint));
                     subList.Remove(obj);
                 }
             });

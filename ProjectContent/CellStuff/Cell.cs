@@ -52,7 +52,7 @@ namespace EvoSim.ProjectContent.CellStuff
         public static int RAYVALUES => SightRay.OUTPUTNUM;
         public readonly static int TERRAINRANGE = 0;
         public readonly static int MEMORYCELLS = 10;
-        public readonly static int ADDITIONALVALUES = 12;
+        public readonly static int ADDITIONALVALUES = 13;
         public static int INPUTNUM => ((RAYS + 1) * RAYVALUES) + ADDITIONALVALUES + (TERRAINRANGE * TERRAINRANGE) + MEMORYCELLS;
         public readonly static int BASICOUTPUT = 9;
         public static int OUTPUTNUM => BASICOUTPUT + MEMORYCELLS;
@@ -643,6 +643,7 @@ namespace EvoSim.ProjectContent.CellStuff
             inputs.Add(lifeCounter / 30f);
             inputs.Add(hitWall ? -5 : 5);
             inputs.Add(InWater() ? -1 : 1);
+            inputs.Add(livingChildren.Count() - 1);
 
             for (int i = 0; i < RAYVALUES; i++)
             {
