@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EvoSim.Helpers.HelperClasses;
 
 namespace EvoSim.ProjectContent.Camera
 {
@@ -23,9 +24,39 @@ namespace EvoSim.ProjectContent.Camera
 
         public Vector2 velocity = Vector2.Zero;
 
+        ButtonToggle centerToggle;
+
+        public bool centerCamera = false;
+
+        public CameraObject()
+        {
+            centerToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.C)), new ButtonAction((object o) => centerCamera = !centerCamera)))
+        }
+
         public void Update(GameTime gameTime)
         {
+            centerToggle.Update(this);
             MovementLogic(gameTime);
+        }
+
+        public void CenterCamera()
+        {
+            if (!centerCamera)
+                return;
+            Vector2 newPos = Vector2.Zero;
+            int highestCaptured = 0;
+            for (int i = 0; i < 200; i++)
+            {
+                newPos.X = Main.random.NextFloat(SceneManager.grid.mapSize.X);
+                newPos.Y = Main.random.NextFloat(SceneManager.grid.mapSize.Y);
+
+                int currentlyCaptured = PList.basicList.Count(n => n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(newPos, Main.ScreenSize, n.position, n.Size));
+                if (currentlyCaptured > highestCaptured)
+                {
+                    highestCaptured = currentlyCaptured;
+                    SceneManager.camera.position = newPos;
+                }
+            }
         }
 
         public void MovementLogic(GameTime gameTime)

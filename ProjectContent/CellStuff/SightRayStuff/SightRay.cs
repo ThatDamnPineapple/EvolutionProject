@@ -20,7 +20,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public readonly static int OUTPUTNUM = 8;
 
         readonly float MaxLength = 500;
-        readonly float Presision = 20;
+        readonly float Presision = 15;
         public float rotation;
 
         public float distance;
@@ -69,10 +69,11 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<TanhActivationFunction>(23)
-                   .AddLayer<TanhActivationFunction>(23)
+                   .AddLayer<TanhActivationFunction>(15)
+                   .AddLayer<TanhActivationFunction>(15)
+                   .AddLayer<TanhActivationFunction>(15)
                    .SetOutput<TanhActivationFunction>(OUTPUTNUM)
-                   .GenerateWeights(() => Main.random.NextFloat(-1, 1));
+                   .GenerateWeights(() => Main.random.NextFloat(-10, 10));
 
             return network;
         }
@@ -180,7 +181,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 StretchNegative((age * distanceSqrt) / 30f),
                 StretchNegative(child) * 3,
                 StretchNegative(parentVal) * 3,
-                ((rotation - 3.14f) / 6.28f),
+                ((rotation - 3.14f) / 6.28f) * 10,
                 ((mateWillingness * 0.1f) - 1) * distanceSqrt,
                 StretchNegative(1.0f - (waterDistance / MaxLength)) * 25,
                 StretchNegative(1.0f - (landDistance / MaxLength)) * 25,
@@ -265,7 +266,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                 {
                     distance = i;
                     if (closestCell.GetGenome() != null)
-                        similarity = (float)parent.BaseDistance(closestCell) / (float)GetGenome().Neat.CP;
+                        similarity = parent.GetSpecies() == closestCell.GetSpecies() ? 5 : 0;
                     else
                         similarity = 0;
                     scale = closestCell.Size.LengthSquared();

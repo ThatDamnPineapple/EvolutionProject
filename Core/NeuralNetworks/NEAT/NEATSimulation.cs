@@ -66,6 +66,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         }
         public override void Update()
         {
+            UpdateHostStats();
             Time+= Main.delta;
             int inActivity = 0;
 

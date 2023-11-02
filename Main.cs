@@ -82,18 +82,19 @@ namespace EvoSim
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+                delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
-            {
-                updatable.Update(gameTime);
-            }
+            //int tries = 50000;
+            //for (int i = 0; i < tries; i++)
+            //{
+            //    delta = 0.004f;
+                foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
+                {
+                    updatable.Update(gameTime);
+                }
+            //}
 
             oldTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             base.Update(gameTime);
         }
 

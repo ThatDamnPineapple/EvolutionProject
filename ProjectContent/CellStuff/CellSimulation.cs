@@ -62,6 +62,8 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public override void PreEvolve()
         {
+            SceneManager.camera.CenterCamera();
+
             NEATSimulation sightRaySim = (SceneManager.sightRaySimulation as NEATSimulation);
             NeatHost sightRayHost = sightRaySim.neatHost;
             foreach (GeneticAgent agent in sightRaySim.Agents)
@@ -106,16 +108,16 @@ namespace EvoSim.ProjectContent.CellStuff
 
             neatHost.CP = 8f;
 
-            neatHost.WEIGHT_SHIFT_STRENGTH = 15f;
-            neatHost.WEIGHT_RANDOM_STRENGTH = 10f;
+            neatHost.WEIGHT_SHIFT_STRENGTH = 2f;
+            neatHost.WEIGHT_RANDOM_STRENGTH = 5f;
 
-            neatHost.PROBABILITY_MUTATE_LINK = 0.4f;
-            neatHost.PROBABILITY_MUTATE_NODE = 0.3f;
+            neatHost.PROBABILITY_MUTATE_LINK = 0.3f;
+            neatHost.PROBABILITY_MUTATE_NODE = 0.2f;
             neatHost.PROBABILITY_MUTATE_WEIGHT_SHIFT = 0.15f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0f;
-            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.7f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.1f;
+            neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.5f;
 
-            neatHost.SURVIVORS = 0.7f;
+            neatHost.SURVIVORS = 0.92f;
 
             neatHost.STALESPECIES = 2;
         }
