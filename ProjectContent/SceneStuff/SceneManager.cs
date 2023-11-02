@@ -117,9 +117,8 @@ namespace EvoSim.ProjectContent.SceneStuff
         public void Update(GameTime gameTime)
         {
             Toggles.ForEach(n => n.Update(this));
-
             cellSimulation?.Update();
-           sightRaySimulation?.Update();
+            sightRaySimulation?.Update();
         }
 
         private void NewCells(int numCells)
@@ -127,7 +126,7 @@ namespace EvoSim.ProjectContent.SceneStuff
             firstMutation = true;
             sightRaySimulation = new SightRayNeatSimulation<SightRay>(SightRay.INPUTNUM, SightRay.OUTPUTNUM, numCells, (IDna) => CreateRawSightRay(IDna), 1000000f);
             (sightRaySimulation as NEATSimulation).neatHost.Reset(SightRay.INPUTNUM, SightRay.OUTPUTNUM, 0);
-            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 10f);
+            var newsim = new CellNeatSimulation<Cell>(Cell.INPUTNUM, Cell.OUTPUTNUM, numCells, (IDna) => CreateRawCell(IDna), 16f);
             newsim.Deploy();
             cellSimulation = newsim;
 

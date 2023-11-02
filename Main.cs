@@ -16,6 +16,8 @@ using EvoSim.Helpers;
 using SharpDX.X3DAudio;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using EvoSim.Helpers.HelperClasses;
+
 namespace EvoSim
 {
     public class Main : Game
@@ -36,6 +38,9 @@ namespace EvoSim
 
         internal static List<IUpdate> updatables = new List<IUpdate>();
 
+        public static ButtonToggle ForceSim;
+        public static bool forcingSim = false;
+
         public Main()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -55,6 +60,7 @@ namespace EvoSim
 
         protected override void LoadContent()
         {
+            ForceSim = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.U)), new ButtonAction((object o) => forcingSim = true));
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             random = new Random();
 
@@ -82,17 +88,28 @@ namespace EvoSim
 
         protected override void Update(GameTime gameTime)
         {
-                delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            ForceSim.Update(this);
+            delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            //int tries = 50000;
-            //for (int i = 0; i < tries; i++)
-            //{
-            //    delta = 0.004f;
-                foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
+            if (forcingSim)
+            {
+                delta = 0.004f;
+                for (int i = 0; i < 5000; i++)
                 {
-                    updatable.Update(gameTime);
+                    foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
+                    {
+                        updatable.Update(gameTime);
+                    }
                 }
-            //}
+                forcingSim = false;
+                base.Update(gameTime);
+                return;
+            }
+
+            foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
+            {
+                updatable.Update(gameTime);
+            }
 
             oldTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);

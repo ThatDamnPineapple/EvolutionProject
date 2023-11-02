@@ -30,7 +30,7 @@ namespace EvoSim.ProjectContent.Camera
 
         public CameraObject()
         {
-            centerToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.C)), new ButtonAction((object o) => centerCamera = !centerCamera)))
+            centerToggle = new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.C)), new ButtonAction((object o) => centerCamera = !centerCamera));
         }
 
         public void Update(GameTime gameTime)
@@ -50,7 +50,7 @@ namespace EvoSim.ProjectContent.Camera
                 newPos.X = Main.random.NextFloat(SceneManager.grid.mapSize.X);
                 newPos.Y = Main.random.NextFloat(SceneManager.grid.mapSize.Y);
 
-                int currentlyCaptured = PList.basicList.Count(n => n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(newPos, Main.ScreenSize, n.position, n.Size));
+                int currentlyCaptured = SceneManager.cellSimulation.PList.basicList.Count(n => n.IsActive() && CollisionHelper.CheckBoxvBoxCollision(newPos, Main.ScreenSize, n.position, n.Size));
                 if (currentlyCaptured > highestCaptured)
                 {
                     highestCaptured = currentlyCaptured;

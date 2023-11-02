@@ -22,13 +22,15 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float MutationPower;
 
+        public float Weight;
+
         public bool Multiplicative;
 
         public static float Distance(CellStat a, CellStat b)
         {
             float range = a.Max - a.Min;
 
-            return range * MathF.Abs(a.Value - b.Value);
+            return MathF.Abs(a.Value - b.Value) / range;
         }
 
         public CellStat(float value, float mutation, float mutation2, float min, float max, float mutationPower, bool multiplicative)
@@ -57,8 +59,8 @@ namespace EvoSim.ProjectContent.CellStuff
             }
             else
             {
-                Value += CreateWeightedMutation(Mutation, MutationPower);
-                Mutation += CreateWeightedMutation(Mutation2, MutationPower);
+                Value += CreateWeightedMutation(Mutation, MutationPower) + Weight;
+                Weight += CreateWeightedMutation(Mutation2, 2);
             }
 
             Value = Math.Clamp(Value, Min, Max);

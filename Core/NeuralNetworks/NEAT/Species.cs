@@ -26,7 +26,10 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         {
             if (agent.Dna == null || agent.Dna is not Genome || representative.Dna == null || representative.Dna is not Genome)
                 return false;
-            if (agent.Distance(representative) < representative.GetGenome().Neat.CP)
+
+            double distance = agent.Distance(representative);
+            double CP = representative.GetGenome().Neat.CP;
+            if (distance < CP)
             {
                 agent.SetSpecies(this);
                 clients.Add(agent);

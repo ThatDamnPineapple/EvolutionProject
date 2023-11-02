@@ -109,7 +109,7 @@ namespace EvoSim.ProjectContent.Resources
                 i = MathF.Min(i, passiveFoodCap);
             }));
 
-            ManualFoodSpawner.Update(this);
+            //ManualFoodSpawner.Update(this);
             if (SceneManager.cellSimulation != null)
                 AutomaticFoodSpawner.Update(this);
         }
