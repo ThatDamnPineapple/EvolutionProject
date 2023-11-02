@@ -17,7 +17,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
     {
 
         public readonly static int INPUTNUM = 20;
-        public readonly static int OUTPUTNUM = 4;
+        public readonly static int OUTPUTNUM = 5;
         public readonly static int SUBCASTS = 6;
 
         public float MaxLength => (owner != null) ? owner.RayDistance : 0;
@@ -351,7 +351,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
         {
             for (int i = 0; i < OUTPUTNUM; i++)
             {
-                inputs.Add(outputData[i]);
+                inputs.Add(outputData[i] * 10);
                 raySums[i] += outputData[i];
             }
         }

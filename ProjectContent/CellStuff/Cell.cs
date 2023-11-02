@@ -41,7 +41,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float ConsumptionRate => (scale * scale) * 1200f;
 
-        public float SunlightConsumptionRate => (((EnergyUsage - ((scale * scale) * ((velocity.Length() * 0.0001f * MathF.Pow(1.0f / terrainVelocity, 1.4f))))) * SunlightConsumption * 100f) / (50f + MathF.Pow(velocity.Length() / 3f, 8.5f)));
+        public float SunlightConsumptionRate => (((EnergyUsage - ((scale * scale) * ((velocity.Length() * 0.0001f * MathF.Pow(1.0f / terrainVelocity, 1.4f))))) * SunlightConsumption * 100f) / (50f + MathF.Pow(velocity.Length() / 6f, 8.5f)));
         public float FoodCounterRate => 2f;
 
         public float TurnRate => 16f;
@@ -616,7 +616,7 @@ namespace EvoSim.ProjectContent.CellStuff
             float[] raySums = new float[RAYVALUES];
 
             sightRays?.ForEach(n => n.FeedData(inputs, ref raySums));
-            if (!HasSight)
+            if (sightRays.Count() == 0)
             {
                 for (int i = 0; i < RAYS * RAYVALUES; i++)
                 {
