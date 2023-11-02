@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EvoSim.Helpers;
+using EvoSim.ProjectContent.CellStuff;
 using EvoSim.ProjectContent.CellStuff.SightRayStuff;
 
 namespace EvoSim.Core.NeuralNetworks.NEAT
@@ -255,6 +256,14 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                         Species s = PickWeightedSpecies();
                         nA.SetGenome(s.Breed());
                         nA.Inherit(s.representative);
+                        if (nA is Cell cell)
+                        {
+                            Cell repCell = s.representative as Cell;
+                            for (int i = 0; i < repCell.cellStats.Count; i++)
+                            {
+                                cell.cellStats[i] = repCell.cellStats[i].Duplicate();
+                            }
+                        }
                         nA.Mutate();
                         s.ForceAdd(nA);
                         if (nA is SightRay h)
@@ -272,7 +281,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 if (nA.Dna != null && nA.Dna is Genome)
                 {
 
-                    int numCycles = SceneManager.firstMutation ? 20 : 1;
+                    int numCycles = SceneManager.firstMutation ? 100 : 1;
                     for (int i = 0; i < numCycles; i++)
                         nA.Mutate();
                 }

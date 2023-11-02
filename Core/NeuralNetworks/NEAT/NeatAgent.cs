@@ -28,7 +28,10 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
 
         public virtual double Distance(NeatAgent other) => GetGenome().Distance(other.GetGenome());
 
-        public void Mutate() => GetGenome().Mutate();
+        public virtual void Mutate()
+        {
+            GetGenome().Mutate();
+        }
 
         public void GenerateCalculator() => GetGenome().GenerateCalculator();
 

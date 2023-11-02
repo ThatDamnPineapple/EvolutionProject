@@ -38,7 +38,7 @@ namespace EvoSim.ProjectContent.CellStuff
             neatHost.C2 = 1;
             neatHost.C3 = 0.5f;
 
-            neatHost.CP = 20f;
+            neatHost.CP = 13f;
 
             neatHost.WEIGHT_SHIFT_STRENGTH = 4f;
             neatHost.WEIGHT_RANDOM_STRENGTH = 3.5f;

@@ -26,14 +26,16 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public bool Multiplicative;
 
+        public float DistanceMult;
+
         public static float Distance(CellStat a, CellStat b)
         {
             float range = a.Max - a.Min;
 
-            return MathF.Abs(a.Value - b.Value) / range;
+            return (MathF.Abs(a.Value - b.Value) / range) * a.DistanceMult;
         }
 
-        public CellStat(float value, float mutation, float mutation2, float min, float max, float mutationPower, bool multiplicative)
+        public CellStat(float value, float mutation, float mutation2, float min, float max, float mutationPower, float distanceMult, bool multiplicative)
         {
             Value = value;
             Mutation = mutation;
@@ -42,6 +44,7 @@ namespace EvoSim.ProjectContent.CellStuff
             Max = max;
             MutationPower = mutationPower;
             Multiplicative = multiplicative;
+            DistanceMult = distanceMult;
         }
 
         public static float CreateWeightedMutation(float val, float mutationPower)
@@ -51,24 +54,29 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void Mutate()
         {
-            int mutationModifier = SceneManager.trainingMode ? 1 : 1;
-            if (Multiplicative)
+            int mutationAmount = SceneManager.firstMutation ? 100 : 1;
+            for (int i = 0; i < mutationAmount; i++)
             {
-                Value *= 1 + CreateWeightedMutation(Mutation, MutationPower);
-                Mutation *= 1 + CreateWeightedMutation(Mutation2, MutationPower);
-            }
-            else
-            {
-                Value += CreateWeightedMutation(Mutation, MutationPower) + Weight;
-                Weight += CreateWeightedMutation(Mutation2, 2);
-            }
+                if (Multiplicative)
+                {
+                    Value *= 1 + CreateWeightedMutation(Mutation, MutationPower) + Weight;
+                    Weight += CreateWeightedMutation(Mutation2, 3);
+                    Weight *= 0.95f;
+                }
+                else
+                {
+                    Value += CreateWeightedMutation(Mutation, MutationPower) + Weight;
+                    Weight += CreateWeightedMutation(Mutation2, 3);
+                    Weight *= 0.95f;
+                }
 
-            Value = Math.Clamp(Value, Min, Max);
+                Value = Math.Clamp(Value, Min, Max);
+            }
         }
 
         public CellStat Combine(CellStat other)
         {
-            CellStat ret = new CellStat(Value, Mutation, Mutation2, Min, Max, MutationPower, Multiplicative);
+            CellStat ret = new CellStat(Value, Mutation, Mutation2, Min, Max, MutationPower, DistanceMult, Multiplicative);
             ret.Value = MathHelper.Lerp(Value, other.Value, 0.5f);
             ret.Mutation = MathHelper.Lerp(Mutation, other.Mutation, 0.5f);
             ret.Mutation2 = MathHelper.Lerp(Mutation2, other.Mutation2, 0.5f);
@@ -78,7 +86,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public CellStat Duplicate()
         {
-            CellStat ret = new CellStat(Value, Mutation, Mutation2, Min, Max, MutationPower, Multiplicative);
+            CellStat ret = new CellStat(Value, Mutation, Mutation2, Min, Max, MutationPower, DistanceMult, Multiplicative);
             ret.Mutate();
             return ret;
         }
