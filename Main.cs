@@ -94,7 +94,7 @@ namespace EvoSim
             if (forcingSim)
             {
                 delta = 0.004f;
-                for (int i = 0; i < 5000; i++)
+                for (int i = 0; i < 50000; i++)
                 {
                     foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
                     {

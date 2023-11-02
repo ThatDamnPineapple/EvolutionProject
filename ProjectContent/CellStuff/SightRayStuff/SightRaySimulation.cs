@@ -49,7 +49,7 @@ namespace EvoSim.ProjectContent.CellStuff
             neatHost.PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.2f;
             neatHost.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.9f;
 
-            neatHost.SURVIVORS = 0.8f;
+            neatHost.SURVIVORS = 0.9f;
 
             neatHost.STALESPECIES = 3;
         }
