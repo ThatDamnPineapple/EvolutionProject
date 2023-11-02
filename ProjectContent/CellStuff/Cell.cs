@@ -37,7 +37,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float accelerationBase => 250.0f;
 
-        public float EnergyUsage => ((scale * scale) * (((hitWall ? Speed : velocity.Length()) * 0.00003f * MathF.Pow(1.0f / terrainVelocity, 1.4f)) + 1.25f + (0.6f / terrainVelocity) + (0.6f * DamageCapacity) + (SunlightConsumption * 0.0525f) + (RayDistance / 5000f)))
+        public float EnergyUsage => ((scale * scale) * (((hitWall ? Speed : velocity.Length()) * 0.00003f * MathF.Pow(1.0f / terrainVelocity, 1.4f)) + 1.25f + (0.6f / terrainVelocity) + (0.6f * DamageCapacity) + (SunlightConsumption * 0.0525f) + (RayDistance / 5000f)));
 
         public float ConsumptionRate => (scale * scale) * 1200f;
 
