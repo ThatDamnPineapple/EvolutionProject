@@ -33,7 +33,6 @@ namespace EvoSim.Core.NeuralNetworks
             float ex = MathF.Pow(e, x / 1000);
             float enx = MathF.Pow(e, -x / 1000);
 
-            float ret = (ex - enx) / (ex + enx);
             return (ex - enx) / (ex + enx);
         }
     }
