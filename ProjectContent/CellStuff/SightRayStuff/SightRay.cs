@@ -74,7 +74,6 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             IDna network = new BaseNeuralNetwork(INPUTNUM)
                    .AddLayer<TanhActivationFunction>(15)
                    .AddLayer<TanhActivationFunction>(15)
-                   .AddLayer<TanhActivationFunction>(15)
                    .SetOutput<TanhActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-10, 10));
 
@@ -165,7 +164,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             float distanceMult = distance / MaxLength;
             distanceMult = MathF.Pow(1.0f - distanceMult, 0.5f);
 
-            float distanceSqrt = MathHelper.Lerp(0.8f, 1.0f, distanceMult);
+            float distanceSqrt = 1;
             HSV hsv = ColorHelper.RGBToHSV(color);
             List<float> inputs = new List<float>
             {
@@ -258,7 +257,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                         distance = i;
                         rockDistance = i;
                         realAngle = rotation + owner.rotation + angleOffset;
-                        continue;
+                        break;
                     }
 
                     if (waterDistance > i && SceneManager.grid.TileID(checkPos) == 2)
@@ -299,7 +298,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
 
                         if (parent.parents.Contains(closestCell))
                             parentVal = 1;
-                        continue;
+                        break;
                     }
                 }
             }

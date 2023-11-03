@@ -45,8 +45,6 @@ namespace EvoSim.Helpers
             return MathF.Sqrt((x * x) + (y * y));
         }
 
-        // I don't think this code "does anything ..."
-        /*
         public static Vector2 Wrap(this Vector2 vector, float width, float height)
         {
             Vector2 ret = new Vector2(vector.X, vector.Y);
@@ -59,7 +57,6 @@ namespace EvoSim.Helpers
             ret.Y %= height;
             return ret;
         }
-        */
 
         public static void WrapPoints(ref float x, ref float y, float width, float height)
         {
