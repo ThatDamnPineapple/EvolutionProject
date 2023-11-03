@@ -73,14 +73,18 @@ namespace EvoSim
                     object instance = Activator.CreateInstance(type);
                     loadCache.Add(instance as ILoadable);
                 }
-
-                loadCache.Sort((n, t) => n.LoadPriority.CompareTo(t.LoadPriority));
             }
+
+            loadCache.Sort((n, t) => n.LoadPriority.CompareTo(t.LoadPriority));
 
             for (int k = 0; k < loadCache.Count; k++)
             {
                 loadCache[k].Load();
             }
+
+            updatables.Sort((n, t) => n.UpdatePriority.CompareTo(t.UpdatePriority));
+            drawables.Sort((n, t) => n.DrawPriority.CompareTo(t.DrawPriority));
+
 
             DrawHelper.MagicPixel = Content.Load<Texture2D>("sprites/MagicPixel");
             DrawHelper.Arial = Content.Load<SpriteFont>("fonts/Arial");
@@ -96,7 +100,7 @@ namespace EvoSim
                 delta = 0.004f;
                 for (int i = 0; i < 50000; i++)
                 {
-                    foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
+                    foreach (IUpdate updatable in updatables)
                     {
                         updatable.Update(gameTime);
                     }
@@ -106,7 +110,7 @@ namespace EvoSim
                 return;
             }
 
-            foreach (IUpdate updatable in updatables.OrderBy(n => n.UpdatePriority))
+            foreach (IUpdate updatable in updatables)
             {
                 updatable.Update(gameTime);
             }
@@ -121,7 +125,7 @@ namespace EvoSim
 
             _spriteBatch.Begin();
             
-            foreach (IDraw drawable in drawables.OrderBy(n => n.DrawPriority))
+            foreach (IDraw drawable in drawables)
             {
                 drawable.Draw(_spriteBatch);
             }    

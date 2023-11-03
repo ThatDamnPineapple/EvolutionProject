@@ -58,15 +58,13 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             Genome g1 = this;
 
             int highInG1 = 0;
-            if (g1.connections.Count != 0) highInG1 = g1.connections[g1.connections.Count - 1].getInovationNumber();
+            if (g1.connections.Count != 0) highInG1 = g1.connections[^1].getInovationNumber();
             int highInG2 = 0;
-            if (g2.connections.Count != 0) highInG2 = g2.connections[g2.connections.Count - 1].getInovationNumber();
+            if (g2.connections.Count != 0) highInG2 = g2.connections[^1].getInovationNumber();
 
             if (highInG1 < highInG2)
             {
-                Genome g = g1;
-                g1 = g2;
-                g2 = g;
+                (g2, g1) = (g1, g2);
             }
 
             int i1 = 0;

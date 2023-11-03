@@ -47,15 +47,17 @@ namespace EvoSim.Helpers
 
         public static Vector2 Wrap(this Vector2 vector, float width, float height)
         {
-            Vector2 ret = new Vector2(vector.X, vector.Y);
-            while (ret.X < 0)
-                ret.X += width;
-            while (ret.Y < 0)
-                ret.Y += height;
+            float x = vector.X;
+            float y = vector.Y;
 
-            ret.X %= width;
-            ret.Y %= height;
-            return ret;
+            while (x < 0)
+                x += width;
+            while (y < 0)
+                y += height;
+
+            x %= width;
+            y %= height;
+            return new Vector2 (x, y);
         }
 
         public static void WrapPoints(ref float x, ref float y, float width, float height)

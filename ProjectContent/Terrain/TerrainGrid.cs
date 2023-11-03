@@ -76,8 +76,7 @@ namespace EvoSim.ProjectContent.Terrain
             int y = (int)((pos.Y) / squareHeight);
             if (InGrid(x, y))
             {
-                TerrainSquare square = SceneManager.grid.terrainGrid[x, y];
-                return square.ID;
+                return SceneManager.grid.terrainGrid[x, y].ID;
             }
             return -1;
         }

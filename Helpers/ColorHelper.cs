@@ -84,7 +84,7 @@ namespace EvoSim.Helpers
                 h *= 60f;
 
                 if (h < 0.0f)
-                    h = h + 360f;
+                    h += 360f;
             }
 
             return new HSV(h, s, (v / 255f));
