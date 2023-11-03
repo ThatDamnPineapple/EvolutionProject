@@ -55,6 +55,11 @@ namespace EvoSim.ProjectContent.SceneStuff
 
         public static bool firstMutation = false;
 
+        public static bool showFPS = false;
+        DateTime fpsClock;
+        int fpsFrames = 0;
+        int fpsRate = 0;
+        
         public void Load()
         {
             Main.drawables.Add(this);
@@ -69,6 +74,7 @@ namespace EvoSim.ProjectContent.SceneStuff
 
             Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.Space)), new ButtonAction((object o) => NewCells(StartingCells)))); //Start sim
             Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.T)), new ButtonAction((object o) => trainingMode = !trainingMode))); //toggle Training Mode
+            Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.F)), new ButtonAction((object o) => showFPS = !showFPS))); //toggle showing FPS Counter
             Toggles.Add(new ButtonToggle(new PressingButton(() => Keyboard.GetState().IsKeyDown(Keys.R)), new ButtonAction((object o) => grid.PopulateGrid()))); //Regenerate terrain
         }
 
@@ -84,7 +90,19 @@ namespace EvoSim.ProjectContent.SceneStuff
             float totalEnergy = 0;
             cellSimulation?.Agents.ForEach(n => totalEnergy += (n as Cell).energy);
 
-            string debugInfo = "Total Cells: " + cellSimulation?.Agents.Count.ToString();
+            if (showFPS)
+            {
+                if((DateTime.Now - fpsClock).TotalSeconds >= 1)
+                {
+                    (fpsRate, fpsFrames) = (fpsFrames, 0);
+                    fpsClock = DateTime.Now;
+                }
+
+                fpsFrames++;
+            }
+
+            string debugInfo = showFPS ? "FPS:" + fpsRate : "";
+            debugInfo += "\nTotal Cells: " + cellSimulation?.Agents.Count.ToString();
             debugInfo += "\nTotal living cells: " + cellSimulation?.Agents.Where(n => (n as Cell).IsActive()).Count().ToString();
             debugInfo += "\nTotal cell energy: " + ((int)totalEnergy).ToString();
             totalEnergy = 0;
