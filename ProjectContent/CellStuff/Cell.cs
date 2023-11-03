@@ -501,12 +501,13 @@ namespace EvoSim.ProjectContent.CellStuff
                 double longestLength = 0;
                 V2d realShift = new V2d(0, 0);
                 Vector2 newVel = velocity;
+                Vector2 check = new Vector2(0, 0);
                 for (float i = Left - SceneManager.grid.squareWidth; i <= Right + SceneManager.grid.squareWidth; i += SceneManager.grid.squareWidth)
                 {
                     for (float j = Top - SceneManager.grid.squareHeight; j <= Bottom + SceneManager.grid.squareHeight; j += SceneManager.grid.squareHeight)
                     {
-                        Vector2 check = new Vector2(i, j);
-                        check.Wrap(SceneManager.grid.mapSize.X, SceneManager.grid.mapSize.Y);
+                        check.X = i; check.Y = j;
+
                         int x = (int)(check.X / SceneManager.grid.squareWidth);
                         int y = (int)(check.Y / SceneManager.grid.squareHeight);
                         if (SceneManager.grid.TileID(check) == 1)
