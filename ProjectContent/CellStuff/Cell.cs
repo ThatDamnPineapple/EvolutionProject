@@ -33,22 +33,22 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public static int DEADENERGY = 300;
         public float maxEnergy => (1000 * (scale * scale * scale)) + DEADENERGY;
-        public float maxHealth => (100 * (scale * scale)) + 20;
+        public float maxHealth => (50 * (scale * scale)) + 20;
 
         public float accelerationBase => 250.0f;
 
-        public float EnergyUsage => ((scale * scale) * (((hitWall ? Speed : velocity.Length()) * 0.00003f * MathF.Pow(1.0f / terrainVelocity, 1.4f)) + 1.25f + (0.6f / terrainVelocity) + (0.6f * DamageCapacity) + (SunlightConsumption * 0.0525f) + (RayDistance / 5000f)));
+        public float EnergyUsage => ((scale * scale) * (((hitWall ? Speed : velocity.Length()) * 0.000005f * MathF.Pow(1.0f / terrainVelocity, 2.5f)) + 1.25f + (0.6f / terrainVelocity) + (0.6f * DamageCapacity) + (SunlightConsumption * 0.0525f) + (RayDistance / 5000f)));
 
         public float ConsumptionRate => (scale * scale) * 1200f;
 
-        public float SunlightConsumptionRate => (SunlightConsumption * ((scale * scale) + 0.6f) * 200f) / (50f + MathF.Pow((hitWall ? Speed : velocity.Length()) / 6f, 8.5f));
+        public float SunlightConsumptionRate => (SunlightConsumption * ((scale * scale) + 2.0f) * 250f) / (50f + MathF.Pow((hitWall ? Speed : velocity.Length()) / 6f, 8.5f));
         public float FoodCounterRate => 2f;
 
         public float TurnRate => 16f;
         #endregion
         #region neural network node info
         public readonly static float UPDATERATE = 0.01f;
-        public const int RAYS = 4;
+        public const int RAYS = 8;
         public static int RAYVALUES => SightRay.OUTPUTNUM;
         public readonly static int TERRAINRANGE = 0;
         public readonly static int MEMORYCELLS = 10;
@@ -236,9 +236,9 @@ namespace EvoSim.ProjectContent.CellStuff
         public override IDna GenerateRandomAgent()
         {
             IDna network = new BaseNeuralNetwork(INPUTNUM)
-                   .AddLayer<TanhActivationFunction>(25)
-                   .AddLayer<TanhActivationFunction>(25)
-                   .AddLayer<TanhActivationFunction>(25)
+                   .AddLayer<TanhActivationFunction>(35)
+                   .AddLayer<TanhActivationFunction>(35)
+                   .AddLayer<TanhActivationFunction>(35)
                    .SetOutput<SigmoidActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-5, 5));
 
@@ -289,7 +289,7 @@ namespace EvoSim.ProjectContent.CellStuff
             cellStats.Add(new CellStat(3f, 0.5f, 0.05f, 1.1f, 10f, 3, 1.5f, false)); //aceLikelihood
             cellStats.Add(new CellStat(0, 80f, 0.3f, 0, 400, 10, 20, false)); //speed
             cellStats.Add(new CellStat(0.25f, 0.03f, 0.004f, 0.1f, 0.5f, 1.5f, 0.5f, false)); //childScale
-            cellStats.Add(new CellStat(1.0f, 0.03f, 0.001f, 0.07f, 6f, 3, 10f, true)); //maxScale
+            cellStats.Add(new CellStat(1.0f, 0.15f, 0.006f, 0.07f, 6f, 3, 10f, false)); //maxScale
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.02f, 0.1f, 1, 1, 3.5f, false)); //red
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.02f, 0.1f, 1, 1, 3.5f, false)); //green
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.02f, 0.1f, 1, 1, 3.5f, false)); //blue
@@ -298,12 +298,12 @@ namespace EvoSim.ProjectContent.CellStuff
             cellStats.Add(new CellStat(0.95f, 0.01f, 0.001f, 0.9f, 1.0f, 1, 0f, false)); //deathThreshhold
             cellStats.Add(new CellStat(120, 8f, 0.1f, 50, 250, 3, 1f, false)); //spawnDistance
             cellStats.Add(new CellStat(40 * Main.random.NextFloat(0.8f, 1.2f), 1f, 0.01f, 20, 200, 1, 0f, false)); //mutationRate
-            cellStats.Add(new CellStat(0.05f, 0.12f, 0.05f, 0.01f, 0.99f, 40, 3f, false)); //SwimmingProficiency
+            cellStats.Add(new CellStat(0.12f, 0.07f, 0.05f, 0.01f, 0.99f, 40, 30f, false)); //SwimmingProficiency
             cellStats.Add(new CellStat(0.97f, 0.06f, 0.006f, 0.8f, 0.994f, 2, 0.5f, false)); //ChildDampen
             cellStats.Add(new CellStat(1.0f, 0.4f, 0.06f, 0.1f, 10f, 2.5f, 1f, false)); //DamageCapacity
             cellStats.Add(new CellStat(4.5f, 0.05f, 0.005f, 0, 5f, 10, 2f, false)); //SunlightConsumption
             cellStats.Add(new CellStat(0.25f, 0.04f, 0.004f, 0.05f, 0.7f, 1f, 1f, false)); //growthRate
-            cellStats.Add(new CellStat(0.02f, 0.05f, 0.01f, 0, 1, 2, 30f, false)); //rayDistance
+            cellStats.Add(new CellStat(0.04f, 0.05f, 0.01f, 0, 1, 2, 30f, false)); //rayDistance
         }
 
         public void InitializeRays(Cell fitterParent, Cell lessFitParent)
@@ -506,7 +506,7 @@ namespace EvoSim.ProjectContent.CellStuff
                     for (float j = Top - SceneManager.grid.squareHeight; j <= Bottom + SceneManager.grid.squareHeight; j += SceneManager.grid.squareHeight)
                     {
                         Vector2 check = new Vector2(i, j);
-                        check.Wrap(SceneManager.grid.mapSize.X, SceneManager.grid.mapSize.Y);
+                        check = check.Wrap(SceneManager.grid.mapSize.X, SceneManager.grid.mapSize.Y);
                         int x = (int)(check.X / SceneManager.grid.squareWidth);
                         int y = (int)(check.Y / SceneManager.grid.squareHeight);
                         if (SceneManager.grid.TileID(check) == 1)
@@ -770,8 +770,6 @@ namespace EvoSim.ProjectContent.CellStuff
             if (foundFood)
                 fitness += 20f;
 
-            fitness += (livingChildren.Count * 5f);
-
             fitness += childrenDistanceThing + parentDistanceThing + (kids * 10);
 
             fitness *= terrainVelocity * terrainVelocity;
@@ -780,7 +778,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 fitness *= 0.2f;
 
             if (energy <= DEADENERGY)
-                fitness *= 0.8f;
+                fitness *= 0.4f;
 
             float newOldFitness = fitness;
             if (reset)
@@ -797,6 +795,8 @@ namespace EvoSim.ProjectContent.CellStuff
                 kids = 0;
                 childDampMult = 1;
                 oldEnergy = energy;
+                foundFood = false;
+                foundSunlight = false;
             }
 
 
@@ -836,7 +836,7 @@ namespace EvoSim.ProjectContent.CellStuff
             if (nearestCell != default)
             {
                 Cell nearestCellCast = nearestCell as Cell;
-                float damage = (Main.delta * scale * scale * (DamageCapacity * (1 + MathF.Sqrt(velocity.Length() / 2f))) * 200f);
+                float damage = (Main.delta * scale * scale * (DamageCapacity * (1 + MathF.Sqrt(velocity.Length() / 2f))) * 40f);
                 energy -= damage;
                 if (energy < 0)
                     return;
