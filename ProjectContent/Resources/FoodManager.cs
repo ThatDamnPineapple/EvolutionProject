@@ -38,7 +38,7 @@ namespace EvoSim.ProjectContent.Resources
         public static int FOODCOLUMNS = 80;
 
         public static float[,] passiveFood = new float[FOODROWS, FOODCOLUMNS];
-        public static float passiveFoodRegen = 3000f;
+        public static float passiveFoodRegen = 2000f;
         public static float passiveFoodCap = 3000f;
         public static float passiveFoodStart = 1000f;
 

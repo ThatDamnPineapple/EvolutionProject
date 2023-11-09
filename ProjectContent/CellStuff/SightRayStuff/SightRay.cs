@@ -291,7 +291,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
                         age = closestCell.lifeCounter;
                         mateWillingness = closestCell.mateWillingness;
                         damageCapcity = closestCell.DamageCapacity;
-                        realAngle = rotation + owner.rotation + angleOffset;
+                        realAngle = rotation + angleOffset;
 
                         if (parent.livingChildren.Contains(closestCell))
                             child = 1;

@@ -35,7 +35,7 @@ namespace EvoSim.ProjectContent.CellStuff
         public float maxEnergy => (1000 * (scale * scale * scale)) + DEADENERGY;
         public float maxHealth => (50 * (scale * scale)) + 20;
 
-        public float accelerationBase => 250.0f;
+        public float accelerationBase => 200.0f;
 
         public float EnergyUsage => ((scale * scale) * (((hitWall ? Speed : velocity.Length()) * 0.000005f * MathF.Pow(1.0f / terrainVelocity, 2.5f)) + 1.25f + (0.6f / terrainVelocity) + (0.6f * DamageCapacity) + (SunlightConsumption * 0.0525f) + (RayDistance / 5000f)));
 
@@ -81,7 +81,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float GrowthRate => cellStats[17].Value;
 
-        public bool HasSight => cellStats[18].Value > 0.03f;
+        public bool HasSight => cellStats[18].Value > 0.0f;
 
         public float RayDistance => 1000 * cellStats[18].Value;
 
@@ -124,6 +124,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public float currentGrowthRate;
 
+        public bool firstGen = false;
         public float scale;
 
         public float energy;
@@ -470,7 +471,7 @@ namespace EvoSim.ProjectContent.CellStuff
 
         public void Movement()
         {
-            velocity += acceleration * terrainVelocity * Main.delta;
+            velocity += acceleration.RotatedBy(rotation) * terrainVelocity * Main.delta;
             velocity = velocity.RotatedBy(turnAcceleration * Main.delta);
 
             if (velocity.Length() > Speed * terrainVelocity)
@@ -984,6 +985,7 @@ namespace EvoSim.ProjectContent.CellStuff
                 child.Mutate();
                 if (!GetSpecies().Add(child))
                 {
+                    child.firstGen = true;
                     Species newSpecies = new Species(child);
                     (SceneManager.cellSimulation).neatHost.species.Add(newSpecies);
                     child.SetSpecies(newSpecies);
@@ -1015,10 +1017,10 @@ namespace EvoSim.ProjectContent.CellStuff
         #endregion
 
         public void Draw(SpriteBatch spriteBatch)
-        { 
-            string text = /*"Species: " + speciesString +*/"Energy: " + ((int)energy).ToString() + "\nHas sight: " + HasSight.ToString() + "\nChildren: " + livingChildren.Count.ToString() + "\nFitness: " + GetFitness(false).ToString() + "\nMitosis likelihood: " + AceLikelihood;
+        {
+            string text = /*"Species: " + speciesString +*/"Fitness: " + ((int)GetFitness(false)).ToString() + "\nChildren: " + livingChildren.Count.ToString() + "\nEnergy: " + ((int)energy).ToString() + "\nFirst Generation: " + firstGen.ToString();
             if (IsActive())
-                DrawHelper.DrawText(spriteBatch, text, ColorHelper.textColor, position - new Vector2(0, 120), Vector2.One);
+                DrawHelper.DrawText(spriteBatch, text, ColorHelper.textColor, position - new Vector2(0, 90), Vector2.One);
             DrawHelper.DrawPixel(spriteBatch, color, position, Vector2.Zero, width * scale, height * scale);
         }
 

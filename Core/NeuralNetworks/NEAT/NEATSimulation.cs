@@ -64,6 +64,12 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
         {
 
         }
+
+        public virtual GeneticAgent[] SortedAgents()
+        {
+            return Agents.ToArray();
+        }
+
         public override void Update()
         {
             UpdateHostStats();
