@@ -35,10 +35,10 @@ namespace EvoSim.ProjectContent.SceneStuff
             return cellSimulation.Agents.Count;
         }
 
-        public const int PARTITIONROWS = 6;
-        public const int PARTITIONCOLUMNS = 6;
+        public const int PARTITIONROWS = 9;
+        public const int PARTITIONCOLUMNS = 9;
 
-        public int StartingCells => 40;
+        public int StartingCells => 90;
 
         public static bool trainingMode = false;
 

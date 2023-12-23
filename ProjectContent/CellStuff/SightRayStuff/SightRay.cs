@@ -74,6 +74,7 @@ namespace EvoSim.ProjectContent.CellStuff.SightRayStuff
             IDna network = new BaseNeuralNetwork(INPUTNUM)
                    .AddLayer<TanhActivationFunction>(15)
                    .AddLayer<TanhActivationFunction>(15)
+                   .AddLayer<TanhActivationFunction>(15)
                    .SetOutput<TanhActivationFunction>(OUTPUTNUM)
                    .GenerateWeights(() => Main.random.NextFloat(-10, 10));
 

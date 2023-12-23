@@ -9,11 +9,11 @@ namespace EvoSim.ProjectContent.SceneStuff
 {
     public class SeasonManager : IUpdate, ILoadable
     {
-        public static readonly float YEARLENGTH = 30;
+        public static readonly float YEARLENGTH = 500;
 
-        public static readonly float BASESUNLIGHT = 2000;
+        public static readonly float BASESUNLIGHT = 900;
 
-        public static readonly float SUNLIGHTVARIATION = 1500;
+        public static readonly float SUNLIGHTVARIATION = 800;
 
         public static float SeasonSin => MathF.Sin((SeasonTimer * 6.28f) / YEARLENGTH);
         public static float SeasonCos => MathF.Cos((SeasonTimer * 6.28f) / YEARLENGTH);

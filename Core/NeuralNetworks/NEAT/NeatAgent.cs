@@ -47,5 +47,10 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
             Refresh();
         }
 
+        public virtual float UpdatePriority()
+        {
+            return 1f;
+        }
+
     }
 }

@@ -87,7 +87,7 @@ namespace EvoSim.Core.NeuralNetworks.NEAT
                 pressedG = false;
             }
 
-            foreach (GeneticAgent agent in Agents.ToArray())
+            foreach (GeneticAgent agent in Agents.OrderBy(n => (n as NeatAgent).UpdatePriority()).ToArray())
             {
                 if (agent is ContinuousGeneticAgent r)
                 {
