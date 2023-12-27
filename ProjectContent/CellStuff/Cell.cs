@@ -295,7 +295,7 @@ namespace EvoSim.ProjectContent.CellStuff
             cellStats.Add(new CellStat(3f, 0.5f, 0.05f, 1.1f, 10f, 3, 1.5f, false)); //aceLikelihood
             cellStats.Add(new CellStat(0, 80f, 0.3f, 0, 400, 10, 20, false)); //speed
             cellStats.Add(new CellStat(0.25f, 0.03f, 0.004f, 0.1f, 0.5f, 1.5f, 0.5f, false)); //childScale
-            cellStats.Add(new CellStat(1.0f, 0.15f, 0.006f, 0.07f, 6f, 3, 10f, false)); //maxScale
+            cellStats.Add(new CellStat(1.0f, 0.15f, 0.006f, 0.12f, 6f, 3, 10f, false)); //maxScale
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.02f, 0.1f, 1, 1, 3.5f, false)); //red
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.02f, 0.1f, 1, 1, 3.5f, false)); //green
             cellStats.Add(new CellStat(0.5f, 0.035f, 0.02f, 0.1f, 1, 1, 3.5f, false)); //blue

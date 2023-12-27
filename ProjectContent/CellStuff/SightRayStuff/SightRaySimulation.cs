@@ -40,8 +40,8 @@ namespace EvoSim.ProjectContent.CellStuff
 
             neatHost.CP = 13f;
 
-            neatHost.WEIGHT_SHIFT_STRENGTH = 4f;
-            neatHost.WEIGHT_RANDOM_STRENGTH = 3.5f;
+            neatHost.WEIGHT_SHIFT_STRENGTH = 14f;
+            neatHost.WEIGHT_RANDOM_STRENGTH = 16.5f;
 
             neatHost.PROBABILITY_MUTATE_LINK = 1.8f;
             neatHost.PROBABILITY_MUTATE_NODE = 1.6f;
